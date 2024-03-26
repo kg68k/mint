@@ -1,0 +1,68 @@
+		.nlist
+
+*		gm_internal.mac
+*			gm(graphic mask)用定義ファイル
+
+		.ifndef	__gm_internal_mac__
+			__gm_internal_mac__:=1
+
+
+* --------------------------------------------- *
+
+* 識別子
+_GM_INTERNAL_MODE:	.equ	'gm'
+
+* 拡張コール
+_GM_VERSION_NUMBER:	.equ	$ff80
+_GM_MASK_STATE:		.equ	$ff81
+_GM_GNC_STATE:		.equ	$ff82
+_GM_AUTO_STATE:		.equ	$ff83
+_GM_GRAPHIC_MODE_STATE:	.equ	$ff84
+_GM_ACTIVE_STATE:	.equ	$ff85
+
+_GM_MASK_REQUEST:	.equ	$ff88
+_GM_MASK_SET:		.equ	$ff89
+_GM_MASK_CLEAR:		.equ	$ff8a
+_GM_AUTO_DISABLE:	.equ	$ff8b
+_GM_AUTO_ENABLE:	.equ	$ff8c
+_GM_ACTIVE:		.equ	$ff8d
+_GM_INACTIVE:		.equ	$ff8e
+
+_GM_KEEP_PALETTE_GET:	.equ	$ff90
+_GM_PALETTE_SAVE:	.equ	$ff91
+_GM_GVRAM_SAVE:		.equ	$ff92
+
+
+# 呼び出し方法:
+#		move	#_GM_???,d1		;拡張コール番号
+#		swap	d1
+#		move	#_GM_INTERNAL_MODE,d1
+#		swap	d1
+#		IOCS	_TGUSEMD
+#
+# d1.w が未定義コードであれば元のルーチンを無条件に呼び出す.
+#
+# 返値:
+#
+# d0.l = -1 なら gm 未常駐か、未定義の拡張コール.
+# d0.w = _GM_INTERNAL_MODE なら拡張コール成功で、d0.hw に各機能の返値.
+#
+# $ff80	バージョン番号
+# $ff81	マスク状態		0:マスクなし	0 以外:マスクあり
+# $ff82	GNC 状態		0:無効		0 以外:有効
+# $ff83	オートマスク状態(bit1=1:許可 bit0=1:禁止)
+#		%00:	内部使用    (禁止しないが新規マスクは不許可)
+#		%01:オートマスク禁止(禁止して新規マスクも不許可)
+#		%10:オートマスク許可(禁止しないで新規マスクも許可)
+#		%11:	内部使用    (禁止するが新規マスクは許可)
+# $ff84	グラフィックモード	0:64K 色以外	0 以外:64K 色モード
+# $ff85	GM 主要機能の動作状況	0:停止		0 以外:動作
+# $ff90	常駐パレットの状態	0:無効		0 以外:有効
+#	有効の場合は a1.l にパレットアドレスが返る.
+
+
+* End of File --------------------------------- *
+
+		.endif
+
+		.list

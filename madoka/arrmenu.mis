@@ -1,0 +1,63 @@
+#!madoka
+#	arrmenu.mis - condrv(em).sys のバックログ取り込みを一時停止して
+#			arranger を呼び出す
+#				Copyright (C)1999/11/23 立花えりりん
+	-apid1 \
+	&set cmd "c:/bin/arranger";
+	&set opt_1 "ON";
+	&set opt_d "ON";
+	&set opt_r "OFF";
+	&set opt_c "OFF";
+	&set no 1;
+	&foreach ( ) {
+		&set break "on";
+		&unset opt;
+		&menu -l$no -t"Arranger Sort Menu" \
+			N"None" \
+			W"Ext→Node" \
+			F"FileName" \
+			E"Ext" \
+			M"Node" \
+			S"Size" \
+			T"Time" \
+			" " \
+			1"Cognize figures [ $opt_1 ]" \
+			D"Dir to Top      [ $opt_d ]" \
+			R"Reverse         [ $opt_r ]" \
+			C"Case Letter     [ $opt_c ]";
+		&if    (@st == 0) { &set break "end" }
+		&elsif (@st == 2) { &set opt "w" }
+		&elsif (@st == 3) { &set opt "f" }
+		&elsif (@st == 4) { &set opt "e" }
+		&elsif (@st == 5) { &set opt "m" }
+		&elsif (@st == 6) { &set opt "s" }
+		&elsif (@st == 7) { &set opt "t" }
+		&elsif (@st == 8) { &unset break; &set no 8 }
+		&elsif (@st == 9) { &unset break; &set no 9;
+			&if ( &equ "OFF" $opt_1 ) { &set opt_1 "ON " }
+			&else			  { &set opt_1 "OFF" } }
+		&elsif (@st == 10) { &unset break; &set no 10;
+			&if ( &equ "OFF" $opt_d ) { &set opt_d "ON " }
+			&else			  { &set opt_d "OFF" } }
+		&elsif (@st == 11) { &unset break; &set no 11;
+			&if ( &equ "OFF" $opt_r ) { &set opt_r "ON " }
+			&else			  { &set opt_r "OFF" } }
+		&elsif (@st == 12) { &unset break; &set no 12;
+			&if ( &equ "OFF" $opt_c ) { &set opt_c "ON " }
+			&else			  { &set opt_c "OFF" } }
+		&if (1 == $?break) { &break }
+	}
+	&if ( &equ $break "on" ) {
+		&if ($?opt == 1) {
+			&if ( &equ "ON*" $opt_c ) { &set opt $opt:u }
+			&set cmd "$cmd -$opt"
+		}
+		&if ( &equ "ON*" $opt_1 ) { &set cmd "$cmd -1" }
+		&if ( &equ "ON*" $opt_d ) { &set cmd "$cmd -d" }
+		&if ( &equ "ON*" $opt_r ) { &set cmd "$cmd -r" }
+		&stop-condrv;
+		$cmd
+	}
+	&unset "_ no break opt opt_? cmd";
+	&end
+# EOF

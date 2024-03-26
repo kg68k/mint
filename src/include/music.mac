@@ -1,0 +1,211 @@
+		.nlist
+
+
+* Constant ------------------------------------ *
+
+TYPE_MXDRV:	.equ	0
+TYPE_MADRV:	.equ	1
+TYPE_MLD:	.equ	2
+TYPE_MCDRV:	.equ	3
+TYPE_ZMSC2:	.equ	4
+TYPE_ZMSC3:	.equ	5
+TYPE_MIDDRV:	.equ	6
+TYPE_MNDRV:	.equ	7
+TYPE_RCD:	.equ	8
+TYPE_POCHI:	.equ	9
+
+STAT_NODRV:	.equ	0
+STAT_STOP:	.equ	1
+STAT_PAUSE:	.equ	2
+STAT_PLAY:	.equ	3
+
+
+* MXDRV Macro --------------------------------- *
+
+MXDRV:		.macro	no
+		moveq	#no,d0
+		trap	#4
+		.endm
+
+MXDRV_MPLAY:	.equ	$04
+MXDRV_MSTOP:	.equ	$05
+MXDRV_MPAUSE:	.equ	$06
+MXDRV_MCONT:	.equ	$07
+MXDRV_TITLE:	.equ	$08
+MXDRV_FADEOUT:	.equ	$0c
+MXDRV_STATUS:	.equ	$12
+
+
+* MADRV Macro --------------------------------- *
+
+MADRV:		.macro	no
+		moveq	#no,d0
+		trap	#4
+		.endm
+
+MADRV_START:	.equ	$02
+MADRV_PAUSE:	.equ	$03
+MADRV_CONTINUE:	.equ	$04
+MADRV_TITLE:	.equ	$06
+MADRV_FADEOUT:	.equ	$09
+MADRV_STOP:	.equ	$1c
+MADRV_STATUS:	.equ	$21
+
+
+* MLD Macro ----------------------------------- *
+
+MLD:		.macro	no
+		moveq	#no,d0
+		trap	#4
+		.endm
+
+MLD_PLAY:	.equ	$09
+MLD_END:	.equ	$0a
+MLD_G_PCCH:	.equ	$11
+MLD_F_OUT:	.equ	$12
+MLD_CONT:	.equ	$1c
+MLD_NAME_ADR:	.equ	$20
+MLD_PAUSE:	.equ	$3b
+MLD_STOP:	.equ	$4d
+
+
+* MCDRV Macro --------------------------------- *
+
+MCDRV:		.macro	no
+		moveq	#no,d0
+		trap	#4
+		.endm
+
+MCDRV_PLAY:	.equ	$02
+MCDRV_PAUSE:	.equ	$04
+MCDRV_STOP:	.equ	$05
+MCDRV_WORKADR:	.equ	$06
+MCDRV_TITLE:	.equ	$0f
+MCDRV_FADEOUT:	.equ	$14
+
+INF_PLAY:	.equ	-$80
+
+
+* ZMSC2 Macro --------------------------------- *
+
+ZMSC2:		.macro	no
+		moveq	#no,d1
+		trap	#3
+		.endm
+
+ZMSC2_M_PLAY:	.equ	$08
+ZMSC2_M_STAT:	.equ	$09
+ZMSC2_M_STOP:	.equ	$0a
+ZMSC2_M_CONT:	.equ	$0b
+ZMSC2_INT_STOP:	.equ	$0e
+ZMSC2_TOTAL:	.equ	$19
+ZMSC2_FADE_OUT:	.equ	$1a
+ZMSC2_TRKTBL:	.equ	$3a
+ZMSC2_PLAYWORK:	.equ	$3c
+ZMSC2_COMMENT:	.equ	$4e
+ZMSC2_INT_START:.equ	$4f
+
+P_NOT_EMPTY:	.equ	$a
+
+
+* ZMSC3 Macro --------------------------------- *
+
+ZMSC3:		.macro	no
+		moveq	#no,d0
+		trap	#3
+		.endm
+
+ZMSC3_INIT:	.equ	$00
+ZMSC3_PLAY2:	.equ	$09
+ZMSC3_STATUS:	.equ	$0b
+ZMSC3_STOP:	.equ	$0c
+ZMSC3_CONT:	.equ	$0d
+ZMSC3_M_FADER:	.equ	$5e
+ZMSC3_COMMENT:	.equ	$61
+ZMSC3_STATWORK:	.equ	$66
+
+PLAY_STOP_TIME:	.equ	10
+PLAY_CONT_TIME:	.equ	14
+
+
+* MIDDRV Macro -------------------------------- *
+
+MIDDRV:		.macro	no
+		moveq	#no,d0
+		trap	#3
+		.endm
+
+MIDD_WORKINIT:	.equ	$03
+MIDD_PLAYSTART:	.equ	$04
+MIDD_PLAYSTOP:	.equ	$05
+MIDD_RESTART:	.equ	$06
+MIDD_FADEOUT:	.equ	$0a
+MIDD_DRVSTATUS:	.equ	$12
+MIDD_GETTITLE:	.equ	$13
+
+
+* MNDRV Macro --------------------------------- *
+
+MNDRV:		.macro	no
+		moveq	#no,d0
+		trap	#4
+		.endm
+
+MNDRV_PLAY:	.equ	$03
+MNDRV_PAUSE:	.equ	$04
+MNDRV_STOP:	.equ	$05
+MNDRV_GETTITLE:	.equ	$06
+MNDRV_FADEOUT:	.equ	$0d
+MNDRV_GETSTATUS:.equ	$16
+
+
+* RCD Macro ----------------------------------- *
+
+RCD:		.macro	offs
+		movea.l	(rcd_ptr,pc),a0
+		movea.l	(offs,a0),a0
+		jsr	(a0)
+		.endm
+
+		.offset	0
+RCD_TITLE:	.ds.l	1
+RCD_VERSION:	.ds.l	1
+RCD_STAYMARK:	.ds.l	1
+RCD_DATA_VALID:	.ds.b	1
+		.ds.b	3
+RCD_HEAD_SIZE:
+		.fail	$.ne.16
+RCD_DATA_ADR:	.ds.l	1
+		.ds.l	3
+		.ds.l	2
+RCD_BEGIN:	.ds.l	1
+RCD_END:	.ds.l	1
+		.ds.l	4
+RCD_ACT:	.ds.l	1
+RCD_STS:	.ds.l	1
+		.fail	$.ne.$48
+		.offset	$12a
+RCD_FADE_CNT:	.ds.b	1
+
+
+* Pochi Macro --------------------------------- *
+
+POCHI:		.macro	no
+		move.l	#no,d0
+		trap	#0
+		.endm
+
+PO_CONTINUE:	.equ	$0000_000e
+PO_FADEOUT:	.equ	$0003_0000
+PO_PAUSE:	.equ	$0000_000f
+PO_PLAY:	.equ	$0100_000f
+PO_STOP:	.equ	$0000_000b
+PO_LOOPCOUNT:	.equ	$0000_0015
+PO_GET_BUF:	.equ	$0100_0000
+
+POCHI_TITLE:	.equ	28
+
+
+* End of File --------------------------------- *
+
+		.list

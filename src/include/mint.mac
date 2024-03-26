@@ -1,0 +1,605 @@
+		.nlist
+
+
+* Global Symbol ------------------------------- *
+
+.ifndef PLUG_IN
+		.global	ReverseCursorBar
+		.global	ReverseCursorBarOpp
+		.global	ReverseCursorBarBoth
+		.global	PrintWProtect,PrintNotReady
+		.global	PrintFalse,PrintSkip
+		.global	PrintCompleted,PrintCrlf
+		.global	PrintMsg,PrintMsgCrlf
+		.global	SetColor2_emp,SetColor2
+		.global	SetColor3_emp,SetColor3
+		.global	CursorBlinkOff,CursorBlinkOn
+		.global	ConsoleClear2,ConsoleClear
+		.global	SaveCursor,RestoreCursor
+		.global	CursorPosition
+
+		.global	Buffer
+.endif
+
+
+* Human68k 定数 ------------------------------- *
+
+PATHNAME_MAX:	.equ	63
+FILENAME_MAX:	.equ	18+1+3
+
+
+* mint 固有オフセット表 ----------------------- *
+
+
+		.offset	0
+PATH_OPP:	.ds.l	1		;相手のポインタ
+PATH_WINRL:	.ds	1		;左ウィンドウ=$00 右=$30
+PATH_DRIVENO:	.ds	1		;ドライブ番号(A=1,B=2,…,Z=26)
+PATH_DIRNAME:	.ds.b	PATHNAME_MAX+1	;ディレクトリ名
+PATH_CURFILE:	.ds.b	FILENAME_MAX+2	;カーソル位置ファイル名
+PATH_VOLUME:	.ds.b	FILENAME_MAX+2	;ボリュームラベル
+
+PATH_MASK:	.ds.l	1	;マスク文字列へのポインタ
+PATH_BUF:	.ds.l	1	;ディレクトリバッファのアドレス
+PATH_CLUSTER:	.ds.l	1	;クラスタ当りのバイト数-1
+PATH_FILENUM:	.ds	1	;ファイル数
+PATH_PAGETOP:	.ds	1	;最上段の表示ディレクトリ位置
+
+PATH_DOTDOT:	.ds.b	1	;".." の有無
+PATH_NODISK:	.ds.b	1	;ディスク未挿入=-1
+PATH_MARC_FLAG:	.ds.b	1	;mintarc フラグ/階層数
+PATH_SORTREV:	.ds.b	1	;ソートリバースフラグ(-1でリバース)
+PATH_SORT:	.ds.b	1	;ソートモード
+
+PATH_USE_FRE:
+PATH_USE_UNIT:	.ds.b	1	;ディレクトリ	単位(0=K or 'M'/'G'/'T'/'P')
+PATH_USE_XPOS:	.ds.b	1	;  使用容量	表示位置 10(6桁)～15(1桁)
+PATH_USE_STR:	.ds.b	6+1	;		文字列 '1'～'999999'/'999.99'
+PATH_FRE_UNIT:	.ds.b	1	;ディスク	単位(0=K or 'M'/'G'/'T'/'P')
+PATH_FRE_XPOS:	.ds.b	1	;  空き容量	表示位置 21(7桁)～27(1桁)
+PATH_FRE_STR:	.ds.b	7+1	;		文字列 '1'～'9999999'/'999.99'
+PATH_FRE_RATIO:	.ds.b	3+1	;		比率 ' 1'～'99'/'100'
+		.even
+PATH_USE_FRE_END:
+
+PATH_WIN_FILE:	.ds	1	;ウィンドウ番号 ファイルリスト
+PATH_WIN_PATH:	.ds	1	;〃		    パス名
+PATH_WIN_VOL:	.ds	1	;〃		    ボリュームラベル
+PATH_WIN_INFO:	.ds	1	;〃		    ドライブ情報
+PATH_WIN_MARK:	.ds	1	;〃		    マーク情報
+sizeof_PATHBUF:
+
+		.offset	0
+DIR_ATR:	.ds.b	1	;$00:ファイル属性
+DIR_NAME:	.ds.b	18	;$01:主ファイル名
+DIR_PERIOD:	.ds.b	1	;$13:'.'
+DIR_EXT:	.ds.b	3	;$14:拡張子
+DIR_NUL:	.ds.b	1	;$17:'\0'
+DIR_TIME:	.ds	1	;$18:更新時刻
+DIR_DATE:	.ds	1	;$1a:更新日時
+DIR_SIZE:	.ds.l	1	;$1c:ファイルサイズ
+DIR_SERNO:	.ds	1	:$20:シリアル番号
+DIR_RESERVED:	.ds	1	;$22:予約
+sizeof_DIR:
+		.fail	$.ne.36
+
+		.offset	0
+		.ds.b	1
+KQ_ESC:		.ds.b	1
+		.ds.b	96
+KQ_COPY:	.ds.b	1
+KQ_FUNC:	.ds.b	10
+KQ_NMI:		.ds.b	1
+KQ_POW:		.ds.b	1
+KQ_ERR:		.ds.b	1
+		.ds.b	4
+KQ_FDD:		.ds.b	1
+
+KQ_EXEATR:	.ds.b	1
+KQ_NO_DEF:	.ds.b	1
+KQ_NO_MAP:	.ds.b	1
+KQ_A_EXEC:	.ds.b	1
+KQ_EXIT_Q:	.ds.b	1
+KQ_EXIT_2:	.ds.b	1
+KQ_HELP_E:	.ds.b	1
+KQ_T_DOWN:	.ds.b	1
+KQ_V_EXEC:	.ds.b	1
+KQ_GVON_X:	.ds.b	1
+
+KQ_LZHS_X:	.ds.b	1
+KQ_ZIPS_X:	.ds.b	1
+KQ_TARS_X:	.ds.b	1
+KQ_LZHS_D:	.ds.b	1
+KQ_ZIPS_D:	.ds.b	1
+KQ_TARS_D:	.ds.b	1
+KQ_LZHS_A:	.ds.b	1
+KQ_ZIPS_A:	.ds.b	1
+KQ_TARS_A:	.ds.b	1
+KQ_LZHS_Q:	.ds.b	1
+KQ_ZIPS_Q:	.ds.b	1
+KQ_TARS_Q:	.ds.b	1
+KQ_MAX:
+		.fail	$.ne.$8b
+
+* at_def_list のデータ構造
+		.offset	0
+AT_DEF_NAME:	.ds.l	1			;登録メニュー名('sort' 等)
+AT_DEF_PTR:	.ds.l	1			;アドレス
+AT_DEF_NUM:	.ds	1			;行数
+sizeof_AT_DEF:
+		.fail	$.ne.10
+
+
+* mint 固有定数 ------------------------------- *
+
+WIN_LEFT:	.equ	0
+WIN_RIGHT:	.equ	$30
+WIN_WIDTH:	.equ	$30
+
+REG_WIN_NUM:	.equ	16
+
+SRTM_MAX:	.equ	4
+
+MENU_MAX:	.equ	28
+
+DIRH_MIN:	.equ	3
+DIRH_MAX:	.equ	23
+
+FCMP_MIN:	.equ	  256
+FCMP_MAX:	.equ	 4096
+FCMP_MAX_STR:	.reg	"4096"
+
+PATH_HIS_BUF_SIZE:	.equ	PATHNAME_MAX+1
+PATH_HIS_BUF_NUM:	.equ	26
+
+MASK_REGEXP_SIZE:	.equ	128
+
+*ctypetable:
+IS_MB:		.equ	7
+IS_MBHALF:	.equ	6
+*		.equ	5
+IS_LOWER:	.equ	4
+IS_UPPER:	.equ	3
+IS_ALPHA:	.equ	2
+IS_XDIGT:	.equ	1
+IS_DIGIT:	.equ	0
+
+* F01～F20 以外のファンクションキーの定義内容(1 バイト)
+FK_ROLLUP:	.equ	$03	;^C
+FK_ROLLDOWN:	.equ	$12	;^R
+FK_INS:		.equ	$00
+FK_DEL:		.equ	$1d	;^]
+FK_UP:		.equ	$05	;^E
+FK_LEFT:	.equ	$13	;^S
+FK_RIGHT:	.equ	$04	;^D
+FK_DOWN:	.equ	$18	;^X
+FK_CLR:		.equ	$0c	;^L
+FK_HELP:	.equ	$01	;^A
+FK_HOME:	.equ	$0b	;^K
+FK_UNDO:	.equ	$15	;^U
+
+* &look-file でヒストリファイルに保存するフラグのバイト数
+LOOKFILE_STATIC_FLAGS_SIZE:	.equ	8
+
+
+* plug-in 定義 -------------------------------- *
+
+		.offset	0
+		.ds.b	2			;bra.s mint_start2
+		.ds.b	8			;.dc.b '#HUPAIR',0
+PLUG_IN_REL:
+		.ds.b	2			;リリース番号
+PLUG_IN_ID:
+		.ds.b	16			;識別子
+PLUG_IN_VAL:
+		.ds.l	1			;システム変数取得
+PLUG_IN_MESNO:
+		.ds.l	1			;メッセージ番号取得
+PLUG_IN_MES:
+		.ds.l	1			;メッセージ取得
+PLUG_IN_LIST:
+		.fail	$.ne.40
+
+		.offset	0
+PLUG_IN_TYPE:	.ds.l	1			;プラグイン種別
+PLUG_IN_MAIN:	.ds.l	1			;メイン処理
+PLUG_IN_FREE:	.ds.l	1			;終了処理
+PLUG_IN_SIZE:
+		.fail	$.ne.12
+
+
+* 制御記号 ------------------------------------ *
+
+NUL:		.equ	$00
+BEL:		.equ	$07
+BS:		.equ	$08
+TAB:		.equ	$09
+LF:		.equ	$0a
+VT:		.equ	$0b
+FF:		.equ	$0c
+CR:		.equ	$0d
+SO:		.equ	$0e
+SI:		.equ	$0f
+SUB:		.equ	$1a
+EOF:		.equ	$1a
+ESC:		.equ	$1b
+SPC:		.equ	$20
+SPACE:		.equ	$20
+
+
+* 定数 ---------------------------------------- *
+
+NULL:		.equ	0
+
+;Memory Management Pointer
+		.offset	0
+prev:		.ds.l	1
+pare:		.ds.l	1
+end_:		.ds.l	1
+next:		.ds.l	1
+MEM_SIZE:
+		.fail	$.ne.16
+
+MEM_KEEP:	.equ	$ff
+
+;Program Segment Prefix
+PSP_Env:	.equ	$10
+PSP_CmdLine:	.equ	$20
+PSP_Drive:	.equ	$80
+PSP_Filename:	.equ	$c4
+PSP_SIZE:	.equ	$100
+
+
+;malloc2 mode
+MALLOC_LOW:	.equ	0
+MALLOC_MIN:	.equ	1
+MALLOC_HIGH:	.equ	2
+
+;file attribute
+MARK:		.equ	7			;pathbuf 上で有効
+EXEC:		.equ	7
+LINK:		.equ	6
+ARCHIVE:	.equ	5			;pathbuf 上で 0 なら実行可能
+DIRECTORY:	.equ	4
+VOLUME:		.equ	3
+SYSTEM:		.equ	2
+HIDDEN:		.equ	1
+READONLY:	.equ	0
+
+;file open mode
+ROPEN:		.equ	0
+WOPEN:		.equ	1
+RWOPEN:		.equ	2
+
+;seek mode
+SEEK_SET:	.equ	0
+SEEK_CUR:	.equ	1
+SEEK_END:	.equ	2
+
+;exec mode
+LOADEXEC:	.equ	0
+LOAD:		.equ	1
+PATHCHK:	.equ	2
+LOADONLY:	.equ	3
+EXECONLY:	.equ	4
+
+;assign mode
+ASSIGN_GET:	.equ	0
+ASSIGN_SET:	.equ	1
+ASSIGN_UNSET:	.equ	4
+
+;virtual drive/dir.
+READRV:		.equ	$40
+VIRDRV:		.equ	$50
+VIRDIR:		.equ	$60
+
+;drive status
+DRV_PROTECT:	.equ	3
+DRV_NOTREADY:	.equ	2
+DRV_INSERT:	.equ	1
+DRV_ERRINS:	.equ	0
+
+;color code
+BLACK:		.equ	0
+BLUE:		.equ	1
+YELLOW:		.equ	2
+WHITE:		.equ	3
+EMPHASIS:	.equ	4
+REVERSE:	.equ	8
+
+;media byte
+MB_2DD10:	.equ	$e0
+MB_1D9:		.equ	$e5
+MB_2D9:		.equ	$e6
+MB_1D8:		.equ	$e7
+MB_2D8:		.equ	$e8
+MB_2HT:		.equ	$ea
+MB_2HS:		.equ	$eb
+MB_2HDE:	.equ	$ec
+MB_1DD9:	.equ	$ee
+MB_1DD8:	.equ	$ef
+
+MB_DAT:		.equ	$f4
+MB_CDROM:	.equ	$f5
+MB_MO:		.equ	$f6
+MB_SCSIHD:	.equ	$f7
+MB_SASIHD:	.equ	$f8
+MB_RAMDISK:	.equ	$f9
+MB_2HQ:		.equ	$fa
+MB_2DD8:	.equ	$fb
+MB_2DD9:	.equ	$fc
+MB_2HC:		.equ	$fd
+MB_2HD:		.equ	$fe
+
+X_FILE_HEADER_SIZE:	.equ	64
+Z_FILE_HEADER_SIZE:	.equ	28
+
+
+* DOS コール返値の表 -------------------------- *
+
+;Files Buffer
+		.offset	0
+FILES_SchAtr:	.ds.b	1
+FILES_SchDrv:	.ds.b	1
+FILES_SchSec:	.ds.l	1
+FILES_SchRest:	.ds	1
+FILES_SchOffs:	.ds	1
+FILES_SchName:	.ds.b	8
+FILES_SchExt:	.ds.b	3
+FILES_FileAtr:	.ds.b	1
+FILES_Time:	.ds	1
+FILES_Date:	.ds	1
+FILES_FileSize:	.ds.l	1
+FILES_FileName:	.ds.b	23
+FILES_Path:*****.ds.b	88
+		.even
+FILES_SIZE:
+		.fail	$.ne.54
+
+;Nameck Buffer
+		.offset	0
+NAMECK_Drive:	.ds.b	2
+NAMECK_Path:	.ds.b	65
+NAMECK_Name:	.ds.b	19
+NAMECK_Ext:	.ds.b	5
+		.even
+NAMECK_SIZE:
+		.fail	$.ne.92
+
+;DPB(v1)
+		.offset	0
+DPB_Drive:	.ds.b	1
+DPB_UnitNo:	.ds.b	1
+DPB_SecByte:	.ds	1
+DPB_CluSector:	.ds.b	1
+DPB_SecShift:	.ds.b	1
+DPB_FatTopSec:	.ds	1
+DPB_FatNum:	.ds.b	1
+DPB_FatSec:	.ds.b	1
+DPB_RootFiles:	.ds	1
+DPB_DataTopSec:	.ds	1
+DPB_FatMax:	.ds	1
+DPB_RootTopSec:	.ds	1
+DPB_DevHed:	.ds.l	1
+DPB_MediaByte:	.ds.b	1
+DPB_UseFlag:	.ds.b	1
+DPB_NextDpb:	.ds.l	1
+DPB_CurDirFat:	.ds	1
+DPB_CurDirName:	.ds.b	64
+DPB_SIZE:
+		.fail	$.ne.94
+
+FAT16_CLUSTER_MAX:	.equ	$fff6-2+1
+
+
+* IOCS 引数の表 ------------------------------- *
+
+;txbox/txfill
+		.offset	0
+TXBOX_PLANE:	.ds	1
+TXBOX_XSTART:	.ds	1
+TXBOX_YSTART:	.ds	1
+TXBOX_XLEN:	.ds	1
+TXBOX_YLEN:	.ds	1
+TXBOX_LINE:	.ds	1
+		.fail	$.ne.12
+
+;txxline
+		.offset	0
+TXXL_PLANE:	.ds	1
+TXXL_XSTART:	.ds	1
+TXXL_YSTART:	.ds	1
+TXXL_XLEN:	.ds	1
+TXXL_LINE:	.ds	1
+		.fail	$.ne.10
+
+;txyline
+		.offset	0
+TXYL_PLANE:	.ds	1
+TXYL_XSTART:	.ds	1
+TXYL_YSTART:	.ds	1
+TXYL_YLEN:	.ds	1
+TXYL_LINE:	.ds	1
+		.fail	$.ne.10
+
+
+* IOCS ワーク --------------------------------- *
+
+CRTMOD:		.equ	$93c	1.b
+
+FDAXSFLAG:	.equ	$9e6	4.w
+* 上位バイト:ドライブステータス
+* 下位バイト:ディスクを交換したか(0:未使用 -1:交換した 1:していない)
+
+MPUTYPE:	.equ	$cbc
+
+
+* SRAM ---------------------------------------- *
+
+SRAM_CONTRAST:	.equ	$ed0028
+SRAM_SCSIMODE:	.equ	$ed0070
+
+
+* IOCS ROM ------------------------------------ *
+
+SCSIIN_ROM:	.equ	$fc0000
+SCSIEX_ROM:	.equ	$ea0020
+
+
+* I/O アドレス -------------------------------- *
+
+BUSERR_VEC:	.equ	$02
+PRIV_VEC:	.equ	$08
+FLINE_VEC:	.equ	$0b
+NMI_VEC:	.equ	$1f
+TRAP0_VEC:	.equ	$20
+TRAP2_VEC:	.equ	$22
+TRAP3_VEC:	.equ	$23
+TRAP4_VEC:	.equ	$24
+TRAP10_VEC:	.equ	$2a
+TRAP12_VEC:	.equ	$2c
+TRAP14_VEC:	.equ	$2e
+VDISP_VEC:	.equ	$46
+KEYINP_VEC:	.equ	$4c
+FDCINS_VEC:	.equ	$61
+
+GVRAM:		.equ	$c00000
+TVRAM:		.equ	$e00000
+TVRAM_P0:	.equ	$e00000
+TVRAM_P1:	.equ	$e20000
+TVRAM_P2:	.equ	$e40000
+TVRAM_P3:	.equ	$e60000
+
+CRTC:		.equ	$e80000
+CRTC_R00:	.equ	$e80000
+CRTC_R09:	.equ	$e80012
+CRTC_R10:	.equ	$e80014
+CRTC_R12:	.equ	$e80018
+CRTC_R20:	.equ	$e80028
+CRTC_R20h:	.equ	$e80028
+CRTC_R20l:	.equ	$e80029
+CRTC_R21:	.equ	$e8002a
+CRTC_R21h:	.equ	$e8002a
+CRTC_R21l:	.equ	$e8002b
+CRTC_R22:	.equ	$e8002c
+CRTC_R23:	.equ	$e8002e
+CRTC_ACT:	.equ	$e80480
+
+GPARH_PAL:	.equ	$e82000
+TEXT_PAL:	.equ	$e82200
+VC_R0:		.equ	$e82400
+VC_R1:		.equ	$e82500
+VC_R2:		.equ	$e82600
+
+G_HALF:		.equ	$1900
+S_ON:		.equ	$0040
+T_ON:		.equ	$0020
+G_ON:		.equ	$001f
+G_HALF_ON:	.equ	G_HALF+G_ON
+
+MFP:		.equ	$e88000
+MFP_GPIP:	.equ	$e88001
+MFP_IERA:	.equ	$e88007
+MFP_IERB:	.equ	$e88009
+MFP_IMRA:	.equ	$e88013
+MFP_IMRB:	.equ	$e88015
+MFP_UDR:	.equ	$e8802f
+MFP_TCDR:	.equ	$e88023
+MFP_TSR:	.equ	$e8802d
+
+SYS_P1:		.equ	$e8e001
+SYS_P2:		.equ	$e8e003
+SYS_P4:		.equ	$e8e007
+SYS_P5:		.equ	$e8e009
+SYS_P6:		.equ	$e8e00b
+SYS_P7:		.equ	$e8e00d
+SYS_P8:		.equ	$e8e00f
+
+
+* MPU 依存定数 -------------------------------- *
+
+RTS_CODE:	.equ	$4e75
+MOVEM_CODE:	.equ	$48e7
+
+
+* OS ワーク ----------------------------------- *
+
+DriveTable:	.equ	$1c7e
+
+
+* マクロ -------------------------------------- *
+
+PUSH:		.macro	regs
+		movem.l	regs,-(sp)
+		.endm
+
+POP:		.macro	regs
+		movem.l	(sp)+,regs
+		.endm
+
+TO_SUPER:	.macro
+		clr.l	-(sp)
+		DOS	_SUPER
+		move.l	d0,(sp)
+		.endm
+
+TO_USER:	.macro
+		DOS	_SUPER
+		addq.l	#4,sp
+		.endm
+
+TO_USER2:	.macro
+		tst.b	(sp)
+		bmi	@skip
+		DOS	_SUPER
+@skip:		addq.l	#4,sp
+		.endm
+
+STRCPY:		.macro	src,dst
+@loop:		move.b	(src)+,(dst)+
+		bne	@loop
+		.endm
+
+STREND:		.macro	dst
+@loop:		tst.b	(dst)+
+		bne	@loop
+		subq.l	#1,dst
+		.endm
+
+STRCAT:		.macro	src,dst
+		STREND	dst
+		STRCPY	src,dst
+		.endm
+
+STRLEN:		.macro	src,len,add
+		.sizem	sz,cnt
+		move.l	src,len
+@loop:		tst.b	(src)+
+		bne	@loop
+.if cnt.eq.3
+  .if (2<=add).and.(add<=9)
+		addq.l	#add-1,src
+  .elif (10<=add)
+		lea	(add-1,src),src
+  .endif
+.else
+		subq.l	#1,src
+.endif
+		exg	len,src
+		sub.l	src,len
+		.endm
+
+
+* I/O 系マクロ -------------------------------- *
+
+SRAM_WRITE_ENABLE:	.macro
+		move.b	#$31,(SYS_P7)
+		.endm
+SRAM_WRITE_DISABLE:	.macro
+		clr.b	(SYS_P7)
+		.endm
+
+
+* End of File --------------------------------- *
+
+		.list

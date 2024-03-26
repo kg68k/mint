@@ -1,0 +1,65 @@
+#!/usr/local/bin/perl
+#
+# MadokaINTerpreter
+# microEmacs complete list maker
+# programmed by fubuki, Leaza, eriko
+# in Public domain
+
+	$tmp = $ENV{'temp'} || $ENV{'TEMP'};
+	chdir $tmp ||  die "temp directory not found\n";
+
+	mkdir(complete,16) || die "complete directory make error\n";
+	mkdir(etc     ,16) || die "etc directory make error\n";
+
+	open(MADOKA,"./mint -t|");
+	for(<MADOKA>) {
+		chop;
+		push(@inumadoka,split(/=/,$_));
+	}
+	close(MADOKA);
+
+	open(MADOKA,"./mint -l|");
+	chop(@nekomadoka = <MADOKA>);
+	close(MADOKA);
+
+	@inumadoka = sort @inumadoka;
+	@nekomadoka = sort @nekomadoka;
+
+	open(LIST,">etc/mint.lst") || die "can't open list file\n";
+	binmode(LIST);
+	print STDERR "make list file...\n";
+	for(@nekomadoka) { print LIST "%$_\n"; }
+	for(@inumadoka) { print LIST "&$_\n"; }
+	close(LIST);
+
+###
+
+	@inumadoka = reverse @inumadoka;
+
+	open(LIST,">complete/mint.ema") || die "can't open ema file\n";
+	binmode(LIST);
+	print STDERR "make a...\n";
+	while($a = pop @inumadoka) { 
+		last unless $a =~ /^[a\d]/;
+		print LIST "$a\n";
+	}
+	push(@inumadoka, $a);
+
+	@inumadoka = reverse @inumadoka;
+	$top = a;
+	for(@inumadoka) {
+		$newtop = substr($_, 0, 1);
+		if ($top ne $newtop) {
+			close LIST;
+			$top = $newtop;
+			print STDERR "make $top...\n";
+			open(LIST, ">complete/mint.em$top") ||
+						die "can't open em$top file\n";
+			binmode(LIST);
+		}
+		print LIST "$_\n" ;
+	}
+	close LIST;
+
+
+## fin

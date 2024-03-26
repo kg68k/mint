@@ -1,0 +1,86 @@
+		.nlist
+
+
+* Global Symbol ------------------------------- *
+
+		.global	WinFontInit,WinGetPtr
+		.global	WinCreate,WinDelete
+		.global	WinSetColor,WinSetTabsize
+		.global	WinGetCursor,WinSetCursor
+		.global	WinCursorUp,WinCursorDown,WinCursorLeft
+		.global	WinSaveCursor,WinRestoreCursor
+		.global	WinClearAll,WinClearLine
+		.global	WinScrollDown,WinScrollUp
+		.global	WinReverseChar,WinReverseLine2,WinReverseLine
+		.global	WinUnderLine2,WinUnderLine
+		.global	WinOpen,WinClose
+		.global	WinPutChar,WinPrint2,WinPrint
+
+
+* Constant ------------------------------------ *
+
+WIND_MAX:	.equ	16
+
+WCOL_BLACK:	.equ	8
+*WCOL_WHITE:	.equ	9
+WCOL_RED:	.equ	10
+WCOL_LBLUE:	.equ	11
+WCOL_GREEN:	.equ	12
+WCOL_PURPLE:	.equ	13
+WCOL_YELLOW:	.equ	14
+WCOL_BLUE:	.equ	15
+
+WCOL_UL:	.equ	6
+WCOL_REV:	.equ	5
+WCOL_EM:	.equ	4
+
+WCOL_MASK:	.equ	1<<WCOL_UL+1<<WCOL_REV+1<<WCOL_EM
+
+
+* ウィンドウ管理構造体 ------------------------ *
+
+		.offset	0
+WIND_COLOR:	.ds	1			;$00 描画色
+WIND_TABC:	.ds	1			;$02  タブ桁数( 8, 4)
+WIND_TABCNEG:	.ds	1			;$04 -タブ桁数(-8,-4)
+WIND_TX_X:	.ds	1			;$06 X座標(0～94)
+WIND_TX_Y:	.ds	1			;$08 Y〃  (0～31)
+WIND_TX_ADR:	.ds.l	1			;$0a ウィンドウ左上アドレス
+WIND_XSIZE:	.ds	1			;$0e 桁数(2～96)
+WIND_YSIZE:	.ds	1			;$10 行数(1～32)
+WIND_CUR_X:	.ds	1			;$12 カーソル桁数(0～95)
+WIND_CUR_Y:	.ds	1			;$14 カーソル行数(0～31)
+WIND_CUR_ADR:	.ds.l	1			;$16 カーソル位置アドレス
+WIND_CUR_X2:	.ds	1			;$1a WIND_CUR_X待避
+WIND_CUR_Y2:	.ds	1			;$1c WIND_CUR_Y〃
+WIND_CUR_ADR2:	.ds.l	1			;$1e WIND_CUR_ADR〃
+WIND_MB_CODE:
+WIND_MB_HIGH:	.ds.b	1			;$22 2byte文字上位バイト
+WIND_MB_LOW:	.ds.b	1			;$23 〃       下位バイト
+WIND_MB_FLAG:	.ds.b	1			;$24 2byte文字フラグ($00=下位バイト待ち)
+		.quad
+sizeof_WIND:
+		.fail	$.ne.40
+
+
+* サブウィンドウ引数構造体 -------------------- *
+
+		.offset	0
+SUBWIN_X:	.ds	1
+SUBWIN_Y:	.ds	1
+SUBWIN_XSIZE:	.ds	1
+SUBWIN_YSIZE:	.ds	1
+SUBWIN_MES:	.ds.l	1
+SUBWIN_TITLE:	.ds.l	1
+sizeof_SUBWIN:
+		.fail	$.ne.16
+
+SUBWIN:		.macro	x,y,xsize,ysize,mes,tit
+		.dc	x,y,xsize,ysize
+		.dc.l	mes,tit
+		.endm
+
+
+* End of File --------------------------------- *
+
+		.list

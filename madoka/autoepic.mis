@@ -1,0 +1,63 @@
+#!madoka
+#	autoepic - カーソル位置のファイル名を見て epicl を起動する
+#				Copyright (C)1999/04/27 立花えりりん
+	-apig3 \
+	&crt-write-disable;
+	&if ( &match -i *D.PIC $F ) {
+		&if ( &exist -i $F:au:s/D./U. ) {
+			&uncompress $&;
+			epicl $& $F; grot; &end
+		}
+		&elsif ( &exist -i $F:au:s/D./A. ) {
+			&set files $&;
+			&if ( &exist -i $F:au:s/D./B. ) {
+				&set files "$files $&";
+				&if ( &exist -i $F:au:s/D./C. ) {
+					&set files "$files $&";
+					&uncompress $files;
+					epicl -f $files $F; grot; &unset files; &end
+				}
+			}
+		}
+	}
+	&if ( &match -i *S.PIC $F ) {
+		&if ( &exist -i $F:au:s/S./U. ) {
+			&uncompress $&;
+			epicl $& $F; grot; &end
+		}
+	}
+	&if ( &match -i *U.PIC $F ) {
+		&if ( &exist -i $F:au:s/U./[SD]. ) {
+			&uncompress $&;
+			epicl $F $&; grot; &end
+		}
+	}
+	&if ( &match -i *[HL].PIC $F ) {
+		&if ( &exist -i $F:au:s/H./M./:s/L./R./ ) {
+			&uncompress $&;
+			epicl $& $F; grot; &end
+		}
+	}
+	&if ( &match -i *[MR].PIC $F ) {
+		&if ( &exist -i $F:au:s/M./H./:s/R./L./ ) {
+			&uncompress $&;
+			epicl $& $F; grot; &end
+		}
+	}
+	&if ( &match -i *A.PIC $F ) {
+		&if ( &exist -i $F:au:s/A./B. ) {
+			&set files $&;
+			&if ( &exist -i $F:au:s/A./C. ) {
+				&set files "$files $&";
+				&if ( &exist -i $F:au:s/A./D. ) {
+					&set files "$files $&";
+					&uncompress $files;
+					epicl -f $F $files; grot; &unset files; &end
+				}
+			}
+			&uncompress $files;
+			epicl $F $files; grot; &unset files; &end
+		}
+	}
+	epicl -s3 $F; grot; &end
+# EOF

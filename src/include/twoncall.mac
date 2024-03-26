@@ -1,0 +1,37 @@
+		.ifndef	__twoncall_mac__
+			__twoncall_mac__:=1
+
+		.ifndef	_TWON
+_TWON:		.equ	$ffb0
+		.endif
+
+_TWON_ID:	.equ	'TwOn'
+_SYSROOT_MAX:	.equ	90
+
+_TWON_GETID:	.equ	0
+_TWON_GETVER:	.equ	1
+_TWON_GETADR:	.equ	2
+_TWON_GETOPT:	.equ	3
+_TWON_SETOPT:	.equ	4
+_TWON_GETSYSR:	.equ	5
+_TWON_SETSYSR:	.equ	6
+_TWON_U2S:	.equ	7
+
+_TWON_V_BIT:	.equ	31
+_TWON_C_BIT:	.equ	30
+_TWON_S_BIT:	.equ	29
+_TWON_P_BIT:	.equ	28
+_TWON_T_BIT:	.equ	27
+_TWON_F_BIT:	.equ	26
+_TWON_R_BIT:	.equ	25
+_TWON_W_BIT:	.equ	24
+_TWON_Y_BIT:	.equ	23
+_TWON_A_BIT:	.equ	22
+*		.equ	21
+_TWON_D1_BIT:	.equ	20
+_TWON_D2_BIT:	.equ	19
+_TWON_D3_BIT:	.equ	18
+_TWON_D4_BIT:	.equ	17
+_TWON_D5_BIT:	.equ	16
+
+		.endif

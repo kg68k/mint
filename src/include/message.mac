@@ -1,0 +1,383 @@
+		.nlist
+
+
+* Global Symbol ------------------------------- *
+
+		.global	get_message
+		.global	get_message2
+
+
+* Constant ------------------------------------ *
+
+MESLEN_MAX:	.equ	128
+
+
+* message マクロ ------------------------------ *
+
+GETMES:		.macro	mesno
+		moveq	#mesno,d0
+		jsr	(get_message)
+		.endm
+
+GETMES2:	.macro	mesno
+		move	#mesno,d0
+		jsr	(get_message2)
+		.endm
+
+
+* メッセージ番号 ------------------------------ *
+
+		.offset	0
+MES_D_MDX:	.ds.b	1
+MES_D_MDR:	.ds.b	1
+MES_D_MDZ:	.ds.b	1
+MES_D_MDC:	.ds.b	1
+MES_D_ZMS:	.ds.b	1
+MES_D_ZMD:	.ds.b	1
+MES_D_MID:	.ds.b	1
+MES_D_MND:	.ds.b	1
+MES_D_RCP:	.ds.b	1
+MES_D_PO_:	.ds.b	1
+MES_D_SCM:	.ds.b	1
+MES_D_RCZ:	.ds.b	1
+MES_D_MDF:	.ds.b	1
+MES_D_ZDF:	.ds.b	1
+MES_D_KDD:	.ds.b	1
+MES_D_MKI:	.ds.b	1
+MES_D_MAG:	.ds.b	1
+MES_D_HG_:	.ds.b	1
+MES_D_PI_:	.ds.b	1
+MES_D_PIC:	.ds.b	1
+MES_D_MIT:	.ds.b	1
+MES_D_VDT:	.ds.b	1
+MES_D_XVD:	.ds.b	1
+MES_D_SVD:	.ds.b	1
+MES_D_BRC:	.ds.b	1
+MES_D_ISD:	.ds.b	1
+MES_D_ISY:	.ds.b	1
+MES_D_ISM:	.ds.b	1
+MES_D_ISZ:	.ds.b	1
+MES_D_WAP:	.ds.b	1
+MES_D_DAN:	.ds.b	1
+MES_D_DIM:	.ds.b	1
+MES_D_ZIP:	.ds.b	1
+MESD_MAX:
+		.fail	MESD_MAX>$7f
+
+		.offset	0
+MES_TITLE:	.ds.b	1
+MES_TITL0:	.ds.b	1
+MES_M_MES:	.ds.b	1
+
+MES_FUNC0:	.ds.b	1
+MES_FUNC1:	.ds.b	1
+MES_VFNC0:	.ds.b	1
+MES_VFNC1:	.ds.b	1
+MES_Y_ENG:	.ds.b	1
+MES_MONTH:	.ds.b	1
+MES_MPUPO:	.ds.b	1
+MES_CACHE:	.ds.b	1
+MES_PXTMP:	.ds.b	1
+
+MES_DSKE0:	.ds.b	1
+MES_DSKF0:	.ds.b	1
+MES_DSKMO:	.ds.b	1
+MES_DSKID:	.ds.b	1
+MES_MWCHR:	.ds.b	1
+MES_SCHR0:	.ds.b	1
+MES_SCHR1:	.ds.b	1
+MES_SCMD0:	.ds.b	1
+MES_SCMDX:	.ds.b	1
+
+MES_KWAIT:	.ds.b	1
+MES_EXCOD:	.ds.b	1
+MES_SEARC:	.ds.b	1
+MES_WRITE:	.ds.b	1
+MES_WRITP:	.ds.b	1
+**MES_HUARG:	.ds.b	1
+
+MES_PADIR:	.ds.b	1
+MES_EODIR:	.ds.b	1
+MES_NODSK:	.ds.b	1
+MES_NO_MO:	.ds.b	1
+MES_NO_RD:	.ds.b	1
+MES_NO_CD:	.ds.b	1
+MES_NO_DR:	.ds.b	1
+MES_NDISK:	.ds.b	1
+MES_NONMO:	.ds.b	1
+MES_NONRD:	.ds.b	1
+MES_NONCD:	.ds.b	1
+MES_NONDR:	.ds.b	1
+MES_IDRIV:	.ds.b	1
+MES_DRVCD:	.ds.b	1
+MES_DRVMO:	.ds.b	1
+MES_CDROM:	.ds.b	1
+MES_NOVOL:	.ds.b	1
+MES_INFOM:	.ds.b	1
+MES_INFO2:	.ds.b	1
+MES_MARKI:	.ds.b	1
+MES_DIREC:	.ds.b	1
+MES_LINKD:	.ds.b	1
+MES_DLINK:	.ds.b	1
+
+MES_CPDES:	.ds.b	1
+MES_COPYF:	.ds.b	1
+MES_MOVEF:	.ds.b	1
+MES_KILLF:	.ds.b	1
+MES_RENAF:	.ds.b	1
+MES_RENAD:	.ds.b	1
+MES_TOUCH:	.ds.b	1
+MES_MKDIR:	.ds.b	1
+MES_MVDIR:	.ds.b	1
+MES_DKILL:	.ds.b	1
+MES_RENTO:	.ds.b	1
+MES_COMPL:	.ds.b	1
+MES_SKIPF:	.ds.b	1
+MES_FAILD:	.ds.b	1
+MES_DFULL:	.ds.b	1
+MES_WPERR:	.ds.b	1
+MES_NREDY:	.ds.b	1
+
+MES_CDERR:	.ds.b	1
+MES_RDERR:	.ds.b	1
+MES_DRERR:	.ds.b	1
+MES_DIRSL:	.ds.b	1
+MES_DIRSR:	.ds.b	1
+MES_G_USE:	.ds.b	1
+MES_STACK:	.ds.b	1
+
+MES_MERR0:	.ds.b	1
+MES_MERR1:	.ds.b	1
+MES_MERR2:	.ds.b	1
+MES_MERR3:	.ds.b	1
+MES_MERR4:	.ds.b	1
+MES_MERR5:	.ds.b	1
+MES_MERR6:	.ds.b	1
+
+MES_E_NOF:	.ds.b	1
+MES_E_FOP:	.ds.b	1
+MES_E_NOM:	.ds.b	1
+MES_E_FMT:	.ds.b	1
+MES_E_NAM:	.ds.b	1
+MES_E_DRV:	.ds.b	1
+MES_E_RDY:	.ds.b	1
+MES_E_ARG:	.ds.b	1
+MES_E_EXE:	.ds.b	1
+
+MES_RENAM:	.ds.b	1
+MES_ARENA:	.ds.b	1
+MES_SWITC:	.ds.b	1
+MES_CWILD:	.ds.b	1
+MES_EXITC:	.ds.b	1
+MES_PHIST:	.ds.b	1
+MES_PHISL:	.ds.b	1
+MES_PHISR:	.ds.b	1
+MES_IJUMP:	.ds.b	1
+MES_ICOPY:	.ds.b	1
+MES_IMOVE:	.ds.b	1
+MES_ICOMD:	.ds.b	1
+MES_CHIST:	.ds.b	1
+MES_CHISM:	.ds.b	1
+MES_DRIVE:	.ds.b	1
+MES_IWILD:	.ds.b	1
+MES_VOLUM:	.ds.b	1
+MES_STENV:	.ds.b	1
+MES_F_SER:	.ds.b	1
+MES_DIERR:	.ds.b	1
+MES_SAMEF:	.ds.b	1
+MES_INPMD:	.ds.b	1
+MES_SORTM:	.ds.b	1
+MES_FCOMP:	.ds.b	1
+MES_PRINT:	.ds.b	1
+MES_INPUT:	.ds.b	1
+
+MES_MENUT:	.ds.b	1
+MES_MENUE:	.ds.b	1
+MES_MENU1:	.ds.b	1
+MES_MENU2:	.ds.b	1
+
+MES_SCSIC:	.ds.b	1
+MES_SCSIE:	.ds.b	1
+MES_SCSIX:	.ds.b	1
+MES_SCSIN:	.ds.b	1
+MES_SCSIM:	.ds.b	1
+MES_SCSII:	.ds.b	1
+MES_SCSID:	.ds.b	1
+
+MES_ISMIS:	.ds.b	1
+MES_ISINC:	.ds.b	1
+MES_ISCLR:	.ds.b	1
+MES_ISIGN:	.ds.b	1
+MES_ISCON:	.ds.b	1
+
+MES_DEL??:	.ds.b	1
+MES_DDEL2:	.ds.b	1
+MES_DELYN:	.ds.b	1
+MES_KYOUS:	.ds.b	1
+MES_KYOU2:	.ds.b	1
+MES_NEWDI:	.ds.b	1
+
+MES_HELPM:	.ds.b	1
+MES_NODEF:	.ds.b	1
+MES_DESCT:	.ds.b	1
+MES_DESCP:	.ds.b	1
+
+MES_ARCVL:	.ds.b	1
+MES_MARCE:	.ds.b	1
+MES_MPDIR:	.ds.b	1
+MES_MBDIR:	.ds.b	1
+MES_MINFO:	.ds.b	1
+MES_MARCW:	.ds.b	1
+MES_MARC2:	.ds.b	1
+MES_MARCD:	.ds.b	1
+MES_MARCF:	.ds.b	1
+MES_MARCM:	.ds.b	1
+MES_NOARC:	.ds.b	1
+MES_MARCS:	.ds.b	1
+MES_MARCR:	.ds.b	1
+MES_MTMPE:	.ds.b	1
+MES_MARCB:	.ds.b	1
+MES_MA_E0:	.ds.b	1
+MES_MA_E1:	.ds.b	1
+
+MES_VFORM:	.ds.b	1
+MES_L_RED:	.ds.b	1
+MES_L_END:	.ds.b	1
+MES_L_SCH:	.ds.b	1
+MES_L_EOF:	.ds.b	1
+MES_L_OOM:	.ds.b	1
+MES_L_STR:	.ds.b	1
+MES_L_FIL:	.ds.b	1
+MES_L_NUM:	.ds.b	1
+MES_VLIN0:	.ds.b	1
+MES_VMARK:	.ds.b	1
+MES_VVIEW:	.ds.b	1
+MES_VDUMP:	.ds.b	1
+MES_VCDMP:	.ds.b	1
+MES_VEUCJ:	.ds.b	1
+MES_VSJIS:	.ds.b	1
+MES_V_JIS:	.ds.b	1
+MES_VEXAC:	.ds.b	1
+MES_V_BS_:	.ds.b	1
+MES_V_ESC:	.ds.b	1
+MES_V_COL:	.ds.b	1
+MES_V_REG:	.ds.b	1
+MES_V_SHA:	.ds.b	1
+MES_VLINE:	.ds.b	1
+MES_VFILE:	.ds.b	1
+MES_VWRIT:	.ds.b	1
+MES_VSAVE:	.ds.b	1
+MES_VAPPE:	.ds.b	1
+MES_VDONE:	.ds.b	1
+MES_VNODI:	.ds.b	1
+MES_VPROT:	.ds.b	1
+MES_VFNER:	.ds.b	1
+MES_VNOMA:	.ds.b	1
+MES_VSCHF:	.ds.b	1
+MES_VSCHB:	.ds.b	1
+MES_VSCHR:	.ds.b	1
+MES_VHUNT:	.ds.b	1
+MES_VNOTF:	.ds.b	1
+MES_VLOAD:	.ds.b	1
+MES_VMEME:	.ds.b	1
+MES_VMEMC:	.ds.b	1
+
+MES_FCMP0:	.ds.b	1
+MES_FCMP1:	.ds.b	1
+MES_FCMP2:	.ds.b	1
+MES_FCMP3:	.ds.b	1
+MES_FCMP4:	.ds.b	1
+MES_FCMP5:	.ds.b	1
+MES_FCMP6:	.ds.b	1
+MES_FCMP7:	.ds.b	1
+MES_FCMP8:	.ds.b	1
+MES_FCMP9:	.ds.b	1
+MES_FCMPA:	.ds.b	1
+MES_FCMPB:	.ds.b	1
+MES_FCMPC:	.ds.b	1
+MES_FCMPD:	.ds.b	1
+MES_FCMPE:	.ds.b	1
+
+MES_FCSIZ:	.ds.b	1
+MES_FCTIM:	.ds.b	1
+MES_FCSZT:	.ds.b	1
+
+MES_WHIC0:	.ds.b	1
+MES_WHIC1:	.ds.b	1
+MES_WHIC2:	.ds.b	1
+MES_WHIC3:	.ds.b	1
+
+MES_M_MDX:	.ds.b	1
+MES_M_MAD:	.ds.b	1
+MES_M_MLD:	.ds.b	1
+MES_M_MCD:	.ds.b	1
+MES_M_ZMU:	.ds.b	1
+MES_M_ZM3:	.ds.b	1
+MES_M_MID:	.ds.b	1
+MES_M_MND:	.ds.b	1
+MES_M_RCD:	.ds.b	1
+MES_M_POC:	.ds.b	1
+
+MES_MAX:
+		.fail	MES_MAX>$ff
+
+MESD_TOP:
+		.ds.b	MESD_MAX
+
+MES2_EXEC1:	.ds.b	1
+MES2_EXEC2:	.ds.b	1
+MES2_EXEC3:	.ds.b	1
+MES2_EXEC4:	.ds.b	1
+MES2_EXEC5:	.ds.b	1
+MES2_EXEC6:	.ds.b	1
+MES2_EXEC7:	.ds.b	1
+MES2_EXEC8:	.ds.b	1
+MES2_EXEC9:	.ds.b	1
+MES2_EXE10:	.ds.b	1
+MES2_EXE11:	.ds.b	1
+MES2_EXE12:	.ds.b	1
+MES2_EXE13:	.ds.b	1
+MES2_EXE14:	.ds.b	1
+MES2_EXE15:	.ds.b	1
+MES2_EXE16:	.ds.b	1
+MES2_JUMP1:	.ds.b	1
+MES2_JUMP2:	.ds.b	1
+MES2_JUMP3:	.ds.b	1
+MES2_JUMP4:	.ds.b	1
+MES2_JUMP5:	.ds.b	1
+MES2_JUMP6:	.ds.b	1
+MES2_JUMP7:	.ds.b	1
+MES2_JUMP8:	.ds.b	1
+MES2_JUMP9:	.ds.b	1
+MES2_JUM10:	.ds.b	1
+MES2_JUM11:	.ds.b	1
+MES2_JUM12:	.ds.b	1
+MES2_JUM13:	.ds.b	1
+MES2_JUM14:	.ds.b	1
+MES2_JUM15:	.ds.b	1
+MES2_JUM16:	.ds.b	1
+MES2_CPMV1:	.ds.b	1
+MES2_CPMV2:	.ds.b	1
+MES2_CPMV3:	.ds.b	1
+MES2_CPMV4:	.ds.b	1
+MES2_CPMV5:	.ds.b	1
+MES2_CPMV6:	.ds.b	1
+MES2_CPMV7:	.ds.b	1
+MES2_CPMV8:	.ds.b	1
+MES2_CPMV9:	.ds.b	1
+MES2_CPM10:	.ds.b	1
+MES2_CPM11:	.ds.b	1
+MES2_CPM12:	.ds.b	1
+MES2_CPM13:	.ds.b	1
+MES2_CPM14:	.ds.b	1
+MES2_CPM15:	.ds.b	1
+MES2_CPM16:	.ds.b	1
+
+MES2_MAX:
+		.fail	MES2_MAX>$ffff
+MESNO_MAX:
+
+
+* End of File --------------------------------- *
+
+		.list

@@ -1,0 +1,49 @@
+		.nlist
+
+
+* Global Symbol ------------------------------- *
+
+		.global	_ReadLineVersion
+		.global	_ReadLine
+
+
+* Struct ReadLine ----------------------------- *
+
+		.offset	0
+_RL_BUF:	.ds.l	1			;編集バッファ
+_RL_SIZE:	.ds.l	1			;〃	    のサイズ
+_RL_YANK_BUF:	.ds.l	1			;削除バッファ
+_RL_WORDS:	.ds.l	1			;単語構成記号文字列
+_RL_NULL:	.ds.l	1			;キー入力待ち処理アドレス
+_RL_BELL:	.ds.l	1			;ベル〃
+_RL_COMPLETE:	.ds.l	1			;補完リスト収得〃
+_RL_MALLOC:	.ds.l	1			;メモリ確保〃
+_RL_MFREE:	.ds.l	1			;メモリ解放〃
+_RL_CSR_X:	.ds.l	1			;初期カーソル位置
+_RL_MARK_X:	.ds.l	1			;マーク位置
+_RL_MARGIN:	.ds.l	1			;カーソル移動範囲のマージン
+_RL_WIDTH:	.ds.l	1			;ウィンドウ桁数
+_RL_WIN_X:	.ds	1			;ウィンドウ桁位置
+_RL_WIN_Y:	.ds	1			;〃	   行位置
+
+_RL_COL:	.ds.b	1			;描画色
+_RL_C_COL:	.ds.b	1			;補完一覧描画色
+_RL_C_ATR:	.ds.b	1			;    検索属性
+_RL_C_SLASH:	.ds.b	1			;    パスデリミタ
+_RL_C_ADDS:	.ds.b	1			;    パスデリミタ付加フラグ
+_RL_C_DISP:	.ds.b	1			;    一覧表示フラグ
+_RL_F_DOT:	.ds.b	1			;起動時ドット検索
+_RL_F_EMACS:	.ds.b	1			;キー操作モード
+_RL_F_FEP:	.ds.b	1			;FEP 自動制御
+_RL_F_UP:	.ds.b	1			;↑ 終了フラグ
+_RL_F_DOWN:	.ds.b	1			;↓ 〃
+_RL_F_RU:	.ds.b	1			;ROLL UP 〃
+_RL_F_RD:	.ds.b	1			;ROLL DOWN 〃
+		.quad
+sizeof_RLBUF:
+		.text
+
+
+* End of File --------------------------------- *
+
+		.list

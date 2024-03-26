@@ -1,0 +1,130 @@
+		.nlist
+
+
+* Constant ------------------------------------ *
+
+CENTRAL_HDR_SIG:	.equ	'PK'<<16+$0102
+LOCAL_HDR_SIG:		.equ	'PK'<<16+$0304
+END_CENTRAL_SIG:	.equ	'PK'<<16+$0506
+
+
+TAR_BLOCK_SIZE:		.equ	512
+
+TAR_FILENAME:	.equ	$000
+TAR_ATTRIB:	.equ	$064
+TAR_FILESIZE:	.equ	$07c
+TAR_TIME:	.equ	$088
+TAR_CHECKSUM:	.equ	$094
+TAR_USTAR_MARK:	.equ	$101
+
+
+* Offset Table -------------------------------- *
+
+;LZH level 0 header
+			.offset	0
+LH0_header_size:	.ds.b	1
+LH0_header_sum:		.ds.b	1
+LH0_method_id:		.ds.b	5
+LH0_packed_size:	.ds.b	4
+LH0_original_size:	.ds.b	4
+LH0_time:		.ds.b	2
+LH0_date:		.ds.b	2
+LH0_attribute:		.ds.b	1
+LH0_header_level:	.ds.b	1
+LH0_name_length:	.ds.b	1
+LH0_pathname:*		.ds.b	???
+*LH0_file_crc:		.ds.b	2
+*LH0_SIZE:
+			.fail	$.ne.22
+
+;LZH level 1 header
+			.offset	0
+LH1_header_size:	.ds.b	1
+LH1_header_sum:		.ds.b	1
+LH1_method_id:		.ds.b	5
+LH1_packed_size:	.ds.b	4
+LH1_original_size:	.ds.b	4
+LH1_time:		.ds.b	2
+LH1_date:		.ds.b	2
+LH1_dummy_attribute:	.ds.b	1
+LH1_header_level:	.ds.b	1
+LH1_name_length:	.ds.b	1
+LH1_filename:*		.ds.b	???
+*LH1_file_crc:		.ds.b	2
+*LH1_os_id:		.ds.b	1
+*LH1_next_header_size:	.ds.b	2
+*LH1_SIZE:
+			.fail	$.ne.22
+
+;LZH level 2 header
+			.offset	0
+LH2_total_header_size:	.ds.b	2
+LH2_method_id:		.ds.b	5
+LH2_packed_size:	.ds.b	4
+LH2_original_size:	.ds.b	4
+LH2_unix_time:		.ds.b	4
+LH2_reserve:		.ds.b	1
+LH2_header_level:	.ds.b	1
+LH2_file_crc:		.ds.b	2
+LH2_os_id:		.ds.b	1
+LH2_next_header_size:	.ds.b	2
+*LH2_SIZE:
+			.fail	$.ne.26
+
+
+;ZIP / LOCAL FILE HEADER
+					.offset	0
+ZLFH_version_needed_to_extract:		.ds.b	2
+ZLFH_general_purpose_bit_flag:		.ds	1
+ZLFH_compression_method:		.ds	1
+ZLFH_last_mod_file_time:		.ds	1
+ZLFH_last_mod_file_date:		.ds	1
+ZLFH_crc32:				.ds.l	1
+ZLFH_csize:				.ds.l	1	;圧縮後サイズ
+ZLFH_ucsize:				.ds.l	1	;展開時サイズ
+ZLFH_filename_length:			.ds	1
+ZLFH_extra_field_length:		.ds	1
+ZLFH_SIZE:
+					.fail	$.ne.26
+
+;ZIP / CENTRAL DIRECTORY FILE HEADER
+					.offset	0
+					.ds.b	2	;'PK'
+					.ds.b	2	;'\x01\x02'
+ZCDFH_version_made_by:			.ds.b	2
+ZCDFH_version_needed_to_extract:	.ds.b	2
+ZCDFH_general_purpose_bit_flag:		.ds	1
+ZCDFH_compression_method:		.ds	1
+ZCDFH_last_mod_file_time:		.ds	1
+ZCDFH_last_mod_file_date:		.ds	1
+ZCDFH_crc32:				.ds.l	1
+ZCDFH_csize:				.ds.l	1
+ZCDFH_ucsize:				.ds.l	1
+ZCDFH_filename_length:			.ds	1
+ZCDFH_extra_field_length:		.ds	1
+ZCDFH_file_comment_length:		.ds	1
+ZCDFH_disk_number_start:		.ds	1
+ZCDFH_internal_file_attributes:		.ds	1
+ZCDFH_external_file_attributes:		.ds.l	1
+ZCDFH_relative_offset_local_header:	.ds.l	1
+ZCDFH_SIZE:
+					.fail	$.ne.46
+
+;ZIP / END CENTRAL DIRECTORY RECORD
+					.offset	0
+					.ds.b	2	;'PK'
+					.ds.b	2	;'\x05\x06'
+ZECDR_number_this_disk:			.ds	1
+ZECDR_num_disk_with_start_central_dir:	.ds	1
+ZECDR_num_entries_centrl_dir_ths_disk:	.ds	1
+ZECDR_total_entries_central_dir:	.ds	1
+ZECDR_size_central_directory:		.ds.l	1
+ZECDR_offset_start_central_directory:	.ds.l	1
+ZECDR_zipfile_comment_length:		.ds	1
+ZECDR_SIZE:
+					.fail	$.ne.18+4
+
+
+* End of File --------------------------------- *
+
+		.list

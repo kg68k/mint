@@ -1,0 +1,15 @@
+		.ifndef	__dos_mvdir_mac__
+			__dos_mvdir_mac__:=1
+
+		.ifndef	_MVDIR
+_MVDIR:		.equ	$ffb1
+		.endif
+
+_MVDIR_ID:	.equ	'MvDi'
+
+_MVDIR_GETID:	.equ	0
+_MVDIR_GETVER:	.equ	1
+_MVDIR_UNHOOK:	.equ	2
+_MVDIR_MOVE:	.equ	3
+
+		.endif

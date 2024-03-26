@@ -1,0 +1,145 @@
+#!madoka
+#	atr_mark.mis - 指定した属性のファイルをマークする
+#				Copyright (C) 2003-2006 立花＠桑島技研
+#
+#	・以下の二つの条件を見たすエントリをマークする
+#		1) ON で指定した属性が全てセットされている
+#		2) OFF で指定した属性が一つもセットされていない
+#	・mint の内部データの仕様上、ファイルは常に Archive 属性がセットされている
+#	  ものとして扱われる.
+#
+#	・mint version 3.09 専用. それ以外のバージョンでの動作は保証しない.
+#
+#	・mint の内部データの参照・書き換えを行っているので、mint のバージョンによって
+#	  は動作しない、暴走する等の不具合が発生する恐れがあるので十分注意すること.
+#
+#	※※ とにかく危険なスクリプトなので十分注意すること. 無保証. ※※
+#
+	-a \
+	&set atr_X "---";
+	&set atr_L "---";
+	&set atr_A "ON ";
+	&set atr_D "---";
+	&set atr_V "---";
+	&set atr_S "---";
+	&set atr_H "---";
+	&set atr_R "---";
+	&set no 1;
+	&foreach ( ) {
+		&menu -l$no -t"Attribute Mark Menu" \
+			X"Execute     [ $atr_X ]" \
+			L"Link        [ $atr_L ]" \
+			A"Archive     [ $atr_A ]" \
+			D"Directory   [ $atr_D ]" \
+			V"VolumeLabel [ $atr_V ]" \
+			S"System      [ $atr_S ]" \
+			H"Hidden      [ $atr_H ]" \
+			R"ReadOnly    [ $atr_R ]" \
+			" " \
+			M"Mark";
+		&set no $STATUS;
+		&unset break;
+		&if    ($no == 0) { &set break "end" }
+		&elsif ($no == 1) { &if    ( &equ "OFF" $atr_X ) { &set atr_X "---" }
+				    &elsif ( &equ "---" $atr_X ) { &set atr_X "ON " }
+				    &else			 { &set atr_X "OFF" } }
+		&elsif ($no == 2) { &if    ( &equ "OFF" $atr_L ) { &set atr_L "---" }
+				    &elsif ( &equ "---" $atr_L ) { &set atr_L "ON " }
+				    &else			 { &set atr_L "OFF" } }
+		&elsif ($no == 3) { &if    ( &equ "OFF" $atr_A ) { &set atr_A "---" }
+				    &elsif ( &equ "---" $atr_A ) { &set atr_A "ON " }
+				    &else			 { &set atr_A "OFF" } }
+		&elsif ($no == 4) { &if    ( &equ "OFF" $atr_D ) { &set atr_D "---" }
+				    &elsif ( &equ "---" $atr_D ) { &set atr_D "ON " }
+				    &else			 { &set atr_D "OFF" } }
+		&elsif ($no == 5) { &if    ( &equ "OFF" $atr_V ) { &set atr_V "---" }
+				    &elsif ( &equ "---" $atr_V ) { &set atr_V "ON " }
+				    &else			 { &set atr_V "OFF" } }
+		&elsif ($no == 6) { &if    ( &equ "OFF" $atr_S ) { &set atr_S "---" }
+				    &elsif ( &equ "---" $atr_S ) { &set atr_S "ON " }
+				    &else			 { &set atr_S "OFF" } }
+		&elsif ($no == 7) { &if    ( &equ "OFF" $atr_H ) { &set atr_H "---" }
+				    &elsif ( &equ "---" $atr_H ) { &set atr_H "ON " }
+				    &else			 { &set atr_H "OFF" } }
+		&elsif ($no == 8) { &if    ( &equ "OFF" $atr_R ) { &set atr_R "---" }
+				    &elsif ( &equ "---" $atr_R ) { &set atr_R "ON " }
+				    &else			 { &set atr_R "OFF" } }
+		&elsif ($no == 10) { &set break "on" }
+		&if (1 == $?break) { &break }
+	}
+	&set in " ";
+	&set ex " ";
+	&foreach ( X L A D V S H R ) {
+		&eval &equ '"ON "' '"$atr_'$_'"'; &set in $in$STATUS;
+		&eval &equ '"OFF"' '"$atr_'$_'"'; &set ex $ex$STATUS;
+	}
+	&execute-binary 203c $in  223c $ex  7407 e988 e316 51ca fffa 7407 e989 e317 \
+			51ca fffa 7800 286e 007c 3a2e 0080 4a2e 0084 6706 5345 6732 \
+			6028 602a 1014 6b22 0800 0004 660a 08c0 0005 6604 08c0 0007 \
+			1200 c006 b006 660a c207 6606 08d4 0007 7801 49ec 0024 51cd \
+			ffd4 2004 4e75;
+	&if { &clear-and-redraw }
+	&unset _ no break atr_? in ex;
+	&end
+#
+#		PLUG_IN:=1
+#		.include	mint.mac
+#
+#		.text
+#
+#		.cpu	68000
+#		.even
+#
+#		move.l	#$a5a5_a5a5,d0		;$a5a5_a5a5 を $in に書き換える
+#		move.l	#$f0f0_f0f0,d1		;$f0f0_f0f0 を $ex に書き換える
+#
+#		moveq	#8-1,d2
+#@@:		lsl.l	#4,d0
+#		roxl.b	#1,d6			;d6.b = include atr
+#		dbra	d2,@b
+#
+#		moveq	#8-1,d2
+#@@:		lsl.l	#4,d1
+#		roxl.b	#1,d7
+#		dbra	d2,@b			;d7.b = exclude atr
+#
+#		moveq	#0,d4			;再描画フラグ
+#		movea.l	(PATH_BUF,a6),a4
+#		move	(PATH_FILENUM,a6),d5
+#
+#		tst.b	(PATH_DOTDOT,a6)
+#		beq	@f
+#		subq	#1,d5			;".." は飛ばす
+#		beq	exit
+#		bra	skip
+#@@:
+#		bra	loop_start
+#loop:
+#		move.b	(DIR_ATR,a4),d0
+#		bmi	skip			;マーク済み
+#		btst	#DIRECTORY,d0
+#		bne	@f			;ディレクトリ
+#		bset	#ARCHIVE,d0
+#		bne	@f			;通常のファイル
+#		bset	#EXEC,d0		;実行可能ファイル
+#@@:
+#		move.b	d0,d1
+#		and.b	d6,d0
+#		cmp.b	d6,d0
+#		bne	skip			;指定属性がセットされていない
+#
+#		and.b	d7,d1
+#		bne	skip			;除外属性がセットされている
+#
+#		bset	#MARK,(DIR_ATR,a4)
+#		moveq	#1,d4
+#skip:
+#		lea	(sizeof_DIR,a4),a4
+#loop_start:
+#		dbra	d5,loop
+#exit:
+#		move.l	d4,d0
+#		rts
+#
+#		.end
+# EOF

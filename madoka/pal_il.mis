@@ -1,0 +1,14 @@
+#!madoka
+	-api \
+	&set kpd1 RGB(0,31,10);
+	&set kpu1 RGB(0,31,30);
+	&set kps1 RGB(0,0,1);
+	&set kpd2 RGB(0,10,31);
+	&set kpu2 RGB(0,30,31);
+	&set kps2 RGB(0,1,0);
+	&set kpc1 10;
+	&set kpc2 10;
+	&set col1 $kpd1;
+	&set col2 $kpd2;
+	&set kpal 1;
+	&end;

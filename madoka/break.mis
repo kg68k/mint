@@ -1,0 +1,32 @@
+#!madoka
+#	break.mis - break モードを表示する(&execute-binary サンプル)
+#				Copyright (C)2002-04-01 立花えり子
+	-api \
+	&execute-binary 3f3c 00ff ff33 d040 303b 000e 487b 000a \
+			ff09 5c8f 7000 4e75 000a 0006 000f 6f6e \
+			0a00 6f66 660a 006b 696c 6c0a 0000;
+	&end
+#		.include	console.mac
+#		.include	doscall.mac
+#
+#		.text
+#		move	#$00_ff,-(sp)
+#		DOS	_BREAKCK
+#		add	d0,d0
+#		move	(mes_table,pc,d0.w),d0
+#		pea	(mes_table,pc,d0.w)
+#		DOS	_PRINT
+#		addq.l	#2+4,sp
+#		moveq	#0,d0			;d0.w に返値を入れる
+#		rts				;rts で終了する
+#
+#mes_table:	.dc	mes_off-mes_table
+#		.dc	mes_on-mes_table
+#		.dc	mes_kill-mes_table
+#
+#mes_on:	.dc.b	'on',LF,0
+#mes_off:	.dc.b	'off',LF,0
+#mes_kill:	.dc.b	'kill',LF,0
+#		.even
+#
+#		.end

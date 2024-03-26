@@ -1,0 +1,19 @@
+#!madoka
+#	makemenu - make メニュー
+#				Copyright (C)1999/11/23 立花えりりん
+	-ap \
+	&set make "/usr/local/bin/make";
+	&menu -t"Make Menu" \
+		A"All" \
+		I"Install" \
+		N"Print Command(-n)" \
+		P"Print Rules(-p)" \
+		T"Touch(-t)";
+	&if    (@st == 1) { $make all }
+	&elsif (@st == 2) { $make install }
+	&elsif (@st == 3) { $make -n }
+	&elsif (@st == 4) { $make -p }
+	&elsif (@st == 5) { $make -t }
+	&unset make;
+	&end
+# EOF

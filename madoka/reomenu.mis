@@ -1,0 +1,67 @@
+#!madoka
+#	reomenu - condrv(em).sys のバックログ取り込みを一時停止して
+#			reorder を呼び出す
+#				Copyright (C)1999/11/23 立花えりりん
+	-apid1 \
+	&set cmd "c:/bin/reorder";
+	&set opt_a "OFF";
+	&set opt_c "OFF";
+	&set opt_d "OFF";
+	&set opt_r "OFF";
+	&set opt_v "OFF";
+	&set opt_x "ON";
+	&set no 1;
+	&set dollar '$';
+	&foreach ( ) {
+		&set break on;
+		&unset option smode;
+		&menu -l$no -t"Reorder Sort Menu" \
+			N"None" \
+			F"Filename (Ignore Case)" \
+			"   〃    (Case)" \
+			E"Extention(Ignore Case)" \
+			"   〃    (Case)" \
+			L"Size" \
+			T"Time" \
+			" " \
+			A"Auto Sort Mode     [ $opt_a ]" \
+			C"TwentyOne No Check [ $opt_c ]" \
+			D"Directory Sort     [ $opt_d ]" \
+			R"Revers             [ $opt_r ]" \
+			V"Volume Sort        [ $opt_v ]" \
+			X"Value Sort         [ $opt_x ]";
+		&if    (@st ==  0) { &set break end }
+		&elsif (@st ==  1) { &unset smode }
+		&elsif (@st ==  2) { &set smode N }
+		&elsif (@st ==  3) { &set smode n }
+		&elsif (@st ==  4) { &set smode E }
+		&elsif (@st ==  5) { &set smode e }
+		&elsif (@st ==  6) { &set smode l }
+		&elsif (@st ==  7) { &set smode t }
+		&elsif (@st ==  8) { &set no  8; &unset break }
+		&elsif (@st ==  9) { &set no  9; &set option opt_a }
+		&elsif (@st == 10) { &set no 10; &set option opt_c }
+		&elsif (@st == 11) { &set no 11; &set option opt_d }
+		&elsif (@st == 12) { &set no 12; &set option opt_r }
+		&elsif (@st == 13) { &set no 13; &set option opt_v }
+		&elsif (@st == 14) { &set no 14; &set option opt_x }
+		&if (1 == $?option ) {
+			&eval &set optval $dollar$option;
+			&if ( &equ $optval OFF ) { &set $option "ON " }
+			&else			 { &set $option "OFF" }
+			&unset break option
+		}
+		&if (1 == $?break) { &break }
+	}
+	&if ( &equ $break on ) {
+		&if (1 == $?smode ) { &set cmd "$cmd -$smode" }
+		&foreach ( a c d r v x ) {
+			&eval &set optval ${dollar}opt_$_;
+			&if ( &equ ON* $optval ) { &set cmd "$cmd -$_" }
+		}
+		&stop-condrv;
+		$cmd
+	}
+	&unset no dollar smode break opt_? optval cmd;
+	&end
+# EOF

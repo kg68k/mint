@@ -1,0 +1,37 @@
+		.nlist
+
+
+* Global Symbol ------------------------------- *
+
+		.global	MintReadLine
+
+
+* Constant ------------------------------------ *
+
+RL_B_QUIET:	.equ	7			;各種表示抑制
+RL_B_DIR:	.equ	6			;ディレクトリ補完限定
+RL_B_CSR:	.equ	5			;カーソル位置指定
+RL_B_DOT:	.equ	4			;拡張子位置移動
+RL_B_UP:	.equ	3			;↑終了
+RL_B_DOWN:	.equ	2			;↓〃
+RL_B_RU:	.equ	1			;ROLL UP 〃
+RL_B_RD:	.equ	0			;ROLL DOWN 〃
+
+RL_F_QUIET:	.equ	1<<RL_B_QUIET
+RL_F_DIR:	.equ	1<<RL_B_DIR
+RL_F_CSR:	.equ	1<<RL_B_CSR
+RL_F_DOT:	.equ	1<<RL_B_DOT
+RL_F_UP:	.equ	1<<RL_B_UP
+RL_F_DOWN:	.equ	1<<RL_B_DOWN
+RL_F_RU:	.equ	1<<RL_B_RU
+RL_F_RD:	.equ	1<<RL_B_RD
+
+RL_E_ESC:	.equ	-1			;取消
+RL_E_RET:	.equ	0			;確定
+RL_E_NEXT:	.equ	1			;↓/ROLL UP
+RL_E_PREV:	.equ	2			;↑/ROLL DOWN
+
+
+* End of File --------------------------------- *
+
+		.list

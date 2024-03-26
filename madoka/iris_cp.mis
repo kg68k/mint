@@ -1,0 +1,13 @@
+#!madoka
+#	iris_cp - fcp でマークファイルを複写する
+#	fcp と na_iris02.mag が必要
+#				Copyright (C)1999/04/27 立花えりりん
+#	使用例)
+#		>KEY_C_	-c-----	&madoka $MINT_PATH/iris_cp.mis
+  -ap \
+	&title-load -n $MINT_PATH/na_iris02.mag;
+	fcp $M $O;
+	&pop-text;
+	&reload -d2;
+	&end
+# EOF

@@ -1,0 +1,29 @@
+#!madoka
+# digicame.mis - デジカメ画像ファイルを整理する(2001-11-27)
+# Copyright (C) 2001 Tachibana Eriko
+# 元ネタは 2ch の「ファイラーを語ろう Part4」スレの512番
+#	http://pc.2ch.net/test/read.cgi/win/1000096717/512n
+	- \
+	&unless ( &equ $C G:/未整理 ) { &end }
+	&unless ( &match DSCF[0-9][0-9][0-9][0-9].JPG $F ) { &end }
+	&unless ( &file-check $F ) { &end }
+	&set date "$TIMESTAMP:s/ /./:r";
+	&set dir "G:/日付別/$date:s^/^-^g";
+	&unless ( -d $dir ) {
+		&unless ( &mkdir $dir ) { &end }
+	}
+	&clear-mark;
+	&cursor-to-home;
+	&foreach ( ) {
+		&if ( &file-check $F ) {
+			&if ( &equ "$TIMESTAMP:s/ /./:r" $date ) {
+				&unless ( &mark ) { &break }
+				&continue;
+			}
+		}
+		&unless ( &cursor-down ) { &break }
+	}
+	&if ( $# > 0 ) {
+		&move -d $dir
+	}
+	&end

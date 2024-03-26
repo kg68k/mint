@@ -1,0 +1,49 @@
+#!madoka
+#	システム変数/変更可能文字列同名チェッカ
+#				Copyright (C) 1999-2006 立花＠桑島技研
+#
+#	同名のシステム変数や変更可能文字列がないか調べる.
+#	sortf、diff、uniq、cat、cut が必要.
+#	$%MINTSHELL = fish であること(UNIX 系なら使えるかも知れない).
+#
+	-ap- \
+	&unless ( &maketmp t1 ) {
+		&print "作業用ファイル作成エラー";
+		&end
+	}
+	&unless ( &maketmp t2 ) {
+		&print "作業用ファイル作成エラー";
+		&end
+	}
+	&echo "システム変数を調べています...";
+	e:/mint-current/mint -l >> $t1;
+	sortf $t1 | diff -Naur $t1 -;
+	&if {
+		&rm $t1 $t2;
+		&unset t1 t2;
+		&print "システム変数が正しく整列していません";
+		&end
+	}
+	uniq -d $t1 $t2;
+	&unless ( -z $t2 ) {
+		cat $t2;
+		&rm $t1 $t2;
+		&unset t1 t2;
+		&print "同名のシステム変数が複数個あります";
+		&end
+	}
+	&echo "変更可能文字列を調べています...";
+	e:/mint-current/mint -m | cut -f1 | sortf | uniq -d - $t2;
+	&unless ( -z $t2 ) {
+		cat $t2;
+		&rm $t1 $t2;
+		&unset t1 t2;
+		&print "同名の変更可能文字列が複数個あります";
+		&end
+	}
+	&rm $t1 $t2;
+	&unset t1 t2;
+	&clear-exec-screen;
+	&print -s200 "システム変数及び変更可能文字列の" \
+		     "   同名チェックが終了しました";
+	&end
