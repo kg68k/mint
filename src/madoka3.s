@@ -1605,6 +1605,7 @@ exe_m_loop:
 * 行入力バッファを確保
 		clr.l	-(sp)
 		addq	#1,(sp)			;RL_MAX+1
+		.fail	(RL_MAX+1)!=$0001_0000
 		DOS	_MALLOC
 		move.l	d0,(sp)+
 		bmi	exe_m_memory_error
@@ -4021,40 +4022,14 @@ exe_cmd_file:
 		tst.b	(Q_sw_p,a5)
 		bne	exe_cmd_skip_print	;-p 指定時は表示しない
 @@:
-		move.l	d1,-(sp)		;hupair_encode で破壊されるので
-		DOS	_MALLOC			;トークン列のコピーを渡す
-		move.l	d0,(sp)+
-		bmi	exe_cmd_skip_print
+		pea	(a0)			;トークン列を保存
 
-		move.l	a0,-(sp)		;元アドレス
-		move.l	d0,-(sp)
-		movea.l	d0,a1			;新アドレス
-
-		moveq	#$f,d0
-		and	d1,d0			;端数
-		lsr.l	#4,d1
-		bra	1f
-@@:
-	.rept	4
-		move.l	(a0)+,(a1)+
-	.endm
-1:		subq.l	#1,d1
-		bcc	@b
-		bra	1f
-@@:
-		move.b	(a0)+,(a1)+		;端数を転送
-1:		subq	#1,d0
-		bcc	@b
-
-		movea.l	(sp),a0
 		move.l	d7,d0
-		lea	(str_nul+.sizeof.('NUL'),pc),a1
+		lea	(str_nulstr,pc),a1
 		bsr	hupair_encode
 		bmi	exe_cmd_print_error
-		DOS	_MFREE			;コピーバッファを解放する
-**		addq.l	#4,sp
 
-		move.l	a0,(sp)			;バッファ
+		move.l	a0,-(sp)		;HUPAIR バッファ(出力したら解放する)
 		lea	(HUPAIR_ID_SIZE+1,a0),a1
 
 		tst.b	(Q_sw_p,a5)
@@ -4071,10 +4046,10 @@ exe_cmd_file:
 		bsr	make_cmd_sw		;ヒストリに登録する
 		jsr	(add_cmd_his)
 @@:
-exe_cmd_print_error:
 		DOS	_MFREE			;HUPAIR バッファを解放
 		addq.l	#4,sp
-		movea.l	(sp)+,a0
+exe_cmd_print_error:
+		movea.l	(sp)+,a0		;トークン列
 exe_cmd_skip_print:
 		move.l	d7,d0
 		bsr	execute_file		;ファイル実行
@@ -4664,6 +4639,7 @@ sh_enc_memerr:
 *		.dc.b	len
 *		.dc.b	'arg...',0
 *	ccr	<tst.l d0> の結果
+* トークン列の内容は破壊しない
 
 PUT:		.macro	put_op
 		subq.l	#1,d7
@@ -4671,10 +4647,19 @@ PUT:		.macro	put_op
 		put_op
 		.endm
 
+get_next_char:
+@@:		move.b	(a0)+,d0
+		cmpi.b	#TC_FILE,d0
+		beq	@b
+		cmpi.b	#TC_ESC,d0
+		bne	@f
+		move.b	(a0)+,d0
+@@:		tst.b	d0
+		rts
+
 hupair_encode::
 		PUSH	d3-d7/a1-a4
-		move.l	d0,d4
-		lea	(a1),a4
+		move.l	d0,d4			;トークン数
 
 		pea	(-1)
 		DOS	_MALLOC
@@ -4682,15 +4667,14 @@ hupair_encode::
 		clr.b	(sp)
 		DOS	_MALLOC
 		move.l	(sp)+,d7		;バッファサイズ
-		move.l	d0,d6
+		move.l	d0,d6			;バッファアドレス(メモリブロック)
 		bmi	hu_enc_memerr
-
-		movea.l	d6,a2
 
 		STRLEN	a1,d0,+HUPAIR_ID_SIZE+1+1
 		sub.l	d0,d7			;HUPAIR_ID,…,NUL,argv0,NUL のサイズ
 		bcs	hu_enc_overflow
 
+		movea.l	d6,a2
 		move.l	#'#HUP',(a2)+
 		move.l	#'AIR'<<8,(a2)+
 		st	(a2)+			;コマンドラインの長さ(暫定)
@@ -4698,30 +4682,26 @@ hupair_encode::
 
 		tst.l	d4
 		beq	hu_enc_nulstr
-
-		move.l	a0,d5			;トークンバッファ先頭
 hu_enc_loop:
-		movea.l	d5,a1
-		bsr	remove_tc		;特殊コードを除外する
+		lea	(a0),a4			;先読みするのでトークンのアドレスを保存
 
 * クォーティング記号を判別する
-		movea.l	d5,a1
-		move.b	(a1)+,d3
-		beq	hu_enc_qd		;空文字列
+		bsr	get_next_char
+		beq	hu_enc_qd		;空文字列なら "" とする
 hu_enc_q_loop:
-		cmpi.b	#"'",d3
+		cmpi.b	#"'",d0
 		beq	hu_enc_qd
-		cmpi.b	#'"',d3
+		cmpi.b	#'"',d0
 		beq	hu_enc_qs
-		cmpi.b	#SPACE,d3
+		cmpi.b	#SPACE,d0
 		bne	hu_enc_q_next
 
 * 空白があれば " または ' のどちらか
-@@:		move.b	(a1)+,d3
+@@:		bsr	get_next_char
 		beq	hu_enc_qd
-		cmpi.b	#"'",d3
+		cmpi.b	#"'",d0
 		beq	hu_enc_qd
-		cmpi.b	#'"',d3
+		cmpi.b	#'"',d0
 		bne	@b
 hu_enc_qs:
 		moveq	#"'",d3
@@ -4731,15 +4711,14 @@ hu_enc_qd:
 @@:		PUT	<move.b  d3,(a2)+>	;クォーティング開始
 		bra	@f
 hu_enc_q_next:
-		move.b	(a1)+,d3
+		bsr	get_next_char
 		bne	hu_enc_q_loop
 
 		moveq	#0,d3			;クォーティング不要
 @@:
 * クォーティングしながら転送する
-		movea.l	d5,a1
-		move.b	(a1)+,d0
-		beq	hu_enc_next
+		lea	(a4),a0			;トークンの先頭
+		bra	1f
 hu_enc_loop2:
 		cmp.b	d0,d3
 		bne	@f
@@ -4748,7 +4727,7 @@ hu_enc_loop2:
 		PUT	<move.b  d3,(a2)+>	;クォーティング再開
 @@:
 		PUT	<move.b  d0,(a2)+>
-		move.b	(a1)+,d0
+1:		bsr	get_next_char
 		bne	hu_enc_loop2
 hu_enc_next:
 		tst.b	d3
@@ -4769,7 +4748,7 @@ hu_enc_nulstr:
 		bcc	@f
 		move.b	d1,-(a3)
 @@:
-		STRCPY	a4,a2			;argv0 を末尾に付ける
+		STRCPY	a1,a2			;argv0 を末尾に付ける
 
 		movea.l	d6,a0			;バッファ先頭
 		suba.l	a0,a2			;バッファサイズ
@@ -6864,7 +6843,8 @@ str_home:	.dc.b	'HOME',0
 str_nul:	.dc.b	'NUL',0
 str_0:		.dc.b	'0',0
 str_1:		.dc.b	'1',0
-str_ul:		.dc.b	'_',0
+str_ul:		.dc.b	'_'
+str_nulstr:	.dc.b	0
 
 str_left:	.dc.b	'left',0
 str_right:	.dc.b	'right',0
