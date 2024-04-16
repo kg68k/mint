@@ -4453,42 +4453,20 @@ exe_file_search_ok:
 		bmi	exe_file_error2
 
 * HUPAIR チェック
-		movea.l	d7,a0
-		addq.l	#2,a0
-		cmpi.l	#'#HUP',(a0)+
-		bne	@f
-		cmpi.l	#'AIR'<<8,(a0)+
-		beq	exe_file_hupair_ok	;HUPAIR 対応
-@@:
-* 実行ファイルが HUPAIR 未対応なら、
-* HUPAIR エンコーディングを解除する
-		lea	(a4),a0
-		clr.l	(a0)+			;HUPAIR 識別子を潰す
-		clr.l	(a0)+
-		addq.l	#1,a0
+  movea.l d7,a0
+  addq.l #2,a0  ;実行開始アドレス+2
+  cmpi.l #'#HUP',(a0)+
+  bne @f
+    cmpi.l #'AIR'<<8,(a0)+
+    beq exe_file_hupair_ok  ;HUPAIR対応
+  @@:
+  lea (HUPAIR_ID_SIZE,a4),a0  ;HUPAIR非対応の場合、コマンドラインの長さに制限がある
+  cmpi.b #$ff,(a0)+
+  bcs exe_file_hupair_ok  ;255バイト未満なら実行可能
 
-		moveq	#SPACE,d1
-		lea	(a0),a1
-		lea	(GetArgChar),a2
-		pea	(a0)
-		jsr	(GetArgCharInit-GetArgChar,a2)
-		addq.l	#4,sp
-exe_file_dec_loop:
-		jsr	(a2)
-@@:		move.b	d0,(a1)+
-		bne	exe_file_dec_loop
-		move.b	d1,(-1,a1)
-		jsr	(a2)
-		tst.l	d0
-		bpl	@b
-
-		clr.b	-(a1)
-		move.l	a1,d1
-		sub.l	a0,d1
-		move.b	d1,-(a0)		;文字列長
-
-		lsr.l	#8,d1
-		beq	exe_file_hupair_ok	;255 バイト以下なら実行可能
+  STRLEN a0,d0  ;255のとき、実際に255バイトの場合と256バイト以上の場合があるので確認する
+  lsr.l #8,d0
+  beq exe_file_hupair_ok  ;255バイトなら実行可能
 
 * HUPAIR 未対応の実行ファイルに 255 バイトを超える
 * 引数を渡そうとした場合はエラーを返す
