@@ -106,6 +106,10 @@ TERM:		.equ	LF
 TC_FILE:	.equ	$08
 TC_ESC:		.equ	$09
 
+* 内蔵固定バッファの大きさ
+UNFOLD_BUF_SIZE:  .equ 256
+CMDLINE_BUF_SIZE: .equ 256
+
 
 * Offset Table -------------------------------- *
 
@@ -229,10 +233,7 @@ PR_STR:		.macro	str
 		bmi	madoka_error_close
 
 		addq.l	#4,d0
-		move.l	d0,-(sp)
-		move	(malloc_mode),-(sp)
-		DOS	_MALLOC2
-		addq.l	#6,sp
+		bsr	malloc_from_same_side
 		move.l	d0,d5			;buffer
 		bmi	madoka_error_close
 
@@ -316,6 +317,37 @@ madoka_error:
 *	.dc.b	'#!madoka...'
 *	.dc.b	' -api command...'
 *	.dc.b	0
+
+
+* メモリブロック確保 -------------------------- *
+
+* mint.x本体と同じモードでメモリブロックを確保する
+* in  d0.l  確保するバイト数
+* out d0.l  メモリブロックのアドレス(負数ならエラー)
+
+malloc_from_same_side:
+  move.l d0,-(sp)
+  move (malloc_mode),-(sp)
+  DOS _MALLOC2
+  addq.l #6,sp
+  rts
+
+
+* 最大サイズでメモリブロックを確保する
+* out d0.l  確保したバイト数(負数ならエラー)
+*     a0.l  メモリブロックのアドレス
+
+malloc_all:
+  move.l #$00ffffff,-(sp)
+  DOS _MALLOC
+  and.l d0,(sp)
+  DOS _MALLOC
+  movea.l (sp)+,a0
+  tst.l d0
+  bmi @f
+    exg d0,a0  ;d0=サイズ, a0=アドレス
+  @@:
+  rts
 
 
 * quick 実行(番号指定) ------------------------ *
@@ -505,10 +537,11 @@ exe_q_match:
 		bsr	unfold_macro		;マクロ展開
 		bmi	exe_q_done
 
-		move.l	d7,-(sp)
-		beq	@f
-		DOS	_MFREE			;スクリプトファイルを読み込んだ
-@@:		addq.l	#4,sp			;バッファを解放する
+  move.l d7,-(sp)
+  ble @f
+    DOS _MFREE  ;スクリプトファイルを読み込んだバッファを解放する
+  @@:
+  addq.l #4,sp
 
 		move.b	(debug_flag,pc),d0
 		beq	@f
@@ -558,10 +591,8 @@ exe_q_expand:
 
 * 実行終了
 exe_q_done:
-		move.l	(Q_buf_top,a5),-(sp)
-		ble	@f
-		DOS	_MFREE
-@@:		addq.l	#4,sp
+  move.l (Q_buf_top,a5),d0
+  bsr free_unfold_buffer
 
 		lea	(q_ptr,pc),a0
 		move.l	(Q_old_q_ptr,a5),(a0)
@@ -585,43 +616,65 @@ exe_q_abort:
 *	a1.l	メモリブロックのアドレス
 * out	a1.l	移動先のアドレス
 * 備考:
-*	メモリが確保できなかった場合はそのままにする.
+*	malloc_mode=2のときのみ移動する。
+*	メモリが確保できなかった場合はそのままにする。
 
 lift_memory_block:
-		PUSH	d0-d1/a0/a2
-		move.l	d1,-(sp)		;バッファを上位メモリに移動する
-		move	#2,-(sp)
-		DOS	_MALLOC2
-		addq.l	#6,sp
-		tst.l	d0
-		bmi	exe_q_lift_end
+  PUSH d0/d7/a0
+  moveq #2,d0
+  cmp (malloc_mode),d0
+  bne lift_memblk_end
+    move.l d1,-(sp)
+    move d0,-(sp)
+    DOS _MALLOC2
+    addq.l #6,sp
+    move.l d0,d7
+    bmi lift_memblk_end
+      pea (a1)  ;転送後に解放するメモリブロック
 
-		lea	(a1),a0			;元アドレス
-		movea.l	d0,a1
-		movea.l	d0,a2			;新アドレス
-		pea	(a0)
+      movea.l d7,a0  ;転送先
+      move.l d1,d0   ;サイズ
+      bsr memory_copy
 
-		moveq	#$f,d0
-		and	d1,d0			;端数
-		lsr.l	#4,d1
-		bra	1f
-@@:
-	.rept	4
-		move.l	(a0)+,(a2)+		;16 バイト単位で転送
-	.endm
-1:		subq.l	#1,d1
-		bcc	@b
-		bra	1f
-@@:
-		move.b	(a0)+,(a2)+		;端数を転送
-1:		subq	#1,d0
-		bcc	@b
+      DOS _MFREE  ;元のメモリブロックを解放する
+      addq.l  #4,sp
 
-		DOS	_MFREE
-		addq.l	#4,sp
-exe_q_lift_end:
-		POP	d0-d1/a0/a2
-		rts
+      movea.l d7,a1
+lift_memblk_end:
+  POP d0/d7/a0
+  rts
+
+
+* メモリ内容を複写する ------------------------ *
+* in  d0.l  バイト数
+*     a0.l  バッファアドレス(偶数アドレスであること)
+*     a1.l  データアドレス(偶数アドレスであること)
+* out a0.l  転送先末尾のアドレス
+*     a1.l  転送元末尾のアドレス
+* break d0
+
+memory_copy:
+  move d0,-(sp)
+  lsr.l #4,d0
+  bra 1f
+  @@:
+    .rept 4
+      move.l (a1)+,(a0)+  ;16バイト単位で転送
+    .endm
+  dbra d0,@b
+  clr d0
+  1:
+  subq.l #1,d0
+  bcc @b
+
+  moveq #$f,d0
+  and (sp)+,d0  ;16バイト未満の端数
+  bra 1f
+  @@:
+    move.b (a1)+,(a0)+  ;1バイト単位で転送
+  1:
+  dbra d0,@b
+  rts
 
 
 * コマンドスイッチを初期化する ---------------- *
@@ -813,7 +866,7 @@ ana_cmd_sw_no_sw:
 
 * 本来の madoka の仕様からは外れるが、v2.xx との互換性のため
 * オプションの直後が改行になっている定義を許容する。
-* 例).pic -
+* 例: .pic -
 *	hapic $F
 
 * 影響を最小限に抑えるため、コマンドスイッチ解析の後処理として呼び出す。
@@ -933,6 +986,7 @@ skip_madoka_end2:
 * in	a1.l	madoka 本文
 * out	d0.l	0:正常終了 -1:メモリ不足
 *	ccr	<tst.l d0> の結果
+* バッファは free_unfold_buffer で解放すること。
 
 * マクロ展開開始
 *		.dc.b	PREFIX,'('
@@ -945,12 +999,6 @@ skip_madoka_end2:
 * マクロ展開終了
 *		.dc.b	PREFIX,')'
 
-PUT:		.macro	put_op
-		subq.l	#1,d7
-		bcs	unf_mac_overflow
-		put_op
-		.endm
-
 REQ_BRACE1:	.equ	13
 REQ_BRACE2:	.equ	12
 S_QUOTE:	.equ	11
@@ -960,58 +1008,115 @@ AFTER_CHAIN:	.equ	8
 
 MASK:		.equ	.not.(1<<S_QUOTE+1<<D_QUOTE+1<<REQ_BRACE1+1<<REQ_BRACE2)
 
+PUT: .macro put_op
+  subq.l #1,d7
+  bcc @skip
+    bsr realloc_unfold_buffer
+  @skip:
+  put_op
+.endm
+
 unfold_macro::
-		PUSH	d1-d7/a0-a4
-		move.l	sp,(Q_sp_save,a5)
+  PUSH d1-d7/a0-a4
+  move.l sp,(Q_sp_save,a5)
 
-		pea	(-1)
-		DOS	_MALLOC
-		move.l	d0,(sp)
-		clr.b	(sp)
-		DOS	_MALLOC
-		move.l	(sp)+,d7		;バッファサイズ
-		move.l	d0,(Q_buf_top,a5)
-		bmi	unf_mac_error
+  move.l #UNFOLD_BUF_SIZE,d7
+  movea.l (unfold_buf_ptr,pc),a0
+  tas (unfold_buf_inuse)
+  beq @f  ;内蔵固定バッファが未使用ならそちらを使う
+    bsr malloc_all
+    move.l d0,d7  ;バッファサイズ
+    bmi unf_mac_error
+  @@:
+  move.l a0,(Q_buf_top,a5)
+  lea (a0),a2  ;書き込みポインタ
 
-		movea.l	d0,a2
-		moveq	#0,d6
-		lea	(sp),a4
-		bsr	unfold_macro_sub
+  moveq #0,d6
+  lea (sp),a4
+  bsr unfold_macro_sub
+  PUT <clr.b (a2)+>  ;正常終了
 
-		PUT	<clr.b  (a2)+>		;正常終了
+  movea.l (Q_buf_top,a5),a1
+  move.l a2,d1
+  sub.l a1,d1
+  move.l d1,(Q_buf_size,a5)
 
-		movea.l	(Q_buf_top,a5),a1	;メモリブロックを必要サイズに
-		move.l	a2,d1			;切り詰める
-		sub.l	a1,d1
-		move.l	d1,-(sp)
-		pea	(a1)
-		DOS	_SETBLOCK
-		addq.l	#8,sp
-
-		move.l	d1,(Q_buf_size,a5)
-		tst	(malloc_mode)
-		bne	unf_mac_success
-
-		bsr	lift_memory_block	;高位メモリに移動
-		move.l	a1,(Q_buf_top,a5)
-unf_mac_success:
-		moveq	#0,d0
-		bra	unf_mac_return
+  cmpa.l (unfold_buf_ptr,pc),a1
+  beq @f
+    move.l d1,-(sp)  ;メモリブロックを必要サイズに切り詰める
+    pea (a1)
+    DOS _SETBLOCK
+    addq.l #8,sp
+    bsr lift_memory_block  ;必要なら高位メモリに移動
+    move.l a1,(Q_buf_top,a5)
+  @@:
+  moveq #0,d0
+  bra unf_mac_return
 unf_mac_overflow:
-		movea.l	(Q_sp_save,a5),sp	;バッファ容量不足
-		move.l	(Q_buf_top,a5),-(sp)
-		DOS	_MFREE
-		addq.l	#4,sp
+  move.l (Q_buf_top,a5),d0
+  bsr free_unfold_buffer  ;バッファ容量不足
 unf_mac_error:
-		moveq	#-1,d0			;バッファ確保失敗
+  movea.l (Q_sp_save,a5),sp
+  moveq #-1,d0  ;バッファ確保失敗
 unf_mac_return:
-		POP	d1-d7/a0-a4
-		rts
+  POP d1-d7/a0-a4
+  rts
 
 
-* マクロ展開下請け
+;マクロ展開バッファを再確保する
+;  成功時はd7/a2、Q_buf_topが更新される。
+;  エラー時は呼び出し元に戻らずエラー処理に飛ぶ(飛び先でspを復旧させること)。
+realloc_unfold_buffer:
+  PUSH d0/a0-a1
+  movea.l (Q_buf_top,a5),a1
+  cmpa.l (unfold_buf_ptr,pc),a1
+  bne unf_mac_overflow  ;既に_MALLOCで確保している
+
+  suba.l a1,a2  ;書き込み済みサイズ
+
+  bsr malloc_all
+  move.l a0,(Q_buf_top,a5)  ;新しいバッファ先頭アドレス
+  move.l d0,d7              ;新しいバッファサイズ
+  bmi unf_mac_error  ;このエラーは_MFREE不要
+
+  sub.l a2,d7
+  bls unf_mac_overflow
+  subq.l #1,d7  ;PUTマクロで引いた分を新しいバッファ残量から引き直す
+  ;bcs unf_mac_overflow  ;上でblsしているので不要
+
+  move.l a2,d0  ;内蔵固定バッファから_MALLOCで確保したバッファに複写する
+  bsr memory_copy
+
+  lea (a0),a2  ;新しい書き込みポインタ
+  POP d0/a0-a1
+  bra free_internal_unfold_buffer
+
+
+;マクロ展開バッファ(内蔵固定バッファ)を未使用状態にする
+;  レジスタを破壊しないこと。
+
+free_internal_unfold_buffer:
+  clr.b (unfold_buf_inuse)
+  rts
+
+
+* マクロ展開バッファを解放する ---------------- *
+* in  d0.l  バッファアドレス
+* break d0
+
+free_unfold_buffer:
+  cmp.l (unfold_buf_ptr,pc),d0
+  beq free_internal_unfold_buffer
+
+  move.l d0,-(sp)
+  DOS _MFREE
+  addq.l #4,sp
+  rts
+
+
+* マクロ展開下請け ---------------------------- *
+
 unfold_macro_sub::
-		tst.l	d0			;ダミー
 unf_mac_loop:
 		bsr	skip_blank
 		beq	unf_mac_no_blank
@@ -1561,17 +1666,14 @@ execute_madoka::
 exe_m_loop:
 		clr.l	(Q_rl_ptr,a5)
 
-		pea	(-1)			;トークン切り出しバッファを確保
-		DOS	_MALLOC
-		move.l	d0,(sp)
-		clr.b	(sp)
-		DOS	_MALLOC
-		move.l	(sp),d7			;サイズ
-		move.l	d0,(sp)
+		bsr	malloc_all		;トークン切り出しバッファを確保
+		move.l	d0,-(sp)
 		bmi	exe_m_memory_error
+		move.l	a0,(sp)			;終了時に解放するためスタックに積んでおく
 
-		movea.l	d0,a4
-		lea	(a4),a2			;書き込みポインタ
+		move.l	d0,d7			;バッファサイズ
+		lea	(a0),a4			;バッファ先頭
+		lea	(a0),a2			;書き込みポインタ
 		moveq	#0,d6
 		bra	1f
 @@:
@@ -4046,8 +4148,8 @@ exe_cmd_file:
 		bsr	make_cmd_sw		;ヒストリに登録する
 		jsr	(add_cmd_his)
 @@:
-		DOS	_MFREE			;HUPAIR バッファを解放
-		addq.l	#4,sp
+		movea.l	(sp)+,a0
+		bsr	free_hupair_buffer
 exe_cmd_print_error:
 		movea.l	(sp)+,a0		;トークン列
 exe_cmd_skip_print:
@@ -4147,24 +4249,10 @@ exe_cmd_b_loop:
 		subq.l	#1,d0
 		bne	exe_cmd_b_loop
 exe_cmd_b_no_arg:
-.if 0
-* 特殊コードを削除した分メモリブロックを縮小できるが、
-* たいした量ではないので速度向上の為そのままにしておく.
-		suba.l	(Q_funcname,a5),a3
-		pea	(MARGIN,a3)		;引数列の末尾に余裕を持たせる
-		move.l	(Q_funcname,a5),-(sp)
-		DOS	_SETBLOCK
-		addq.l	#8,sp
-.endif
 exe_cmd_b_thru:
 		move.l	d7,d0			;引数の数(0～)
 		jsr	(a1)			;内部命令呼び出し
-
-		movea.l	(q_ptr,pc),a5
-		move.l	(Q_funcname,a5),-(sp)
-		ble	@f
-		DOS	_MFREE			;トークンバッファを解放
-@@:		addq.l	#4,sp
+		bsr	free_token_buf
 
 		POP	d0-d7/a0-a5
 		rts
@@ -4331,50 +4419,24 @@ exe_file_no_shell:
 		lea	(~exe_argv0,a3),a1	;argv0
 exe_file_search_ok:
 * 引数エンコード
-		move.l	d7,d0
-		bsr	hupair_encode
-		bmi	exe_file_error2
+  move.l d7,d0
+  bsr hupair_encode
+  move.l d0,d7  ;コマンドラインバッファのサイズ
+  bmi exe_file_error2
 
-		exg	a0,a4
-		move.l	d0,d7
+  pea (a4)  ;不要になったトークンバッファを解放する
+  DOS _MFREE
+  addq.l #4,sp
 
-* トークンバッファ解放
-		pea	(a0)
-		DOS	_MFREE
-		addq.l	#4,sp
+  movea.l  a0,a4  ;コマンドラインバッファのアドレス
 
-* 引数を上位メモリに移動する
-		move.l	d7,-(sp)
-		move	#2,-(sp)
-		DOS	_MALLOC2
-		addq.l	#6,sp
-		move.l	d0,d2
-		bmi	exe_file_lift_skip
-
-		movea.l	d0,a1			;新しいバッファ
-		pea	(a4)
-
-		moveq	#$f,d0
-		and	d7,d0			;端数
-		lsr.l	#4,d7
-		bra	1f
-@@:
-	.rept	4
-		move.l	(a4)+,(a1)+		;16 バイト単位で転送
-	.endm
-1:		subq.l	#1,d7
-		bcc	@b
-		bra	1f
-@@:
-		move.b	(a4)+,(a1)+		;端数を転送
-1:		subq	#1,d0
-		bcc	@b
-
-		movea.l	d2,a4
-
-		DOS	_MFREE			;以前のバッファを解放
-		addq.l	#4,sp
-exe_file_lift_skip:
+  cmpa.l (cmdline_buf_ptr,pc),a4
+  beq @f
+    move.l d7,d1
+    lea (a4),a1
+    bsr lift_memory_block
+    lea (a1),a4
+  @@:
 
 * 実行ファイルロード
 		PUSH	a3/a4
@@ -4473,10 +4535,8 @@ exe_file_error2:
 exe_file_error:
 		bsr	print_dos_error
 exe_file_end:
-		move.l	a4,-(sp)		;各種バッファ可能
-		ble	@f
-		DOS	_MFREE
-@@:		addq.l	#4,sp
+  movea.l a4,a0
+  bsr free_hupair_buffer
 
 		POP	d0-d7/a0-a6
 		rts
@@ -4500,16 +4560,13 @@ shell_encode::
 		PUSH	d1-d7/a1-a3
 		move.l	d0,d4
 
-		pea	(-1)
-		DOS	_MALLOC
-		move.l	d0,(sp)
-		clr.b	(sp)
-		DOS	_MALLOC
-		move.l	(sp)+,d7		;バッファサイズ
-		move.l	d0,d6
+		lea	(a0),a2
+		bsr	malloc_all
+		move.l	d0,d7			;バッファサイズ
 		bmi	sh_enc_memerr
+		move.l	a0,d6			;バッファアドレス
 
-		movea.l	d6,a2
+		exg	a0,a2			;a0=トークン列, a2=書き込みポインタ
 		moveq	#1,d5			;引数の数
 
 * シェルオプションを分割しながら転送する
@@ -4632,58 +4689,44 @@ sh_enc_memerr:
 * in	d0.l	トークン数
 *	a0.l	トークン列
 *	a1.l	argv0
-* out	d0.l	バッファサイズ(負数ならエラーコード)
+* out	d0.l	データサイズ(負数ならエラーコード)
 *	d1.l	コマンドラインの長さ
 *	a0.l	バッファアドレス
 *		.dc.b	'#HUPAIR',0
-*		.dc.b	len
+*		.dc.b	len			;a0+8
 *		.dc.b	'arg...',0
+*		.dc.b	'argv0',0
 *	ccr	<tst.l d0> の結果
-* トークン列の内容は破壊しない
+* トークン列の内容は破壊しない。
+* バッファは free_hupair_buffer で解放すること。
 
-PUT:		.macro	put_op
-		subq.l	#1,d7
-		bcs	hu_enc_overflow
-		put_op
-		.endm
-
-get_next_char:
-@@:		move.b	(a0)+,d0
-		cmpi.b	#TC_FILE,d0
-		beq	@b
-		cmpi.b	#TC_ESC,d0
-		bne	@f
-		move.b	(a0)+,d0
-@@:		tst.b	d0
-		rts
+PUT: .macro put_op
+  subq.l #1,d7
+  bcc @skip
+    bsr realloc_hupair_buffer
+  @skip:
+  put_op
+  .endm
 
 hupair_encode::
-		PUSH	d3-d7/a1-a4
-		move.l	d0,d4			;トークン数
+  PUSH d3-d7/a1-a4
+  move.l d0,d4  ;トークン数
 
-		pea	(-1)
-		DOS	_MALLOC
-		move.l	d0,(sp)
-		clr.b	(sp)
-		DOS	_MALLOC
-		move.l	(sp)+,d7		;バッファサイズ
-		move.l	d0,d6			;バッファアドレス(メモリブロック)
-		bmi	hu_enc_memerr
+  ;最初は内蔵固定バッファに書き込む
+  move.l #CMDLINE_BUF_SIZE,d7
+  move.l (cmdline_buf_ptr,pc),d6
+  movea.l d6,a2  ;書き込みポインタ
 
-		STRLEN	a1,d0,+HUPAIR_ID_SIZE+1+1
-		sub.l	d0,d7			;HUPAIR_ID,…,NUL,argv0,NUL のサイズ
-		bcs	hu_enc_overflow
+  subq.l #HUPAIR_ID_SIZE,d7
+  move.l #'#HUP',(a2)+
+  move.l #'AIR'<<8,(a2)+
+  subq.l #1,d7
+  st (a2)+     ;コマンドラインの長さ(暫定で255)
 
-		movea.l	d6,a2
-		move.l	#'#HUP',(a2)+
-		move.l	#'AIR'<<8,(a2)+
-		st	(a2)+			;コマンドラインの長さ(暫定)
-		lea	(a2),a3
-
-		tst.l	d4
-		beq	hu_enc_nulstr
+  tst.l d4
+  beq hu_enc_noarg  ;引数が一つもない場合
 hu_enc_loop:
-		lea	(a0),a4			;先読みするのでトークンのアドレスを保存
+  lea (a0),a4  ;先読みするのでトークンのアドレスを保存
 
 * クォーティング記号を判別する
 		bsr	get_next_char
@@ -4729,44 +4772,118 @@ hu_enc_loop2:
 		PUT	<move.b  d0,(a2)+>
 1:		bsr	get_next_char
 		bne	hu_enc_loop2
-hu_enc_next:
+
 		tst.b	d3
 		beq	@f
 		PUT	<move.b  d3,(a2)+>	;クォーティング終了
 @@:
-		PUT	<move.b  #SPACE,(a2)+>
-		subq.l	#1,d4
-		bne	hu_enc_loop
-		subq.l	#1,a2
-hu_enc_nulstr:
-		clr.b	(a2)
+hu_enc_noarg:
+  PUT <move.b #SPACE,(a2)+>
+  subq.l #1,d4
+  bhi hu_enc_loop
+  clr.b -(a2)
 
-		move.l	a2,d1
-		sub.l	a3,d1			;コマンドラインの長さ
-		addq.l	#1,a2
-		cmpi.l	#$ff,d1
-		bcc	@f
-		move.b	d1,-(a3)
-@@:
-		STRCPY	a1,a2			;argv0 を末尾に付ける
+hu_enc_endofargs:
+  movea.l d6,a3
+  lea (HUPAIR_ID_SIZE+1,a3),a3  ;コマンドラインの先頭
+  move.l a2,d1
+  sub.l a3,d1   ;コマンドラインの長さ。返り値なので破壊しないこと
+  cmpi.l #$ff,d1
+  bcc @f
+    move.b d1,-(a3)  ;確定したコマンドラインの長さを書き込む
+  @@:
+  addq.l #1,a2
 
-		movea.l	d6,a0			;バッファ先頭
-		suba.l	a0,a2			;バッファサイズ
-		move.l	a2,-(sp)
-		pea	(a0)
-		DOS	_SETBLOCK
-		addq.l	#8,sp
-		move.l	a2,d0
+  STRLEN a1,d3,+1  ;argv0+NULの長さ
+  cmp.l d3,d7
+  bcc @f
+    bsr realloc_hupair_buffer
+  @@:
+  sub.l d3,d7
+  bcs hu_enc_overflow
+  STRCPY a1,a2  ;argv0 を末尾に付ける
+
+  movea.l d6,a0  ;バッファ先頭。返り値なので破壊しないこと
+  suba.l a0,a2  ;書き込んだサイズ
+
+  cmpa.l (cmdline_buf_ptr,pc),a0
+  beq @f
+    move.l a2,-(sp)
+    pea (a0)
+    DOS _SETBLOCK
+    addq.l #8,sp
+  @@:
+  move.l a2,d0  ;データサイズ
 hu_enc_end:
-		POP	d3-d7/a1-a4
-		rts
+  POP d3-d7/a1-a4
+  rts
+
 hu_enc_overflow:
-		move.l	d6,-(sp)
-		DOS	_MFREE
-		addq.l	#4,sp
+  move.l d6,-(sp)
+  DOS _MFREE
+  addq.l #4,sp
 hu_enc_memerr:
-		moveq	#-8,d0
-		bra	hu_enc_end
+  moveq #-8,d0
+  bra hu_enc_end
+
+get_next_char:
+  @@:
+    move.b (a0)+,d0
+    cmpi.b #TC_FILE,d0
+  beq @b
+  cmpi.b #TC_ESC,d0
+  bne @f
+    move.b (a0)+,d0
+  @@:
+  tst.b d0
+  rts
+
+;HUPAIRバッファを再確保する
+;  成功時はd6/d7/a2が更新される。
+;  エラー時は呼び出し元に戻らずエラー処理に飛ぶ。
+realloc_hupair_buffer:
+  PUSH d0/a0-a1
+  cmp.l (cmdline_buf_ptr,pc),d6
+  bne realloc_hu_overflow  ;既に_MALLOCで確保している
+
+  suba.l d6,a2   ;書き込み済みサイズ
+  movea.l d6,a1  ;転送元アドレス(memory_copy呼び出し時の引数)
+
+  bsr malloc_all
+  move.l a0,d6  ;新しいバッファ先頭アドレス
+  move.l d0,d7  ;新しいバッファサイズ
+  bmi realloc_hu_memerr  ;このエラーは_MFREE不要
+
+  sub.l a2,d7
+  bls realloc_hu_overflow
+  subq.l #1,d7  ;PUTマクロで引いた分を新しいバッファ残量から引き直す
+  ;bcs realloc_hu_overflow  ;上でblsしているので不要
+
+  move.l a2,d0  ;内蔵固定バッファから_MALLOCで確保したバッファに複写する
+  bsr memory_copy
+
+  lea (a0),a2  ;新しい書き込みポインタ
+  POP d0/a0-a1
+  rts
+realloc_hu_memerr:
+  POP d0/a0-a1/a2  ;a2にリターンアドレスを読み捨てて、リターンせずにエラー処理に飛ぶ
+  bra hu_enc_memerr
+realloc_hu_overflow:
+  POP d0/a0-a1/a2
+  bra hu_enc_overflow
+
+
+* コマンドラインバッファを解放する ------------ *
+* in a0.l  バッファアドレス
+
+free_hupair_buffer:
+  cmpa.l (cmdline_buf_ptr,pc),a0
+  beq @f
+    move.l a0,-(sp)
+    DOS _MFREE
+    addq.l #4,sp
+  @@:
+  rts
 
 
 * 制御コード削除 ------------------------------ *
@@ -5565,10 +5682,8 @@ eval_sub:
 		PUSH	d1-d3/a1/a3-a4
 		add.l	(Q_buf_size,a5),d1	;必要サイズ
 
-		move.l	d1,-(sp)
-		move	#2,-(sp)		;malloc_mode
-		DOS	_MALLOC2
-		addq.l	#6,sp
+		move.l	d1,d0
+		bsr	malloc_from_same_side
 		move.l	d0,d2
 		bmi	eval_sub_end
 
@@ -5599,9 +5714,9 @@ eval_sub:
 
 		STRCPY	a4,a3			;残りの madoka を繋げる
 
-		move.l	d3,-(sp)
-		DOS	_MFREE			;以前のバッファを解放
-		clr.l	(sp)+			;N=0
+  move.l d3,d0
+  bsr free_unfold_buffer  ;以前のバッファを解放
+  moveq #0,d0
 eval_sub_end:
 		POP	d1-d3/a1/a3-a4
 		rts
@@ -6442,14 +6557,11 @@ if_cmd_paren_next:
 @@:
 * d5 = コマンド用のトークンを除いた残りの引数の数(0～)
 		sub.l	d5,d7			;トークン数(1～)
-		move.l	a1,d1
-		sub.l	a0,d1
-		addq.l	#1,d1			;トークンバッファのサイズ
+		move.l	a1,d0
+		sub.l	a0,d0
+		addq.l	#1,d0			;トークンバッファのサイズ
 
-		move.l	d1,-(sp)
-		move	#2,-(sp)		;malloc_mode
-		DOS	_MALLOC2
-		addq.l	#6,sp
+		bsr	malloc_from_same_side
 		tst.l	d0
 		bmi	if_cmd_memory_error
 
@@ -6622,13 +6734,10 @@ foreach_regular_word:
 		jsr	(set_user_value_a1_a2)	;変数を設定
 foreach_inf1:
 
-		move.l	(~fe_buf_size,sp),d1
-		move.l	d1,(Q_buf_size,a5)
+		move.l	(~fe_buf_size,sp),d0
+		move.l	d0,(Q_buf_size,a5)
 
-		move.l	d1,-(sp)
-		move	#2,-(sp)		;malloc_mode
-		DOS	_MALLOC2
-		addq.l	#6,sp
+		bsr	malloc_from_same_side
 		move.l	d0,(Q_buf_top,a5)
 		bmi	foreach_end
 
@@ -6647,9 +6756,8 @@ foreach_inf1:
 
 		bsr	execute_block
 
-		move.l	(Q_buf_top,a5),-(sp)
-		DOS	_MFREE
-		addq.l	#4,sp
+  move.l (Q_buf_top,a5),d0
+  bsr free_unfold_buffer
 
 		tst.b	(Q_abort,a5)
 		bne	foreach_end
@@ -6836,6 +6944,9 @@ call_command_history2:
 **		.data
 		.even
 
+unfold_buf_ptr:  .dc.l unfold_buf
+cmdline_buf_ptr: .dc.l cmdline_buf
+
 subwin_rl::	SUBWIN	8,8,80,1,NULL,NULL
 
 str_mintshell:	.dc.b	'MINTSHELL',0
@@ -6876,6 +6987,8 @@ init_sc_flag::	.ds	1
 debug_flag::	.ds.b	1
 prefix_flag:	.ds.b	1
 
+unfold_buf_inuse: .ds.b 1
+
 
 * Block Storage Section ----------------------- *
 
@@ -6885,6 +6998,9 @@ prefix_flag:	.ds.b	1
 tmp_buf:	.ds.b	512
 
 schr_tbl:	.ds.b	128
+
+unfold_buf:  .ds.b UNFOLD_BUF_SIZE
+cmdline_buf: .ds.b CMDLINE_BUF_SIZE
 
 
 		.end

@@ -357,19 +357,19 @@ message_name:
 
 default_message:
 ;&title
-	.if .sizeof.(mint_version)==5
-		.dc.b	' ─ mint version ',mint_version
-		.dc.b	' for X680x0 ──────────────  ',0
-	.else
-		.fail	1	;バージョン文字列に合わせて要調整
-	.endif
+		.dcb.b	1-.sizeof.(mint_version)&1,' '
+		.dc.b	' ─ mint version ',mint_version,' for X680x0 '
+	.rept (33-.sizeof.(mint_version))/2
+		.dc.b	'─'
+	.endm
+		.dc.b	'  ',0
 ;&titl0
-	.if .sizeof.(mint_version)==5
-		.dc.b	'  ─ mint version ',mint_version
-		.dc.b	' ───────────  ',0
-	.else
-		.fail	1	;バージョン文字列に合わせて要調整
-	.endif
+		.dcb.b	.sizeof.(mint_version)&1,' '
+		.dc.b	' ─ mint version ',mint_version,' '
+	.rept (28-.sizeof.(mint_version))/2
+		.dc.b	'─'
+	.endm
+		.dc.b	'  ',0
 
 ;&m_mes
 		.dc.b	' ────────────────────'
