@@ -4454,11 +4454,13 @@ exe_file_search_ok:
 
 * HUPAIR チェック
   movea.l d7,a0
-  addq.l #2,a0  ;実行開始アドレス+2
-  cmpi.l #'#HUP',(a0)+
-  bne @f
-    cmpi.l #'AIR'<<8,(a0)+
-    beq exe_file_hupair_ok  ;HUPAIR対応
+  lea (2+HUPAIR_ID_SIZE,a0),a0
+  cmpa.l a1,a0
+  bhi @f  ;メモリブロック末尾を超えるならチェックしない
+    cmpi.l #'AIR'<<8,-(a0)
+    bne @f
+      cmpi.l #'#HUP',-(a0)
+      beq exe_file_hupair_ok  ;HUPAIR対応
   @@:
   lea (HUPAIR_ID_SIZE,a4),a0  ;HUPAIR非対応の場合、コマンドラインの長さに制限がある
   cmpi.b #$ff,(a0)+
