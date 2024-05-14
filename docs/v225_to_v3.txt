@@ -127,6 +127,8 @@
 &sailor-mars = &rei@hino
 	　歴史的価値のある非常に興味深い命令でしたが、サポート担当者の趣
 	味により &one-ring に変更されました。
+	(version 4.2.0 にて、省サイズ化のため &one-ring も削除されていま
+	す。)
 
 &set-16colors-brightness-to-half
 &set-16colors-brightness-to-max = &max16

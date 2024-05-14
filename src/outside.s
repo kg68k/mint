@@ -3567,29 +3567,6 @@ ss_led_tbl:	.dc.b	%1111_1111
 down_save:	.ds	1
 
 
-*************************************************
-*		&one-ring			*
-*************************************************
-
-＆one_ring::
-		moveq	#0,d0
-		moveq	#0,d6
-		moveq	#4,d7
-		lea	(one_ring_mes,pc),a0
-		lea	(one_ring_ttl,pc),a1
-		bra	print_sub
-**		rts
-
-one_ring_ttl:
-		.dc.b	'The Lord of the Rings',0
-one_ring_mes:
-		.dc.b	'   One Ring to rule them all,',0
-		.dc.b	'     One Ring to find them,',0
-		.dc.b	'   One Ring to bring them all',0
-		.dc.b	' and in the darkness bind them.',0
-		.even
-
-
 * 文字列の数値変換 ---------------------------- *
 
 * atoi_a0 の a0 が a1 になっているだけ.

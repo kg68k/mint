@@ -107,7 +107,7 @@
 		.xref	＆get_music_status,print_music_title
 		.xref	human_psp,music_data_title_flag
 * outside.s
-		.xref	＆bell,＆v_bell,＆echo,＆print,＆one_ring
+		.xref	＆bell,＆v_bell,＆echo,＆print
 		.xref	＆cache_on ,＆data_cache_on ,＆instruction_cache_on
 		.xref	＆cache_off,＆data_cache_off,＆instruction_cache_off
 		.xref	＆equ,strcmp_a1_a2,stricmp_a1_a2
@@ -14241,7 +14241,6 @@ func_adr_list:
 		.dc.l	＆ext_help-$
 		.dc.l	＆describe_key-$
 
-		.dc.l	＆one_ring-$
 		.dc.l	＆debug-$
 		.dc.l	0
 
@@ -14472,7 +14471,6 @@ func_name_list::
 		.dc.b	'ext-help',0
 		.dc.b	'describe-key',0
 
-		.dc.b	'one-ring',0
 		.dc.b	'debug',0
 **			'1234567890123456789012345678901234567890'	;40 文字制限
 *func_name_list_end:
