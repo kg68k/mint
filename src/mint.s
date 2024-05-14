@@ -104,14 +104,10 @@
 		.xref	at_complete_list
 * music.s
 		.xref	＆cont_music,＆fade_music,＆pause_music,＆play_music,＆stop_music
-		.xref	＆get_music_status,＆print_music_title
+		.xref	＆get_music_status,print_music_title
 		.xref	human_psp,music_data_title_flag
-.ifdef TOGGLE_MUSIC
-		.xref	＆toggle_music
-.endif
 * outside.s
 		.xref	＆bell,＆v_bell,＆echo,＆print,＆one_ring
-		.xref	＆cache_information
 		.xref	＆cache_on ,＆data_cache_on ,＆instruction_cache_on
 		.xref	＆cache_off,＆data_cache_off,＆instruction_cache_off
 		.xref	＆equ,strcmp_a1_a2,stricmp_a1_a2
@@ -298,7 +294,7 @@ skip_read_mintrc:
 		jsr	(＆pop_text)		;$MINTTITLE の表示を消す
 		jbsr	window_create		;各種ウィンドウ作成
 		bsr	init_path_struct
-		jsr	(＆print_music_title)
+		jsr	(print_music_title)
 
 		move	#KQ_A_EXEC<<8,d0		;>A_EXEC の実行
 		jsr	(execute_quick_no)
@@ -2711,7 +2707,7 @@ print_cplp_line::
 
 **		cmpi	#2,(＄6502)
 **		beq	@f
-		jbsr	＆interrupt_window_print
+		jbsr	interrupt_window_print
 **@@:
 		tst	(＄code)
 		beq	print_cplp_line_end
@@ -3169,8 +3165,8 @@ clear_and_redraw2:
 		jbsr	init_exec_screen
 		jbsr	print_cplp_line
 		jbsr	print_mintmes_line
-		jbsr	＆interrupt_window_print
-		jmp	(＆print_music_title)
+		jbsr	interrupt_window_print
+		jmp	(print_music_title)
 **		rts
 
 
@@ -3249,8 +3245,8 @@ print_screen::
 		bmi	pr_scr_all
 
 * 割り込み/音楽タイトル更新
-		jbsr	＆interrupt_window_print
-		jsr	(＆print_music_title)
+		jbsr	interrupt_window_print
+		jsr	(print_music_title)
 		bra	pr_scr_end
 * 全画面表示
 pr_scr_all:
@@ -11423,17 +11419,13 @@ is_phantomx_exists: .dc.b -1
 
 
 *************************************************
-*		&interrupt-window-print		*
+*		割り込み表示窓の描画		*
 *************************************************
-
-* 備考:
-*	昔は内部命令だったが、意味がないので現在は
-*	ただのサブルーチンになっている.
 
 *    01234567890123456
 * [SS RAS/OPM/TMD/VDI ]
 
-＆interrupt_window_print::
+interrupt_window_print::
 		PUSH	d1-d4/d6-d7/a1
 		move.b	(write_disable_flag,opc),d0
 		bne	int_win_print_end
@@ -13721,9 +13713,6 @@ sys_val_table::
 ＄menu::	.dc	1
 ＄mesl::	.dc	-1
 ＄moct::	.dc	10
-.ifdef TOGGLE_MUSIC
-＄mpau::	.dc	0
-.endif
 ＄mtit::	.dc	2
 ＄mutc::	.dc	WHITE+EMPHASIS+REVERSE
 * ============= n ============= *
@@ -13925,9 +13914,6 @@ sys_val_name::
 		.dc.l	'menu'
 		.dc.l	'mesl'
 		.dc.l	'moct'
-.ifdef TOGGLE_MUSIC
-		.dc.l	'mpau'
-.endif
 		.dc.l	'mtit'
 		.dc.l	'mutc'
 		.dc.l	'nmcp'
@@ -14184,9 +14170,6 @@ func_adr_list:
 		.dc.l	＆play_music-$
 		.dc.l	＆stop_music-$
 		.dc.l	＆get_music_status-$
-.ifdef TOGGLE_MUSIC
-		.dc.l	＆toggle_music-$
-.endif
 		.dc.l	＆data_title-$
 		.dc.l	＆pdx_filename-$
 
@@ -14261,11 +14244,6 @@ func_adr_list:
 		.dc.l	＆one_ring-$
 		.dc.l	＆debug-$
 		.dc.l	0
-
-* 削除命令
-*		.dc.l	＆print_music_title-$
-*		.dc.l	＆interrupt_window_print-$
-*		.dc.l	＆cache_information-$
 
 
 * 内部関数の名前表 ---------------------------- *
@@ -14423,9 +14401,6 @@ func_name_list::
 		.dc.b	'play-music',0
 		.dc.b	'stop-music',0
 		.dc.b	'get-music-status',0
-.ifdef TOGGLE_MUSIC
-		.dc.b	'toggle-music',1,'toggle-play-status',0
-.endif
 		.dc.b	'data-title',0
 		.dc.b	'pdx-filename',0
 
@@ -14503,11 +14478,6 @@ func_name_list::
 *func_name_list_end:
 		.dc.b	0,0,0,0
 		.even
-
-* 削除命令
-*		.dc.b	'music-title',1,'print-music-title',0
-*		.dc.b	'interrupt-window-print',0
-*		.dc.b	'cache-information',0
 
 
 * Block Storage Section ----------------------- *

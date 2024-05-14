@@ -37,11 +37,11 @@
 * mint.s
 		.xref	scr_cplp_line
 		.xref	search_cursor_file
-		.xref	＆interrupt_window_print,draw_int_win_box
+		.xref	interrupt_window_print,draw_int_win_box
 * mintarc.s
 		.xref	zip_search_zecdr
 * music.s
-		.xref	＆print_music_title
+		.xref	print_music_title
 		.xref	print_music_data_title_sub
 * outside.s
 		.xref	set_user_value_arg_a2,unset_user_value_arg
@@ -879,8 +879,8 @@ data_title_error_close:
 		DOS	_CLOSE
 		addq.l	#2,sp
 data_title_error:
-		jsr	(＆print_music_title)
-		jsr	(＆interrupt_window_print)
+		jsr	(print_music_title)
+		jsr	(interrupt_window_print)
 		moveq	#0,d0
 		bra	@f
 data_title_end:
@@ -1512,7 +1512,7 @@ data_title_set_header_end:
 		jsr	(draw_int_win_box)
 		bra	@f
 print_pdx_filename_int:
-		jsr	(＆interrupt_window_print)
+		jsr	(interrupt_window_print)
 @@:
 		bra	data_title_end
 

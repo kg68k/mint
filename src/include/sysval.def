@@ -120,9 +120,6 @@
 		.xref	＄menu
 		.xref	＄mesl
 		.xref	＄moct
-.ifdef TOGGLE_MUSIC
-		.xref	＄mpau
-.endif
 		.xref	＄mtit
 		.xref	＄mutc
 		.xref	＄nmcp

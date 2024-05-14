@@ -51,7 +51,7 @@
 		.xref	init_schr_tbl
 * mint.s
 		.xref	mint_start
-		.xref	＆interrupt_window_print
+		.xref	interrupt_window_print
 		.xref	＆mpu_power,＆clear_and_redraw
 		.xref	＆cd,chdir_a1
 		.xref	search_cursor_file
@@ -3090,8 +3090,6 @@ palet0_set_sub:
 set_mpu_cache:
 		moveq	#4,d1
 		IOCS	_SYS_STAT
-
-＆cache_information::
 		jmp	(＆mpu_power)
 
 get_mpu_cache:
@@ -3563,7 +3561,7 @@ ss_led_tbl:	.dc.b	%1111_1111
 		move	d1,(a0)
 		move	d0,(a1)
 		bsr	set_status
-		jmp	＆interrupt_window_print
+		jmp	interrupt_window_print
 **		rts
 
 down_save:	.ds	1

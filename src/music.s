@@ -397,28 +397,6 @@ stop_music_pochi:
 
 
 *************************************************
-*		&toggle-music			*
-*************************************************
-
-.ifdef TOGGLE_MUSIC
-＆toggle_music::
-		bsr	＆get_music_status
-		move	(＠status),d0
-		subq	#1,d0
-		beq	＆play_music		;非演奏時   ->	演奏開始
-		subq	#1,d0
-		beq	＆cont_music		;一時停止中 ->	演奏再開
-		subq	#1,d0
-		bne	@f
-		tst	(＄mpau)
-		beq	＆pause_music		;演奏中     ->	一時停止
-		bra	＆stop_music		;(%mpau 1)	演奏停止
-@@:
-		rts
-.endif
-
-
-*************************************************
 *		&get-music-status		*
 *************************************************
 
@@ -567,7 +545,7 @@ command_music:
 		bsr	call_music_driver_job
 		TO_USER
 
-		bsr	＆print_music_title
+		bsr	print_music_title
 		moveq	#1,d0
 set_status:
 		move	d0,(＠buildin)
@@ -604,10 +582,10 @@ call_music_driver_job:
 
 
 *************************************************
-*		&print-music-title		*
+*		音楽タイトル表示		*
 *************************************************
 
-＆print_music_title::
+print_music_title::
 		tst	(＄mdxt)
 		beq	print_music_title_end2
 

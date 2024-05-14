@@ -42,7 +42,7 @@
 		.xref	MINTSLASH
 		.xref	sys_val_name,func_name_list
 * music.s
-		.xref	＆print_music_title
+		.xref	print_music_title
 * outside.s
 		.xref	＆v_bell
 		.xref	atoi_a0
@@ -191,7 +191,7 @@ input_skip_set:
 		jsr	(set_status)
 
 		lea	(INPUT_MAX+2,sp),sp
-		jmp	(＆print_music_title)
+		jmp	(print_music_title)
 **		rts
 
 
