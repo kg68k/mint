@@ -267,7 +267,6 @@
 
 $SYS	c:/sys/
 $BIN	c:/bin/
-$ITA	c:/bin/ita/
 $MAN	c:/man/
 $MUS	c:/music/
 $ZM	c:/music/zmsc/
@@ -313,7 +312,7 @@ $exg-point-mark		&if ( $?MARKFILE == 1) {
 
 $source			&if ( &source ) { (init) }
 $init			&cal scrl $dirh/2;
-			&if ( &match 立花* $USER ) { &set cals 2 }
+			&if ( &equ $USER TcbnErik ) { &set cals 2 }
 
 $ed-file		&if ( -r $F ) { $EDITOR $P; (source) }
 #$ed-file		&if ( -r $F ) {
@@ -385,12 +384,12 @@ $make-zpdx		&if ( &pdx-filename $1 ) {
 			  &if ( ! -f $MINTTMP/$_ ) {
 			    &if ( &match -i "*.zmd *.zms *.mnd" $1 ) {
 			      &if    ( &exist -i $_ $_.zpd   ) { &uncompress -i $& }
-			      &elsif ( &exist -i *.bat	     ) { &uncompress -i $& *.pcm *.p16 *.cnf *.zpl *.x; c:/COMMAND.X $& }
+			      &elsif ( &exist -i *.bat	     ) { &uncompress -i $& *.pcm *.p16 *.cnf *.zpl *.x; COMMAND.X $& }
 			      &elsif ( &exist -i *.cnf *.zpl ) { &uncompress -i $& *.pcm *.p16; zpcnv $& }
 			    }
 			    &else {
 			      &if ( &exist -i $_ $_.pdx ) { &uncompress -i $& }
-			      &elsif ( &exist -i *.bat ) { &uncompress -i $& *.pcm *.p16 *.pdl *.spl *.x; c:/COMMAND.X $& }
+			      &elsif ( &exist -i *.bat ) { &uncompress -i $& *.pcm *.p16 *.pdl *.spl *.x; COMMAND.X $& }
 			      &elsif ( &exist -i *.spl ) { &uncompress -i $& *.pcm *.p16; spdxm $& }
 			      &elsif ( &exist -i *.pdl ) { &uncompress -i $& *.pcm *.p16; tpdxm $& }
 			    }
@@ -482,7 +481,7 @@ $SYNC			&if ( &prchk 'fastio' ) { sync }
 	-t---md-api--	$EDITOR $M; (source)
 	--c---d-api--	&if ( -r $F ) { fes $P; (down) }
 	--c--md-api--	fes $M
-	---&1-d-aps--	c:/fish
+	---&1-d-aps--	fish
 >KEY_ _	-------------	&mark
 	-t-----------	&mark-upper
 	--c----------	(set-mark)
@@ -627,7 +626,7 @@ $SYNC			&if ( &prchk 'fastio' ) { sync }
 	--c----------	&copy-to-history-menu
 	---x1-d-ap---	fcp $M $O/
 	---x3--------	&direct-copy
-	---&2-d-aps--	c:/fish
+	---&2-d-aps--	fish
 	--c&2--------	&quick-exit $C
 	---x5--------	&change-drive c
 #	--c&2-d1ap---	&if ( ! &is-mintarc ) { lzd -cn $M }
@@ -706,7 +705,6 @@ $SYNC			&if ( &prchk 'fastio' ) { sync }
 >KEY_P_	------d--p---	zip -ry $O/$<.zip $M
 	--x1--d1-p---	gzip $P$<
 	--x1-md--p---	tar -b1 -cvzf $O/$<.tgz $M
-	--x2--d--p---	lha a -h2 $O/$<.lzh $M
 	--c----------	(up)
 	---o1--------	&max
 	---x4---ap---	(adpcm-p)
@@ -797,7 +795,7 @@ $arc_ext		&if ( -d $_ ) { &echo "$_ is a directory." }
 			&elsif 6 { &print " 6 : 64K 色画面" }
 			&else { &print " グラフィック画面 非表示" }
 	-t------ap---	gmss -s1
->KEY_,_	-------------	&nop
+>KEY_,_	------d1ap---	make -C..; &unless { make }
 	--c-----api--	conmod -qgm0
 	-t-----------	&cursor-to-home
 	-t-&1--------	(set-mark); &cursor-to-home
@@ -828,7 +826,7 @@ $music-error		&echo "音源ドライバは組み込まれていません."
 	-t---md-api--	$EDITOR $M; (source)
 	--c---d-api--	&if ( -r $F ) { fes $P }
 	--c--md-api--	fes $M
-	---&1-d-aps--	c:/fish
+	---&1-d-aps--	fish
 >KEY_t0	-t-----------	&nop				# TV Ctrl
 	--------api--	&eject mo0
 >KEY_t1	-t-----------	&nop
@@ -948,8 +946,8 @@ $SYMINFON		nm $F            | (disp) -t"Symbol Table"
 	---x5---ap---	(CVINFO)
 
 .BAT	-------------	(look)
-	---o1-d-ap---	c:/COMMAND.X $F $<
-	-t-o1-d-apsh-	c:/COMMAND.X $F $<
+	---o1-d-ap---	COMMAND.X $F $<
+	-t-o1-d-apsh-	COMMAND.X $F $<
 
 .EXE .COM
 	------d1-psh-	mxdos $F $<
@@ -964,7 +962,7 @@ $SYMINFON		nm $F            | (disp) -t"Symbol Table"
 
 ^	#!\x20fish
 	-------------	(look)
-	-!-o1-d-ap---	c:/fish $F $<
+	-!-o1-d-ap---	fish $F $<
 
 	# develop
 
@@ -1806,7 +1804,7 @@ T	" /text"			d:/text/
 
 @jmp8	#012345678901234567890123456
 B	" /bin/"			(BIN)
-T	" ..../ita     (ITA TOOLBOX)"	(ITA)
+T	" ..../ita     (ITA TOOLBOX)"	c:/bin/ita/
 E	" ..../editor"			c:/bin/editor/
 [	" ..../mint/"			(MINT)
 ]	" ........./man"		(M_MAN)
