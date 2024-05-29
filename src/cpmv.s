@@ -208,6 +208,7 @@ sizeof_work:
 *************************************************
 
 ＆copy::
+＆cp::
 		moveq	#DEST_OPP,d1
 copy_ent:
 		moveq	#CPMV_COPY,d2

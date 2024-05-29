@@ -2,7 +2,7 @@
 
 * mint version number ------------------------- *
 
-mint_version:	.reg	'4.1.0'
+mint_version:	.reg	'4.2.0-beta.1'
 minthis_ver:	.reg	'3.10'
 
 

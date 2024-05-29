@@ -1,5 +1,5 @@
 # mintarc.s - mintarc
-# Copyright (C) 2002-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -35,6 +35,7 @@
 		.include	window.mac
 		.include	archive.mac
 		.include	message.mac
+		.include	func.mac
 		.include	sysval.def
 
 		.include	fefunc.mac
@@ -56,7 +57,6 @@
 		.xref	＠buildin,＠status
 		.xref	execute_quick_no
 * mint.s
-		.xref	＆cursor_down
 		.xref	print_screen,print_cplp_line
 		.xref	directory_write_routin
 		.xref	search_cursor_file,search_mark_file

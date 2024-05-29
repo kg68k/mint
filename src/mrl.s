@@ -22,6 +22,7 @@
 		.include	mint.mac
 		.include	window.mac
 		.include	message.mac
+		.include	func.mac
 		.include	sysval.def
 
 		.include	doscall.mac
@@ -44,7 +45,6 @@
 * music.s
 		.xref	print_music_title
 * outside.s
-		.xref	＆v_bell
 		.xref	atoi_a0
 		.xref	set_user_value_a1_a2
 		.xref	user_value_tbl
@@ -66,6 +66,7 @@
 INPUT_MAX:	.equ	94
 
 ＆input::
+＆readline::
 		lea	(-(INPUT_MAX+2),sp),sp
 		lea	(sp),a1			;バッファ
 		clr.b	(a1)

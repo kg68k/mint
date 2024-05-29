@@ -21,6 +21,7 @@
 		.include	mint.mac
 		.include	window.mac
 		.include	message.mac
+		.include	func.mac
 		.include	sysval.def
 
 		.include	fefunc.mac
@@ -42,7 +43,6 @@
 		.xref	get_drive_status
 		.xref	copy_dir_name_a1_a2
 * gvon.s
-		.xref	＆gvram_off
 		.xref	graph_home,GVON24_flag,GTONE,sq64k
 		.xref	check_gusemd,gm_check_square
 		.xref	g_half_16_usr,gvon_16_usr
@@ -80,7 +80,6 @@
 		.xref	ma_list_adr,ma_list_num
 		.xref	mintarc_extract
 * outside.s
-		.xref	＆key_wait
 		.xref	atoi_a0
 		.xref	dos_inpout
 		.xref	break_check1,break_check
@@ -5621,6 +5620,7 @@ print_exitcode_end:
 *************************************************
 
 ＆end::
+＆return::
 		movea.l	(q_ptr,pc),a5
 		st	(Q_abort,a5)
 		rts
@@ -5788,6 +5788,7 @@ else_false:
 *************************************************
 
 ＆else_if::
+＆elsif::
 		bsr	else_check
 		bsr	block_check
 
@@ -6793,6 +6794,7 @@ foreach_end:
 *************************************************
 
 ＆continue::
+＆next::
 		movea.l	(q_ptr,pc),a5
 		move.b	#$01,(Q_skip,a5)
 		rts
@@ -6803,6 +6805,7 @@ foreach_end:
 *************************************************
 
 ＆break::
+＆last::
 		movea.l	(q_ptr,pc),a5
 		st	(Q_skip,a5)
 		rts
@@ -6864,6 +6867,7 @@ prefix_end:
 *************************************************
 
 ＆set_opt::
+＆set_option::
 		movea.l	(q_ptr,pc),a5
 		subq.l	#1,d7
 		bcs	clear_cmd_sw		;引数省略時はクリア

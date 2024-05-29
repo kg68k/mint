@@ -1,5 +1,5 @@
 # patternmatch.s - pattern matching (regexp)
-# Copyright (C) 2002-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -105,6 +105,7 @@ take_ic_opt_end:
 *************************************************
 
 ＆exist::
+＆arc_exist::
 		tst	(PATH_FILENUM,a6)
 		beq	exist_error
 

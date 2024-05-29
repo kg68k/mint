@@ -30,6 +30,7 @@
 		.include	mint.mac
 		.include	window.mac
 		.include	message.mac
+		.include	func.mac
 		.include	sysval.def
 
 		.include	fefunc.mac
@@ -52,8 +53,7 @@
 * mint.s
 		.xref	mint_start
 		.xref	interrupt_window_print
-		.xref	＆mpu_power,＆clear_and_redraw
-		.xref	＆cd,chdir_a1
+		.xref	chdir_a1
 		.xref	search_cursor_file
 		.xref	twon_getopt,mint_getenv
 		.xref	ctypetable,is_xdigt
@@ -88,6 +88,7 @@ DIRSTACK_SIZE:	.equ	64
 *************************************************
 
 ＆equ::
+＆strcmp::
 		clr.l	(_ignore_case)
 		subq.l	#2,d7
 		bcs	equ_error		;引数が 2 個未満
@@ -2026,6 +2027,7 @@ dos_inpout::
 *************************************************
 
 ＆wait::
+＆sleep::
 		tst.l	d7
 		beq	wait_end
 
@@ -2131,6 +2133,7 @@ break_check_sub_end:
 *************************************************
 
 ＆prchk::
+＆keep_check::
 		jsr	(init_i_c_option)
 		moveq	#0,d6
 prchk_arg_next:
@@ -2572,6 +2575,7 @@ scsi_menu_device_err_mes:
 *************************************************
 
 ＆bell::
+＆beep::
 		move	#BEL,-(sp)
 		DOS	_PUTCHAR
 		addq.l	#2,sp
@@ -2583,6 +2587,7 @@ scsi_menu_device_err_mes:
 *************************************************
 
 ＆v_bell::
+＆visual_bell::
 		PUSH	d0-d1/a0-a2
 		TO_SUPER
 
@@ -2777,6 +2782,7 @@ echo_esc_table:
 *************************************************
 
 ＆print::
+＆ask_yn::
 		moveq	#0,d6			;待機時間
 		movea.l	d6,a1			;タイトル
 

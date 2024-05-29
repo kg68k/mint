@@ -1,5 +1,5 @@
 # gvon.s - &gvon, etc.
-# Copyright (C) 2000-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -294,6 +294,7 @@ gvon_prepare:
 **		rts
 
 ＆gvon::
+＆gvram_on::
 		bsr	check_gusemd_and_abort
 		bsr	gvon_prepare
 
@@ -4210,6 +4211,7 @@ turn_gvram_ud_64k_loop_x:
 *************************************************
 
 ＆mono::
+＆gvram_to_monochrome::
 		bsr	check_gusemd_and_abort
 		TO_SUPER
 		moveq	#3,d0
@@ -4323,6 +4325,7 @@ c16_palet_set_end:
 *************************************************
 
 ＆brightness_decrement::
+＆16color_brightness_decrement::
 		moveq	#TONE_MIN,d1		;限界値
 		moveq	#-1,d2			;変動量
 		bra.s	brightness_dec_inc
@@ -4333,6 +4336,7 @@ c16_palet_set_end:
 *************************************************
 
 ＆brightness_increment::
+＆16color_brightness_increment::
 		moveq	#TONE_MAX,d1
 		moveq	#+1,d2
 brightness_dec_inc:
@@ -4353,6 +4357,7 @@ brightness_dec_inc:
 *************************************************
 
 ＆half::
+＆set_brightness_to_half::
 		bsr	half_max
 *half_job:
 		beq	half_64k
@@ -4372,6 +4377,7 @@ half_64k:
 *************************************************
 
 ＆max::
+＆set_brightness_to_max::
 		bsr	half_max
 *max_job:
 		beq	max_64k
@@ -4416,6 +4422,7 @@ half_max_end:
 *************************************************
 
 ＆mion::
+＆gvram_text_blend_on::
 		pea	(set_status,pc)
 		bra	mion
 **		rts
@@ -4469,6 +4476,7 @@ mion_mioff:
 *************************************************
 
 ＆mioff::
+＆gvram_text_blend_off::
 		pea	(set_status,pc)
 		bra	mioff
 **		rts

@@ -20,6 +20,7 @@
 		.include	mint.mac
 		.include	window.mac
 		.include	message.mac
+		.include	func.mac
 		.include	sysval.def
 
 		.include	doscall.mac
@@ -35,8 +36,6 @@
 		.xref	fep_enable,fep_disable
 		.xref	scr_cplp_line
 		.xref	update_periodic_display
-* outside.s
-		.xref	＆v_bell
 * patternmatch.s
 		.xref	init_i_c_option,take_i_c_option
 		.xref	exist_sub,exist_sub_sp,_fre_compile,_ignore_case
@@ -78,10 +77,11 @@ sizeof_kb:
 
 
 *************************************************
-*		&i-search=&incremental-search	*
+*	&i-search=&incremental-search		*
 *************************************************
 
 ＆i_search::
+＆incremental_search::
 		tst.b	(PATH_NODISK,a6)
 		bne	i_search_end
 		tst	(PATH_FILENUM,a6)

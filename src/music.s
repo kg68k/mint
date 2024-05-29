@@ -1,5 +1,5 @@
 # music.s - music driver utility
-# Copyright (C) 2000-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -47,6 +47,7 @@
 *************************************************
 
 ＆cont_music::
+＆continue_music::
 *		pea	(@f,pc)
 		bsr	command_music
 @@:
@@ -120,6 +121,7 @@ cont_music_pochi:
 *************************************************
 
 ＆fade_music::
+＆fadeout_music::
 *		pea	(@f,pc)
 		bsr	command_music
 @@:

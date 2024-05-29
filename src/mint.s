@@ -22,6 +22,7 @@
 		.include	window.mac
 		.include	message.mac
 		.include	version.mac
+		.include	func.mac
 
 		.include	fefunc.mac
 		.include	doscall.mac
@@ -35,44 +36,22 @@
 		.xref	alloc_cmd_his_buf
 		.xref	get_cmd_his_size
 		.xref	load_cmd_his
-* cpmv.s
-		.xref	＆copy,＆direct_copy,＆copy_to_registered_path_menu,＆copy_to_history_menu
-		.xref	＆move,＆direct_move,＆move_to_registered_path_menu,＆move_to_history_menu
-* datatitle.s
-		.xref	＆data_title
-		.xref	＆pdx_filename
-* filecmp.s
-		.xref	＆file_compare
 * fileop.s
-		.xref	＆chmod,＆delete,＆file_check,＆maketmp
-		.xref	＆make_dir_and_move,＆md,＆ren,＆rm,＆touch
 		.xref	to_mintslash
 		.xref	copy_dir_name_a1_a2
 		.xref	print_write_protect_error
 * gvon.s
-		.xref	＆gvon,＆gvram_off,＆clear_gvram,＆iocs_home,＆get_color_mode
-		.xref	＆mono,＆16color_palet_set,＆64kcolor_palet_set
-		.xref	＆half,＆max,＆mion,＆mioff
-		.xref	＆brightness_decrement,＆brightness_increment
-		.xref	＆turn_gvram_upside_down,＆turn_gvram_left_and_right
-		.xref	＆rotate_gvram_ccw,＆rotate_gvram_cw
 		.xref	gm_check_square,check_gusemd,_vdisp_wait
 		.xref	analyze_@gvon_section,center_256_graphic
 		.xref	mion_flag
 * help.s
-		.xref	＆ext_help,＆describe_key,describe_key_opt
-* isearch.s
-		.xref	＆i_search
+		.xref	describe_key_opt
 * look.s
-		.xref	＆look_file,iocs_key_flush
+		.xref	iocs_key_flush
 		.xref	analyze_@look_section,lookfile_restore_interrupt
 		.xref	lookfile_static_flags
 * madoka3.s
 		.xref	＠exitcode,＠buildin,＠status
-		.xref	＆madoka,＆debug,＆end,＆eval,＆prefix,＆set_opt
-		.xref	＆foreach,＆break,＆continue
-		.xref	＆if,＆unless,＆else_if,＆else
-		.xref	＆command_history,＆command_history_menu
 		.xref	search_command,restore_dos_exec_patch
 		.xref	if_ftst_is_binary
 		.xref	init_text_palette
@@ -80,17 +59,13 @@
 		.xref	execute_quick_no,execute_quick,free_token_buf
 		.xref	print_runtime,print_exitcode
 * menu.s
-		.xref	＆chdir_to_registered_path_menu
-		.xref	＆exec_registered_command_menu
-		.xref	＆menu,menu_sub,menu_sub_ex,menu_select
+		.xref	menu_sub,menu_sub_ex,menu_select
 		.xref	decode_reg_menu,make_def_menu_list
 * message.s
 		.xref	init_mes_ptr_table,pickup_message_change
 		.xref	print_message_list,get_message_no
 		.xref	mes_ptr_table
 * mintarc.s
-		.xref	＆is_mintarc,＆uncompress
-		.xref	＆lzh_selector,＆zip_selector,＆tar_selector
 		.xref	get_mintarc_filename,get_mintarc_filename_opp
 		.xref	get_mintarc_file_num
 		.xref	get_mintarc_dir,get_mintarc_dir_opp
@@ -100,52 +75,30 @@
 		.xref	mintarc_chdir_to_arc_dir
 		.xref	restore_minttmp_curdir
 * mrl.s
-		.xref	＆input
 		.xref	at_complete_list
 * music.s
-		.xref	＆cont_music,＆fade_music,＆pause_music,＆play_music,＆stop_music
-		.xref	＆get_music_status,print_music_title
+		.xref	print_music_title
 		.xref	human_psp,music_data_title_flag
 * outside.s
-		.xref	＆bell,＆v_bell,＆echo,＆print
-		.xref	＆cache_on ,＆data_cache_on ,＆instruction_cache_on
-		.xref	＆cache_off,＆data_cache_off,＆instruction_cache_off
-		.xref	＆equ,strcmp_a1_a2,stricmp_a1_a2
-		.xref	＆execute_binary,＆getsec,getsec_flag,＆prchk
-		.xref	＆iocs,＆rnd,＆set_crtc,＆trap
-		.xref	＆iso9660,＆msdos
-		.xref	＆key_wait,＆wait
-		.xref	＆older_file,＆newer_file,＆online_switch
-		.xref	＆palet0_set,＆palet0_system,＆palet0_up,＆palet0_down
-		.xref	＆pushd,＆popd,＆clear_path_stack
-		.xref	＆scsi_check,＆scsi_menu,＆sync
-		.xref	＆set,＆setenv,＆unsetenv,＆unset,＆cal
+		.xref	strcmp_a1_a2,stricmp_a1_a2,getsec_flag
 		.xref	search_system_value
 		.xref	set_user_value_a1_a2,set_user_value_arg_a2
 		.xref	set_user_value_match_a2,unset_user_value_match
-		.xref	＆sram_contrast,＆stop_condrv,＆stop_vdisp
-		.xref	＆toggle_palet_illumination,palet_illumination
-		.xref	＆twentyone_ignore_case
-		.xref	＆go_screen_saver,＆toggle_screen_saver
+		.xref	palet_illumination
 		.xref	init_ss_timer,auto_screen_saver
 		.xref	init_timer,check_timer
 		.xref	atoi_a0,atoi_a1
 		.xref	resume_stops
 		.xref	break_check0
 * pathselect.s
-		.xref	＆path_history_menu,add_path_history
+		.xref	add_path_history
 		.xref	path_history_buffer
 * patternmatch.s
-		.xref	＆exist,＆match,＆file_match
 		.xref	init_i_c_option,take_i_c_option
 		.xref	_fre_compile,_fre_match,_ignore_case
 * phantomx.s
 		.xref	PhantomX_Exists,PhantomX_GetTemperature
-* rename.s
-		.xref	＆rename_menu
-		.xref	＆rename_marked_files_or_directory
 * titleload.s
-		.xref	＆title_load,＆pop_text
 		.xref	title_load_minttitle
 * version.s
 		.xref	print_version,print_usage
@@ -463,6 +416,7 @@ AK_UNDO::	.dc.b	FK_UNDO		;^U
 * テーブル削減のため &nop と共用している.
 
 ＆endm::
+＆nop::
 		rts
 
 
@@ -5502,6 +5456,7 @@ cursor_to_bottom_sub_error:
 *************************************************
 
 ＆mark::
+＆mark_forward::
 		moveq	#'|',d1
 		bsr	mask_decode_argument
 		bne	mark_regexp		;マッチしたファイルをマーク
@@ -8533,6 +8488,7 @@ change_drive_sub_error:
 *************************************************
 
 ＆change_drive::
+＆change_drive_menu::
 		GETMES	MES_DRIVE
 		move.l	d0,a1
 		move.b	(PATH_DIRNAME,a6),d5	;-d<d> 省略時はカレントドライブ
@@ -9066,6 +9022,7 @@ mount_cmp_end:
 *************************************************
 
 ＆mask::
+＆mask_regexp::
 		moveq	#SPACE,d1
 		bsr	mask_decode_argument
 		beq	mask_menu
@@ -10923,6 +10880,7 @@ size_sort:
 SORT_MENU_NUM:	.equ	6
 
 ＆sort::
+＆sort_menu::
 		bsr	set_curfile
 
 		GETMES	MES_SORTM
@@ -11183,6 +11141,7 @@ mpu_wait:
 		rts
 
 ＆mpu_power::
+＆cpu_power::
   move (＄6502),d0
   subq #1,d0
   beq mpu_power_1
@@ -12007,6 +11966,7 @@ set_status::
 *************************************************
 
 ＆cd::
+＆chdir::
 		lea	(a0),a4
 cd_arg_loop:
 		tst.b	(a0)
@@ -12342,6 +12302,7 @@ chdir_and_rewrite:
 *************************************************
 
 ＆chdir_to_parent::
+＆cursor_to_parent::
 		lea	(PATH_DIRNAME,a6),a0
 		tst.b	(3,a0)
 		bne	@f			;サブディレクトリあり

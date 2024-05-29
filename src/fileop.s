@@ -680,6 +680,7 @@ chmod_atr_list:
 *************************************************
 
 ＆ren::
+＆rename::
 		bsr	set_status_0
 		subq.l	#2,d7
 		bne	ren_error
@@ -863,6 +864,8 @@ file_check_length:
 *************************************************
 
 ＆md::
+＆mkdir::
+＆make_dirs::
 		bsr	set_status_0
 		tst.l	d7
 		beq	md_input
@@ -1600,6 +1603,7 @@ copy_dir_name_ext:
 *************************************************
 
 ＆rm::
+＆del::
 		tst.l	d7
 		beq	rm_no_arg
 

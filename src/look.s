@@ -1,5 +1,5 @@
 # look.s - &look-file
-# Copyright (C) 2000-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -33,6 +33,7 @@
 		.include	mint.mac
 		.include	window.mac
 		.include	message.mac
+		.include	func.mac
 		.include	sysval.def
 
 		.include	fefunc.mac
@@ -59,7 +60,6 @@
 		.xref	dos_drvctrl_d1,dos_kflush
 		.xref	to_fullpath_file
 * outside.s
-		.xref	＆v_bell
 		.xref	get_condrv_work
 		.xref	set_user_value_a1_a2
 		.xref	atoi_a1
