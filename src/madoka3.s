@@ -42,6 +42,8 @@
 		.xref	to_mintslash
 		.xref	get_drive_status
 		.xref	copy_dir_name_a1_a2
+* funcname.s
+		.xref	search_builtin_func
 * gvon.s
 		.xref	graph_home,GVON24_flag,GTONE,sq64k
 		.xref	check_gusemd,gm_check_square
@@ -53,7 +55,6 @@
 * mint.s
 		.xref	SaveFnckey,RestoreFnckey,ChangeFnckey
 		.xref	search_cursor_file,search_mark_file
-		.xref	search_builtin_func
 		.xref	to_fullpath_file
 		.xref	print_screen,print_file_list
 		.xref	get_fnckey_mode,orig_fnckey_mode
@@ -4110,7 +4111,7 @@ execute_command::
 		jsr	(dos_inpout)
 		jsr	(CursorBlinkOff)
 @@:
-		jsr	(search_builtin_func)
+		bsr	search_builtin_func
 		beq	exe_cmd_file
 *exe_cmd_builtin:
 		movea.l	d0,a1			;処理アドレス

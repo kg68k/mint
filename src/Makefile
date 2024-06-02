@@ -13,16 +13,19 @@ LDFLAGS	=
 #	  -po/mint.map
 #	  -x
 
+CC	= gcc2
+CFLAGS	= -Wall -Werror -W -O2
+
 MKDIR	= mkdir
 
 PROG	= mint.x
-OBJS	= o/mint.o o/madoka3.o o/cmdhis.o o/mintarc.o o/window.o o/cpmv.o \
-	  o/fileop.o o/filecmp.o o/isearch.o o/rename.o o/menu.o o/help.o \
+OBJS	= o/mint.o o/madoka3.o o/funcname.o o/cmdhis.o o/mintarc.o o/window.o \
+	  o/cpmv.o o/fileop.o o/filecmp.o o/isearch.o o/rename.o o/menu.o o/help.o \
 	  o/outside.o o/pathhis.o o/gvon.o o/look.o o/message.o o/music.o \
 	  o/datatitle.o o/titleload.o o/patternmatch.o o/mrl.o o/rl.o \
 	  o/phantomx.o o/version.o
 
-TRASH	= $(OBJS) o/mint.map
+TRASH	= $(OBJS) o/mint.map o/mkfunctbl.x
 
 PKGTMP = pkgtmp
 
@@ -52,6 +55,7 @@ w = include/window.mac
 
 o/mint.o:	mint.s		$(mac) $m $v $w $r $f
 o/madoka3.o:	madoka3.s	$(mac) $m $s $w $r $f
+o/funcname.o:	funcname.s	$(mac)             $f functbl.s
 o/cmdhis.o:	cmdhis.s	$(mac) $m $s $w $r
 o/mintarc.o:	mintarc.s	$(mac) $m $s $w    $f
 o/window.o:	window.s	$(mac)	  $s $w
@@ -75,6 +79,13 @@ o/mrl.o:	mrl.s		$(mac) $m $s $w $r $f include/rl.mac
 o/rl.o:		rl.s		$(mac)		      include/rl.mac
 o/phantomx.o:	phantomx.s
 o/version.o:	version.s	$(mac)	  $v
+
+o/mkfunctbl.x: mkfunctbl.c
+	$(CC) $(CFLAGS) -o $@ $^
+
+functbl.s: o/mkfunctbl.x $f
+	rm -f $@
+	o/mkfunctbl.x < $f > $@
 
 o/%.o: %.s
 	$(AS) $(ASFLAGS) -o$@ $<

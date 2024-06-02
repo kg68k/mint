@@ -555,10 +555,15 @@ TO_USER2:	.macro
 @skip:		addq.l	#4,sp
 		.endm
 
-STRCPY:		.macro	src,dst
-@loop:		move.b	(src)+,(dst)+
-		bne	@loop
-		.endm
+STRCPY: .macro src,dst,rewind
+  .sizem sz,argc
+  @loop:
+    move.b (src)+,(dst)+
+  bne @loop
+  .if argc>=3
+    subq.l #-rewind,dst
+  .endif
+.endm
 
 STREND:		.macro	dst
 @loop:		tst.b	(dst)+

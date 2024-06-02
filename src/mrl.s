@@ -31,6 +31,8 @@
 
 * Global Symbol ------------------------------- *
 
+* funcname.s
+		.xref	get_builtin_func_name
 * madoka3.s
 		.xref	sys_res_val_tbl
 * mint.s
@@ -41,7 +43,7 @@
 		.xref	cut_filename_pattern
 		.xref	fep_enable,fep_disable
 		.xref	MINTSLASH
-		.xref	sys_val_name,func_name_list
+		.xref	sys_val_name
 * music.s
 		.xref	print_music_title
 * outside.s
@@ -589,42 +591,30 @@ cj_value_sys_end:
 *	.dc.b	'if',0
 *	.dc.b	0
 cj_builtin_func:
-		lea	(func_name_list),a2
-		moveq	#$01,d1
-		moveq	#'&',d2
-		subq.l	#1,d4			;補完対象の '&' は比較しない
+                ;a6は'&'の次のアドレスを指している
+  subq.l #1,d4  ;'&'は比較しないので文字列長を補正
+  moveq #0,d2
 cj_func_loop:
-		bsr	cj_strcmp
-		bne	cj_func_next
-@@:
-		cmp.b	(a0)+,d1
-		bcs	@b
+  move d2,d0
+  jsr (get_builtin_func_name)
+  beq cj_func_end
+    addq #1,d2
+    movea.l d0,a2
+    bsr cj_strcmp
+    bne cj_func_loop  ;入力済みの文字列と先頭部分が一致しない
+      STRLEN a2,d0,+3  ;属性、'&'、NULの分を足す
+      sub.l d0,d5
+      bcs cj_func_end
 
-		move.l	a0,d0
-		sub.l	a2,d0			;長さ
-		addq.l	#2,d0
-		sub.l	d0,d5
-		bcs	cj_func_end
-
-		move.b	#1<<ARCHIVE,(a5)+	;属性(%adds 1 で空白付加)
-		lea	(a2),a0
-		move.b	d2,(a5)+
-		subq.l	#3,d0
-@@:
-		move.b	(a0)+,(a5)+
-		subq.l	#1,d0
-		bne	@b
-		clr.b	(a5)+
-		addq.l	#1,d6
-cj_func_next:
-		cmp.b	(a2)+,d1
-		bcs	cj_func_next
-		tst.b	(a2)
-		bne	cj_func_loop
+        move.b #1<<ARCHIVE,(a5)+  ;属性(%adds 1 で空白付加)
+        move.b #'&',(a5)+
+        STRCPY a2,a5  ;関数名をバッファに転送
+        addq.l #1,d6
+  bra cj_func_loop
 cj_func_end:
-		subq.l	#1,a6
-		addq.l	#1,d4
-		bra	cj_end
+  subq.l #1,a6  ;(呼び出し元で)'&'を読み進めていた分を戻す
+  addq.l #1,d4  ;補正した文字列長を戻す
+  bra cj_end
 
 * - : オプション補完
 cj_option:
