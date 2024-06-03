@@ -259,8 +259,7 @@ cpmv_ent:
 		clr.b	(~cpmv_mode,a5)		;mintarc からの &move は禁止する
 		jsr	(get_mintarc_dir)
 		movea.l	d0,a3
-		STRCPY	a3,a2
-		subq.l	#1,a2
+		STRCPY	a3,a2,-1
 		addq.l	#.sizeof.('a:/'),a1
 @@:		STRCPY	a1,a2
 
@@ -2464,8 +2463,7 @@ ana_arg_opp:
 
 		jsr	(get_mintarc_dir_opp)
 		movea.l	d0,a0
-		STRCPY	a0,a2
-		subq.l	#1,a2
+		STRCPY	a0,a2,-1
 		move.l	a2,(~m_tmp_tail,a5)
 		addq.l	#.sizeof.('a:/'),a1
 		STRCPY	a1,a2

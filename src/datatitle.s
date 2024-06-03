@@ -1,5 +1,5 @@
 # datatitle.s - &data-title / &pdx-filename
-# Copyright (C) 2000-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -352,7 +352,7 @@ pdx_filename_zms_loop:
 		cmpi.l	#'.zpd',(a1)+
 		beq	pdx_filename_zms_found
 
-		cmpi	#17+2,d0		;strlen(".adpcm_block_data=X")
+		cmpi	#.sizeof.('.adpcm_block_data=X'),d0
 		bcs	pdx_filename_zms_next
 
 		moveq	#17-4-1,d0
@@ -969,7 +969,7 @@ data_title_zms_next:
 data_title_zms_loop:
 		bsr	data_title_fgets
 		bmi	data_title_error_close
-		subq	#8,d0			;8=strlen(".COMMENT")
+		subq	#.sizeof.('.COMMENT'),d0
 		bcs	data_title_zms_next
 
 		move.l	(a1)+,d0

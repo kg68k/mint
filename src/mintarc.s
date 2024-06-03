@@ -324,8 +324,7 @@ uncomp_mark_loop:
 		lea	(sp),a1
 		tst.b	(a0)
 		beq	@f
-		STRCPY	a0,a1
-		subq.l	#1,a1
+		STRCPY	a0,a1,-1
 @@:		lea	(AFL_FILENAME,a5),a0
 		STRCPY	a0,a1
 
@@ -540,8 +539,7 @@ ext_a0_sub_loop:
 		lea	(sp),a1
 		tst.b	(a0)
 		beq	@f
-		STRCPY	a0,a1
-		subq.l	#1,a1
+		STRCPY	a0,a1,-1
 @@:		lea	(AFL_FILENAME,a5),a0
 		STRCPY	a0,a1
 
@@ -1289,8 +1287,7 @@ unassign_virdrv_error:
 		GETMES	MES_MARCR
 		movea.l	d0,a0
 		lea	(sp),a1
-		STRCPY	a0,a1
-		subq.l	#1,a1
+		STRCPY	a0,a1,-1
 		lea	(unassign_error_drive_mes,pc),a0
 		move	(virdrv_buf,pc),(2,a0)
 		STRCPY	a0,a1
@@ -2804,8 +2801,7 @@ mintarc_chdir_to_arc_dir::
 		lea	(cur_dir_buf),a2
 		bsr	get_mintarc_dir
 		movea.l	d0,a1
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		lea	(PATH_DIRNAME+.sizeof.('a:/'),a6),a1
 		STRCPY	a1,a2
 		bra	@f

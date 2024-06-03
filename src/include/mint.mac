@@ -576,23 +576,27 @@ STRCAT:		.macro	src,dst
 		STRCPY	src,dst
 		.endm
 
-STRLEN:		.macro	src,len,add
-		.sizem	sz,cnt
-		move.l	src,len
-@loop:		tst.b	(src)+
-		bne	@loop
-.if cnt.eq.3
-  .if (2<=add).and.(add<=9)
-		addq.l	#add-1,src
-  .elif (10<=add)
-		lea	(add-1,src),src
+STRLEN: .macro src,len,add
+  .sizem sz,cnt
+  move.l src,len
+  @loop:
+    tst.b (src)+
+  bne @loop
+  .if cnt==3
+    .fail add<=0
+    .if (add==1)
+      ;srcはNULの次を指しているのでそのままでよい
+    .elif (2<=add).and.(add<=9)
+      addq.l #add-1,src
+    .elif (10<=add)
+      lea (add-1,src),src
+    .endif
+  .else
+    subq.l #1,src
   .endif
-.else
-		subq.l	#1,src
-.endif
-		exg	len,src
-		sub.l	src,len
-		.endm
+  exg len,src
+  sub.l src,len
+.endm
 
 
 * I/O 系マクロ -------------------------------- *

@@ -1,5 +1,5 @@
 # rl.s - readline driver
-# Copyright (C) 2002-2006 Tachibana Eriko
+# Copyright (C) 2024 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -1064,8 +1064,8 @@ adj_csr_wide:
 		STRLEN	a1,d0			;XLEN < d6
 		bne	adj_csr_wide2
 
-		add.l	d6,d7			;┌──┐	　┌──┐
-		sub.l	d1,d7			;ａｂｃｄｅ□	ａｂｃｄｅ□
+		add.l	d6,d7			;┌──┐        ┌──┐
+		sub.l	d1,d7			;ａｂｃｄｅ□  ａｂｃｄｅ□
 		move.l	d1,d6
 		bra	adj_csr_chk_r
 adj_csr_center:
@@ -1086,15 +1086,15 @@ adj_csr_center:
 		bls	@f
 		move.l	d2,d0
 @@:
-		add.l	d6,d7			;　┌──┐	┌──┐
-		sub.l	d0,d7			;ａ■ｂｃｄ	ａ■ｂｃｄ
+		add.l	d6,d7			;  ┌──┐    ┌──┐
+		sub.l	d0,d7			;ａ■ｂｃｄ    ａ■ｂｃｄ
 		move.l	d0,d6
 		bra	adj_csr_chk_l
 adj_csr_c_r:
 		tst	d3
 		bmi	adj_csr_chk_r
-		STRLEN	a1,d0			;┌──┐	　　┌──┐
-		beq	adj_csr_chk_r		;ａｂｃｄ■ｆ	ａｂｃｄ■ｆ
+		STRLEN	a1,d0			;┌──┐          ┌──┐
+		beq	adj_csr_chk_r		;ａｂｃｄ■ｆ  ａｂｃｄ■ｆ
 		move.l	d6,d2
 		add.l	d0,d2
 		cmp.l	d2,d1
@@ -1769,8 +1769,7 @@ comp_single:
 		lea	(a0),a1
 		lea	(a0),a2
 		move.b	(a1)+,d0		;種類
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 
 		tst.b	(_RL_C_ADDS,a5)
 		beq	@f
@@ -2167,8 +2166,7 @@ comp_wild:
 		lea	(0,a1),a3		;パス名
 		STREND	a3
 		lea	(67,a1),a0		;ファイル名
-		STRCPY	a0,a3
-		subq.l	#1,a3
+		STRCPY	a0,a3,-1
 		lea	(86,a1),a0		;拡張子
 		STRCPY	a0,a3
 

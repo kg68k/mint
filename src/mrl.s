@@ -133,8 +133,7 @@ option_s:
 option_s_1st:
 		move.l	d0,d6
 @@:
-		STRCPY	a0,a4
-		subq.l	#1,a4
+		STRCPY	a0,a4,-1
 		bra	arg_next
 arg_skip:
 		tst.b	(a0)+

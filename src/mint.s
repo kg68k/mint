@@ -893,8 +893,7 @@ get_malloc_mode:
 		lea	(Buffer),a0
 		lea	(a0),a2
 		lea	(mint_start-PSP_SIZE+PSP_Drive,opc),a1
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		lea	(mint_start-PSP_SIZE+PSP_Filename,opc),a1
 		STRCPY	a1,a2
 
@@ -1272,11 +1271,9 @@ to_fullpath_file::
 		bne	to_fullpath_file_error
 @@:
 		lea	(NAMECK_Drive,sp),a1
-		STRCPY	a1,a2			;d:/dir/
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1		;d:/dir/
 		lea	(NAMECK_Name,sp),a1
-		STRCPY	a1,a2			;filename
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1		;filename
 		lea	(NAMECK_Ext,sp),a1
 		STRCPY	a1,a2			;.ext
 
@@ -2545,8 +2542,7 @@ copy_pathname_zdrv_lower:
 		or.b	(a1)+,d0
 @@:
 		move.b	d0,(a2)+
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		rts
 
 copy_pathname_zdrv_remove_sysroot:
@@ -2590,8 +2586,7 @@ c_pn_zdrv_remove:
 		cmpi.b	#'\',(a1)
 		bne	c_pn_zdrv_lower_pop	;パス名の方が終わってなかった
 @@:
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		lea	(_SYSROOT_MAX,sp),sp
 		POP	d1-d2/a0-a1
 print_getsec_end:
@@ -3582,8 +3577,7 @@ make_clock_sub:
 
 make_clock_status:
   lea (make_clock_st_str,pc),a0
-  STRCPY a0,a1
-  subq.l #1,a1
+  STRCPY a0,a1,-1
 
   lea (＠exitcode),a0
   bsr make_clock_st_sub
@@ -4531,8 +4525,7 @@ ext_exec_or_chdir:
 
 		lea	(PATH_DIRNAME,a6),a0	;カーソル位置のディレクトリに移動
 		move.l	a2,-(sp)
-		STRCPY	a0,a2
-		subq.l	#1,a2
+		STRCPY	a0,a2,-1
 		jsr	(copy_dir_name_a1_a2)
 @@:		tst.b	(a2)+
 		bne	@b
@@ -6399,8 +6392,7 @@ load_directory::
 @@:
 		lea	(PATH_DIRNAME,a6),a1
 		lea	(~ld_path,a5),a2	;検索名称バッファ
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		move.l	a2,d5			;d:/foo/[*].*
 		lea	(wildcard_all,pc),a1
 		STRCPY	a1,a2
@@ -7399,8 +7391,7 @@ print_drive_path:
 		beq	print_dp_marc_root
 @@:
 		addq.l	#.sizeof.('a:'),a1	;書庫内サブディレクトリ /dir/mask.*
-		STRCPY	a1,a2			;
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1		;
 		bra	add_path_mask
 print_dp_marc_root:
 		jsr	(get_mintarc_filename)	;書庫内ルート d:/dir/arc.zip/mask.*
@@ -8297,8 +8288,7 @@ remove_volume_label_period:
 
 		lea	(a1),a2
 		lea	(NAMECK_Name,sp),a0
-		STRCPY	a0,a2
-		subq.l	#1,a2
+		STRCPY	a0,a2,-1
 		lea	(NAMECK_Ext+1,sp),a0
 		STRCPY	a0,a2
 @@:

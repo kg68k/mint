@@ -3898,8 +3898,7 @@ put_a1:
 		STRLEN	a1,d0
 		sub.l	d0,d7
 		bls	get_token_overflow	;NUL の分も書き込むので bls
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		rts
 
 
@@ -5684,14 +5683,12 @@ eval_sub:
 
 		movea.l	d3,a2			;転送元
 		movea.l	d2,a3			;    先
-		STRCPY	a2,a3			;解釈済みの madoka を転送する
-		subq.l	#1,a3
+		STRCPY	a2,a3,-1		;解釈済みの madoka を転送する
 
 		move.b	d0,(a4)
 		move.l	a3,(Q_next_ptr,a5)
 
-		STRCPY	a1,a3			;行入力の結果を繋げる
-		subq.l	#1,a3
+		STRCPY	a1,a3,-1		;行入力の結果を繋げる
 
 		STRCPY	a4,a3			;残りの madoka を繋げる
 
@@ -6261,8 +6258,7 @@ if_ftst_paren_end:
 8:
 		move.l	a1,-(sp)
 		lea	(NAMECK_Name,a2),a0
-		STRCPY	a0,a1
-		subq.l	#1,a1
+		STRCPY	a0,a1,-1
 		lea	(NAMECK_Ext,a2),a0
 		STRCPY	a0,a1
 		movea.l	(sp)+,a1

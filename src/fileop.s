@@ -109,8 +109,7 @@ maketmp_make:
 
 		lea	(-90,sp),sp
 		lea	(sp),a1
-		STRCPY	a0,a1			;パス名
-		subq.l	#1,a1
+		STRCPY	a0,a1,-1		;パス名
 		cmpa.l	a0,a1
 		bne	@f
 		bsr	get_curdir_a1		;$MINT_TMP 未定義ならカレントに作る
@@ -931,8 +930,7 @@ md_input:
 		lea	(sp),a1
 		STRCPY	a0,a1
 		lea	(PATH_DIRNAME,a6),a0
-		STRCPY	a0,a2
-		subq.l	#1,a2
+		STRCPY	a0,a2,-1
 		lea	(sp),a0
 		STRCPY	a0,a2
 		lea	(256,sp),sp
@@ -1026,8 +1024,7 @@ md_sub_mintarc:
 		lea	(-128,sp),sp
 		lea	(sp),a2
 		lea	(PATH_DIRNAME+.sizeof.('a:/'),a6),a1
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		STRCPY	a0,a2
 
 		moveq	#-1,d0			;mintarc 用のリストに登録
@@ -1453,8 +1450,7 @@ delete_sub_a4:
 * 書庫内削除
 		lea	(PATH_DIRNAME+.sizeof.('a:/'),a6),a1
 		lea	(sp),a2
-		STRCPY	a1,a2
-		subq.l	#1,a2
+		STRCPY	a1,a2,-1
 		lea	(DIR_NAME,a4),a1
 		bsr	copy_dir_name_a1_a2
 		btst	#DIRECTORY,(DIR_ATR,a4)
