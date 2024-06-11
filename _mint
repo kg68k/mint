@@ -1266,6 +1266,7 @@ $xx_ext			xx $_; (down)
 
 	# pcm
 
+!BEEP.SYS ------ap---	(adpcm-p)
 .PCM	--------ap---	pf $F
 	---o1---ap---	s44play -mono $F
 	---x1---ap---	(adpcm-p) -f0			# 3.9kHz
@@ -1474,8 +1475,6 @@ $ANM_LOAD		&foreach ( dance wapi ) { &if ( &prchk $_ ) { $_ -r } }
 .MIT .TFT -----------	&title-load $F
 
 	# others
-
-!EDRPROF -----d-api--	$EDITOR				# EDR プロファイル機能
 
 ^	BD\x01
 .BFD	---x5---ap---	bup -l $F | (disp)		# List

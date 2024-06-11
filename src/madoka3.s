@@ -1427,10 +1427,8 @@ sch_mac_loop:
 		bne	sch_mac_next
 
 		move.b	d2,(a0)			;元に戻す
-		lea	(a0),a1
-		bsr	skip_blank
-		move.l	a1,d0
-		bra	sch_mac_end
+		move.l	a0,d0			;「$macro \ #」が次の行との連結として解釈されるように
+		bra	sch_mac_end		;空白を残したままにする
 sch_mac_next:
 		move.b	d2,(a0)			;元に戻す
 sch_mac_start:
