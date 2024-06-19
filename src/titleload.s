@@ -39,8 +39,8 @@
 
 * Constant ------------------------------------ *
 
-MAG_MAX:	.equ	1024<<16+1024
-MIT_MAX:	.equ	(1024-8)<<16+(512-4)
+MAG_XY_MAX:	.equ	1024<<16+1024
+MIT_XY_MAX:	.equ	(1024-8)<<16+(512-4)
 
 COL_MIT_4:	.equ	-2
 COL_MIT_16:	.equ	-1
@@ -240,6 +240,18 @@ option_l_y:
 		bra	option_check_tail
 
 _error:		bra	error
+_error2:	bra	error2
+
+Read4Bytes:
+  lea (~flag_buf,a5),a0  ;バッファを流用
+  subq.l #4,d5  ;ファイルの残りバイト数
+  pea (4)       ;読み込みバイト数
+  pea (a0)
+  move d7,-(sp)
+  DOS _READ
+  addq.l #10-4,sp
+  cmp.l (sp)+,d0  ;ccrZ=1なら4バイト読み込めた
+  rts
 
 option_check_tail:
 		tst.b	(a0)+
@@ -265,45 +277,26 @@ no_arg:
 		bmi	_error2
 		move.l	d0,d5			;ファイルサイズ
 
-		lea	(~flag_buf,a5),a0	;流用
-		moveq	#32,d1			;チェックデータ＋作者名を読む
-		move.l	d1,-(sp)
-		pea	(a0)
-		move	d7,-(sp)
-		DOS	_READ
-		addq.l	#10-4,sp
-		cmp.l	(sp)+,d0
-		bne	_error2
-
-		move.l	#MAG_MAX,d6
-		lea	(a0),a1			;画像形式の判別
-		cmpi.l	#'MAKI',(a1)+
-		bne	@f
-		cmpi.l	#'02  ',(a1)+
-		beq	skip_comment		;MAKI02
-@@:		move.l	(a0),d0
-		subi.l	#'HK03',d0
-		subq.l	#1,d0
-		bhi	_error2			;未対応の形式
-
-		move.l	#MIT_MAX,d6
-		subq.b	#1,d0			;'HK03' -> -2
-		move.b	d0,(~color_mode,a5)	;'HK04' -> -1
-
-		moveq	#4,d1			;ヘッダ直後にシーク
-		clr	-(sp)
-		move.l	d1,-(sp)
-		move	d7,-(sp)
-		DOS	_SEEK
-		addq.l	#8,sp
-		tst.l	d0
-		bpl	skip_comment
-
-_error2:	bra	error2
-
+  ;チェックデータを読んで画像形式を判別する
+  bsr Read4Bytes
+  bne _error2
+  cmpi.l #'MAKI',(a0)
+  bne @f
+    bsr Read4Bytes
+    bne _error2
+    cmpi.l #'02  ',(a0)
+    bne _error2  ;未対応のMAKI系形式
+      move.l #MAG_XY_MAX,(~max_xy,a5)  ;MAKI02 (.MAG)
+      bra skip_comment
+  @@:
+  move.l (a0),d0
+  subi.l #'HK03',d0  ;HK03 ->  0, HK04 -> 1
+  subq.l #1,d0       ;HK03 -> -1, HK04 -> 0
+  bhi _error2  ;未対応の形式
+    subq.b #1,d0       ;HK03 -> -2, HK04 -> -1
+    move.b d0,(~color_mode,a5)
+    move.l #MIT_XY_MAX,(~max_xy,a5)
 skip_comment:
-		move.l	d6,(~max_xy,a5)
-		sub.l	d1,d5
 		moveq	#EOF,d1
 skip_comment_loop:
 		move	d7,-(sp)		;コメントを読み捨てる
