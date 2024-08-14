@@ -3323,7 +3323,7 @@ sizeof_CLOCK_VALUE:
 .text
 
 update_periodic_display::
-  PUSH d0-d2/a0
+  PUSH d0-d7/a0-a6
   move (disable_write_and_clock_flag,opc),d0
   bne 9f
     lea (clock_value),a0
@@ -3331,9 +3331,7 @@ update_periodic_display::
     move (＄cals-clock_value,a0),d0
     cmp.l (CLOCK_6502_CALS,a0),d0
     beq @f
-      PUSH d3-d7/a1-a6
       bsr print_titlebar  ;レイアウトが変わる場合はタイトル行全体を再描画
-      POP d3-d7/a1-a6
       bra 9f
     @@:
     bsr get_datetime
@@ -3349,7 +3347,7 @@ update_periodic_display::
         bsr cals1_blink
       bra 9f
     5:
-      ;前回表示から1秒経過した(ただし初回は1秒未満の場合もある)
+      ;前回表示から1秒以上経過した(ただし初回は1秒未満の場合もある)
       bsr update_clock
 
       not.b (CLOCK_IS_ODD,a0)  ;毎秒更新だと頻繁すぎるように感じたので2分周して2秒ごと
@@ -3357,7 +3355,7 @@ update_periodic_display::
         bsr update_phantomx_soctmp
       @@:
   9:
-  POP d0-d2/a0
+  POP d0-d7/a0-a6
   rts
 
 
