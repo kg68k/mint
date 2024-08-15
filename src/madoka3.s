@@ -75,6 +75,7 @@
 		.xref	kq_buffer,macro_table
 		.xref	disable_clock_flag,malloc_mode,stack_top
 		.xref	時間_実行前,時間_実行後
+		.xref	twon_adrs
 * mintarc.s
 		.xref	get_mintarc_dir
 		.xref	get_mintarc_filename
@@ -4942,49 +4943,60 @@ err_mes_tbl:
 *	記述した時だけ検索できる.
 
 search_command::
-		PUSH	d1-d4/a2
-		moveq	#TAB,d2
-		moveq	#SPACE,d3
-		move.l	d0,d4
+  PUSH d1-d5/a2
+  moveq #TAB,d2
+  moveq #SPACE,d3
+  move.l d0,d4
 
-		lea	(a0),a2
-@@:
-		move.b	(a2)+,d0		;先頭の空白を飛ばす
-		cmp.b	d2,d0
-		beq	@b
-		cmp.b	d3,d0
-		beq	@b
-		subq.l	#1,a2
+  moveq #0,d5
+  tst.l (twon_adrs)
+  bne @f           ;(V)TwentyOne.sys非組み込み時はpathchkで'/'が使えないので
+    moveq #'\',d5  ;'\'に置き換える
+  @@:
+  lea (a0),a2
 
-		moveq	#0,d1
-		bra	sch_cmd_scan_next
+  @@:
+    move.b (a2)+,d0  ;先頭の空白を飛ばす
+    cmp.b d2,d0
+    beq @b
+    cmp.b d3,d0
+    beq @b
+  subq.l #1,a2
+
+  moveq #0,d1
+  bra sch_cmd_scan_next
 sch_cmd_scan_loop:
-		cmpi.b	#'/',d0
-		beq	sch_cmd_scan_found	;パスデリミタ
-		cmpi.b	#'\',d0
-		beq	sch_cmd_scan_found	;〃
-		cmp.b	d2,d0
-		beq	sch_cmd_scan_blank	;コマンド名終了
-		cmp.b	d3,d0
-		beq	sch_cmd_scan_blank	;〃
-		cmpi.b	#':',d0
-		bne	sch_cmd_scan_next
+  cmpi.b #'/',d0
+  bne @f
+    tst.b d5
+    beq sch_cmd_scan_found
+    move.b d5,(-1,a2)
+    bra sch_cmd_scan_found
+  @@:
+  cmpi.b #'\',d0
+  beq sch_cmd_scan_found
+  cmp.b d2,d0
+  beq sch_cmd_scan_blank  ;TAB コマンド名終了
+  cmp.b d3,d0
+  beq sch_cmd_scan_blank  ;SPACE コマンド名終了
+  cmpi.b #':',d0
+  bne sch_cmd_scan_next
 sch_cmd_scan_found:
-		moveq	#1,d1
+  moveq #1,d1  ;パスデリミタあり
 sch_cmd_scan_next:
-		move.b	(a2)+,d0
-		bgt	sch_cmd_scan_loop
-		beq	sch_cmd_scan_nul
-		lsr.b	#5,d0
-		btst	d0,#%10010000
-		beq	sch_cmd_scan_next
-		tst.b	(a2)+
-		bne	sch_cmd_scan_next
+  move.b (a2)+,d0
+  bgt sch_cmd_scan_loop
+  beq sch_cmd_scan_nul
+  lsr.b #5,d0
+  btst d0,#%10010000
+  beq sch_cmd_scan_next
+  tst.b (a2)+
+  bne sch_cmd_scan_next
 sch_cmd_scan_nul:
-		subq.l	#1,a2
+  subq.l #1,a2
 sch_cmd_scan_blank:
-		tst	d1
-		beq	sch_cmd_no_path
+  tst d1
+  beq sch_cmd_no_path
 
 * ドライブ名かパスデリミタがある場合
 		move.b	(a2),-(sp)
@@ -5044,47 +5056,52 @@ sch_cmd_pathchk:
 		bne	sch_cmd_end
 		moveq	#1,d0			;.bat
 sch_cmd_end:
-		POP	d1-d4/a2
+		POP	d1-d5/a2
 		tst.l	d0
 		rts
 
 
 * DOS _EXEC カレントディレクトリ検索抑制パッチ
 set_dos_exec_patch:
-		PUSH	d0-d1
-		TO_SUPER
-		move	#$600e,d1
-		cmp	($9d80),d1
-		bne	@f
-		DOS	_VERNUM
-		cmpi	#$0302,d0
-		bne	@f
-
-		move	d1,(dos_exec_patch_flag)
-		move	#$2048,($9d80)		;movea.l a0,a0
-		cmpi.b	#2,(MPUTYPE)
-		bcs	@f
-		moveq	#3,d1			;キャッシュ破棄
-		IOCS	_SYS_STAT
-@@:
-		TO_USER
-		POP	d0-d1
-		rts
+  PUSH d0-d1
+  TO_SUPER
+  move #$600e,d1  ;bra L009d90
+  cmp ($9d80),d1
+  bne @f
+    DOS _VERNUM
+    cmpi #$0302,d0
+    bne @f
+      move d1,(dos_exec_patch_flag)
+      move #$2048,($9d80)  ;movea.l a0,a0
+      bsr flush_mpu_cache
+  @@:
+  TO_USER
+  POP d0-d1
+  rts
 
 * DOS _EXEC パッチ復帰
 * (mint.s の prepare_exit_mint からも呼ばれる)
 restore_dos_exec_patch::
-		PUSH	d0-d1/a1
-		lea	(dos_exec_patch_flag,pc),a1
-		move	(a1),d1
-		beq	@f
-		clr	(a1)
-		lea	($9d80),a1		;DOS _EXEC のパッチを元に戻す
-		IOCS	_B_WPOKE
-@@:
-		POP	d0-d1/a1
-		rts
+  PUSH d0-d1/a1
+  TO_SUPER
+  lea (dos_exec_patch_flag,pc),a1
+  move (a1),d1
+  beq @f
+    clr (a1)
+    move d1,($9d80)  ;DOS _EXEC のパッチを元に戻す
+    bsr flush_mpu_cache
+  @@:
+  TO_USER2
+  POP d0-d1/a1
+  rts
 
+flush_mpu_cache:
+  cmpi.b #2,(MPUTYPE)
+  bcs @f
+    moveq #3,d1  ;キャッシュ破棄
+    IOCS _SYS_STAT
+  @@:
+  rts
 
 dos_exec_patch_flag:
 		.dc	0
