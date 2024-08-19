@@ -4296,7 +4296,9 @@ exe_file_shchk_loop:
 		tst.b	d1			;ファイル名中に現われた記号類は
 		bne	exe_file_shchk_loop	;シェル起動文字と見なさない
 
-		tst.b	(a1,d0.w)
+		move	d0,d3			;d0の下位3ビット=ビット位置
+		lsr	#3,d3			;d1.w=バイト位置
+		btst	d0,(a1,d3.w)
 		beq	exe_file_shchk_loop
 		bra	exe_file_shell		;シェル起動文字が含まれていた
 exe_file_shchk_le:
@@ -4310,10 +4312,15 @@ exe_file_shchk_next:
 		subq.l	#1,d2
 		bne	exe_file_shchk_loop
 
-* シェル起動コマンドが含まれるか調べる
 		tst	(＄unix)
 		bne	exe_file_no_shell
 
+		lea	(a4),a0
+		bsr	is_bat_file
+		tst.b	d0
+		bne	exe_file_shell		;.BATファイルならシェル起動する
+
+* シェル起動コマンドが含まれるか調べる
 		GETMES	MES_SCMD0
 		movea.l	d0,a0
 exe_file_shchk2_loop:
@@ -4520,6 +4527,43 @@ exe_file_end:
 		rts
 
 
+* トークンが .BAT か調べる -------------------- *
+* in  a0.l トークン
+* out d0.b $00:.BATではない $ff:.BAT
+
+is_bat_file:
+  bsr extract_token_tail
+  ori.l #$00202020,d0
+  cmpi.l #'.bat',d0
+  seq d0
+  rts
+
+extract_token_tail:
+  PUSH d1/a0
+  moveq #0,d0
+  1:
+    move.b (a0)+,d1
+    beq 2f
+    cmpi.b #TC_FILE,d1
+    beq 1b
+    cmpi.b #TC_ESC,d1
+    bne @f
+      move.b (a0)+,d1
+    @@:
+    lsl.l #8,d0
+    move.b d1,d0
+
+    lsr.b #5,d1
+    btst d1,#%10010000
+    beq 1b
+    lsl.l #8,d0
+    move.b (a0)+,d0
+    bne 1b
+  2:
+  POP d1/a1
+  rts
+
+
 * シェル引数エンコード ------------------------ *
 * in	d0.l	トークン数
 *	a0.l	トークン列
@@ -4587,9 +4631,9 @@ sh_enc_token_loop:
 		tst.b	(a0)
 		beq	sh_enc_token_nul	;空文字列
 
-		moveq	#-1,d1			;モード
+		moveq	#-1,d1			;d1.l bit31=1ならファイル名処理中、下位ワードは作業用
 sh_enc_token_f:
-		not	d1
+		not.l	d1
 sh_enc_token_loop2:
 		move.b	(a0)+,d0
 		beq	sh_enc_token_next
@@ -4607,10 +4651,14 @@ sh_enc_token_loop2:
 		beq	sh_enc_token_qd
 		cmpi.b	#'"',d0
 		beq	sh_enc_token_qs
-		tst	d1
-		beq	sh_enc_token_put
-		tst.b	(a3,d0.w)		;ファイル名内にシェル起動文字があれば
+		tst.l	d1
+		bpl	sh_enc_token_put
+
+		move	d0,d1			;d0の下位3ビット=ビット位置
+		lsr	#3,d1			;d1.w=バイト位置
+		btst	d0,(a3,d1.w)		;ファイル名内にシェル起動文字があれば
 		bne	sh_enc_token_qs		;'～' でクォーティングする
+			;分岐先は2バイト文字を考慮しないがシェル起動文字にならないので問題ない
 sh_enc_token_put:
 		PUT	<move.b  d0,(a2)+>
 		lsr.b	#5,d0
@@ -5110,34 +5158,38 @@ dos_exec_patch_flag:
 * シェル起動文字テーブル作成 ------------------ *
 
 init_schr_tbl::
-		PUSH	d0-d1/a0-a1
-		tst	(＄unix)
-		seq	d0
-		addi.b	#MES_SCHR1,d0
-		jsr	(get_message)
-		movea.l	d0,a0
+  PUSH d0-d1/a0-a1
+  tst (＄unix)
+  seq d0
+  addi.b #MES_SCHR1,d0
+  jsr (get_message)
+  movea.l d0,a0
 
-		lea	(schr_tbl+128),a1
-		moveq	#0,d0
-		moveq	#128/(4*4)-1,d1
-@@:
-	.rept	4
-		move.l	d0,-(a1)		;バッファクリア
-	.endm
-		dbra	d1,@b
-@@:
-		st	(a1,d0.w)		;フラグをセットする
-		move.b	(a0)+,d0
-		bgt	@b
-		beq	@f
-		lsr.b	#5,d0
-		btst	d0,#%10010000
-		beq	@b			;１バイト片仮名
-		tst.b	(a0)+
-		bne	@b
-@@:
-		POP	d0-d1/a0-a1
-		rts
+  lea (schr_tbl_end),a1
+  moveq #0,d0
+  moveq #(schr_tbl_end-schr_tbl)/4-1,d1
+  @@:
+    move.l d0,-(a1)  ;バッファクリア
+  dbra d1,@b
+
+  ;d0.l=0, a1.l=schr_tbl
+  bra @f
+  1:
+    move d0,d1  ;d0の下位3ビット=ビット位置
+    lsr #3,d1   ;d1.w=バイト位置
+    bset d0,(a1,d1.w)  ;フラグをセットする
+  @@:
+  move.b (a0)+,d0
+  bgt 1b  ;$01-$7f
+  beq 9f
+  lsr.b #5,d0
+  btst d0,#%10010000
+  beq 1b  ;1バイト片仮名
+  tst.b (a0)+
+  bne @b  ;2バイト文字は無視する
+9:
+  POP d0-d1/a0-a1
+  rts
 
 
 * オプションスイッチの処理(実行前) ------------ *
@@ -6993,7 +7045,8 @@ unfold_buf_inuse: .ds.b 1
 
 tmp_buf:	.ds.b	512
 
-schr_tbl:	.ds.b	128
+schr_tbl:	.ds.b	256/8
+schr_tbl_end:
 
 unfold_buf:  .ds.b UNFOLD_BUF_SIZE
 cmdline_buf: .ds.b CMDLINE_BUF_SIZE
