@@ -1525,16 +1525,7 @@ M	" CG (.mag) 〃"			-fsapig3	(twon-c); magh -ne0r8    \*.mag
 P	" CG (.pic) 〃  (Shift:Wait)"	-fsapig3	(twon-c); hapic    \*.pic
 					-tfsapig3	(twon-c); hapic -k \*.pic
 	" "				-	&nop
-V	" 壁紙表示(ランダム)"		-apig3	&if (1 == $ENTRIES) { &end }
-						&foreach ( ) {
-						  &rnd $ENTRIES; &goto-cursor $STATUS;
-						  &if (1 == $CURSOR) { &continue }
-						  &if ( -d $F ) { &cd $F; &continue }
-						  &elsif ( &match -i *.PIC $F ) { hapic -p-m-c0 $F }
-						  &elsif ( &match -i *.MAG $F ) { magh -pcm1r0 $F }
-						  &elsif ( &match -i *.PI  $F ) { pih  -pcm1r0 $F }
-						  &elsif ( &match -i *.HG  $F ) { hgh  -pcm1r0 $F } &end
-						}
+V	" 壁紙表示(ランダム)"		-ap	&madoka (MINT)randwp.mis
 C	" (0,512)から表示して比較"	-fspig3	apicg -l0,512 $F
 F	" GROT 256->64K 色数変換"	-apig3	&max; (GROT) -f
 	" "				-	&nop

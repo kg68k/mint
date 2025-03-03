@@ -44,6 +44,7 @@ MADOKA_ = 060config.mis \
           pal_il.mis \
           pal_il2.mis \
           pal_il3.mis \
+          randwp.mis \
           reomenu.mis \
           script.txt \
           uniq_check.mis

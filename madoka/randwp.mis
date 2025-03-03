@@ -1,0 +1,21 @@
+#!madoka
+#	randwp - 画像ファイルのランダム壁紙表示
+#		Copyright (C)2025 TcbnErik
+  -apig3 \
+	&foreach ( ) {
+	  &if ($dotn >= 0x8000) {
+	    &if (1 > $ENTRIES) { &end }
+	  }
+	  &else {
+	    &if (2 > $ENTRIES) { &end }
+	  }
+	  &rnd $ENTRIES; &goto-cursor $STATUS;
+	  &if (&equ $FILE "..") { &continue }
+	  &if ( -d $F ) { &cd $F; &continue }
+	  &elsif ( &match -i *.PIC $F ) { hapic -p-m-c0 $F }
+	  &elsif ( &match -i *.MAG $F ) { magh -pcm1r0 $F }
+	  &elsif ( &match -i *.PI  $F ) { pih  -pcm1r0 $F }
+	  &elsif ( &match -i *.HG  $F ) { hgh  -pcm1r0 $F }
+	  &end
+	}
+# EOF
