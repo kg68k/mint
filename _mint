@@ -265,482 +265,449 @@
 
 	# path macro
 
-$SYS	c:/sys/
-$BIN	c:/bin/
-$MAN	c:/man/
-$MUS	c:/music/
-$ZM	c:/music/zmsc/
-$ASM	c:/develop/asm/
-$GCC	c:/develop/gcc/
-$GCC2	c:/develop/gcc2/
-$XC	c:/develop/xc21nk/
-$GRA	c:/graphic/
-
 $MINT	$MINT_PATH/
 $M_MAN	(MINT)man/
 
 	# macro
 
-$NUL			$temp/nul
-$twon-c			&twentyone-ignore-case
-$GROT			grot
-$QSCDRV			&if ( ! &prchk '9scdrv' ) { 9scdrv -h }
-$disp			mintdisp
-$exg			&exchange-current
-$opp			&cursor-opposite-window
-$up			&cursor-up
-#$up			&if    ($CURSOR  > 2) { &cursor-up; &cursor-up; &cursor-down }
-#			&elsif ($CURSOR == 2) { &cursor-up }
-$down			&cursor-down
-$down3			&if ($dotn < 0x8000) { &cursor-down }
-$look			&if ( &prchk 'mzlvl' ) { &look-file -o$temp $F }
-			&elsif ( 6 == &get-color-mode ) { &look-file -o$temp $F }
-			&else { &look-file -^ -o$temp $F }
+$NUL		$temp/nul
+$twon-c		&twentyone-ignore-case
+$GROT		grot
+$QSCDRV		&if ( ! &prchk '9scdrv' ) { 9scdrv -h }
+$disp		mintdisp
+$exg		&exchange-current
+$opp		&cursor-opposite-window
+$up		&cursor-up
+$down		&cursor-down
+$down3		&if ($dotn < 0x8000) { &cursor-down }
+$look		&if ( &prchk 'mzlvl' ) { &look-file -o$temp $F }
+		&elsif ( 6 == &get-color-mode ) { &look-file -o$temp $F }
+		&else { &look-file -^ -o$temp $F }
 
 #カーソル位置記憶系
-$set-mark		&set MARKFILE $P
-$goto-mark		&if ( $?MARKFILE == 1) {
-			  &if ( ! &equ $MARKFILE:h $PWD ) { &cd $MARKFILE:h }
-			  &cursor-to-home; &i-search $MARKFILE:t
-			}
-$exg-point-mark		&if ( $?MARKFILE == 1) {
-			  &set OLDFILE $P;
-			  &if ( ! &equ $MARKFILE:h $PWD ) { &cd $MARKFILE:h }
-			  &cursor-to-home; &i-search $MARKFILE:t;
-			  &set MARKFILE $OLDFILE; &unset OLDFILE
-			}
+$set-mark	&set MARKFILE $P
+$goto-mark	&if ( $?MARKFILE == 1) {
+		  &if ( ! &equ $MARKFILE:h $PWD ) { &cd $MARKFILE:h }
+		  &cursor-to-home; &i-search $MARKFILE:t
+		}
+$exg-point-mark	&if ( $?MARKFILE == 1) {
+		  &set OLDFILE $P;
+		  &if ( ! &equ $MARKFILE:h $PWD ) { &cd $MARKFILE:h }
+		  &cursor-to-home; &i-search $MARKFILE:t;
+		  &set MARKFILE $OLDFILE; &unset OLDFILE
+		}
 
-$source			&if ( &source ) { (init) }
-$init			&cal scrl $dirh/2;
-			&if ( &equ $USER TcbnErik ) { &set cals 2 }
+$source		&if ( &source ) { (init) }
+$init		&cal scrl $dirh/2;
+		&if ( &equ $USER TcbnErik ) { &set cals 2 }
 
-$ed-file		&if ( -r $F ) { $EDITOR $P; (source) }
-#$ed-file		&if ( -r $F ) {
-#			  &if ( &match [248] $edtab ) { $EDITOR $P -h$edtab }
-#			  &elsif   ( &equ -i c $F:e ) { $EDITOR $P -h4 }
-#			  &else { $EDITOR $P }
-#			  (source)
-#			}
-#$chdir_to_parent	&if ( &cd .. ) { (down) }
+$ed-file	&if ( -r $F ) { $EDITOR $P; (source) }
 $chdir_to_parent	&cd ..
 
 #gm 未常駐時に呼び出しても副作用はない.
 #心配なら &if ( &prchk 'gm' ) { ... } で括ること.
-$GM-m			&iocs 14,0x676dff89
-$GM-c			&iocs 14,0x676dff8a
-$GM-disable		&iocs 14,0x676dff8b; (GM-c)
-$GM-enable		&iocs 14,0x676dff8c; (GM-m)
-$GM-active		&iocs 14,0x676dff8d
-$GM-inactive		&iocs 14,0x676dff8e
+$GM-m		&iocs 14,0x676dff89
+$GM-c		&iocs 14,0x676dff8a
+$GM-disable	&iocs 14,0x676dff8b; (GM-c)
+$GM-enable	&iocs 14,0x676dff8c; (GM-m)
+$GM-active	&iocs 14,0x676dff8d
+$GM-inactive	&iocs 14,0x676dff8e
 
 #pcm8 未公開コール使用
-$PCM8-off		&if ( &prchk 'pcm8' ) { &trap 2,0x7f02,0 } &else { (PCMd-r); pcm8 off }
-$PCM8-on		&if ( &prchk 'pcm8' ) { &trap 2,0x7f02,1 } &else { (PCMd-r); pcm8 on  }
-$PCM8-fnc		&if ( &prchk 'pcm8' ) { &trap 2,0x7f02,2 } &else { (PCMd-r); pcm8 fnc }
-$PCM8-r			&if ( &prchk 'pcm8' ) { &trap 2,0xffff }
-$MPCM			&if ( ! &prchk 'mpcm' ) { (PCMd-r); mpcm }
-$MPCM-r			&if ( &prchk 'mpcm' ) { mpcm -r }
-$PCMd-r			(MPCM-r); (PCM8-r); &if ( &prchk 'xapnel' ) { xapnel -r }
+$PCM8-off	&if ( &prchk 'pcm8' ) { &trap 2,0x7f02,0 } &else { (PCMd-r); pcm8 off }
+$PCM8-on	&if ( &prchk 'pcm8' ) { &trap 2,0x7f02,1 } &else { (PCMd-r); pcm8 on  }
+$PCM8-fnc	&if ( &prchk 'pcm8' ) { &trap 2,0x7f02,2 } &else { (PCMd-r); pcm8 fnc }
+$PCM8-r		&if ( &prchk 'pcm8' ) { &trap 2,0xffff }
+$MPCM		&if ( ! &prchk 'mpcm' ) { (PCMd-r); mpcm }
+$MPCM-r		&if ( &prchk 'mpcm' ) { mpcm -r }
+$PCMd-r		(MPCM-r); (PCM8-r); &if ( &prchk 'xapnel' ) { xapnel -r }
 
-$MCDRVS			"*.MDC *.RCP *.R36 *.MID *.SMF"
+$MCDRVS		"*.MDC *.RCP *.R36 *.MID *.SMF"
 
-$play_music		(twon-c); $(make-zpdx $F);
-			&if ( &prchk 'mxdrv16y' ) { &if ( &match -i *.MDX    $F ) { mdxp $F; &break } }
-			&if ( &prchk 'mxdrv'    ) { &if ( &match -i *.MDX    $F ) { mdxp $F; &break } }
-			&if ( &prchk 'mxw'      ) { &if ( &match -i *.MDX    $F ) { mdxp $F; &break } }
-			&if ( &prchk 'madrv'    ) { &if ( &match -i *.MDR    $F ) { mazp $F; &break } }
-			&if ( &prchk 'mld'      ) { &if ( &match -i *.MDZ    $F ) { mmlp $F; &break } }
-			&if ( &prchk 'mcdrv'    ) { &if ( &match -i (MCDRVS) $F ) { mmcp $F; &break } }
-			&if ( &prchk 'mndrv'    ) { &if ( &match -i *.MND    $F ) { mnp  $F; &break } }
-			&if ( &prchk 'zmsc'     ) { &if ( &match -i *.ZMD    $F ) { mzp   $F; &break } }
-			&if ( &prchk 'zmusic'   ) { &if ( &match -i *.ZM[SD] $F ) { mzp   $F; &break } }
-			&if ( &match -i *.MDX $F ) { (set_mxdrv); mdxp $F; &break }
-			&if ( &match -i *.MDR $F ) { (set_madrv); mazp $F; &break }
-			&if ( &match -i *.MDZ $F ) { (set_mld);   mmlp $F; &break }
-			&if ( &match -i *.MND $F ) { (set_mndrv); mnp  $F; &break }
-			&if ( &match -i (MCDRVS) $F ) { (set_mcdrv); mmcp $F; &break }
-			(set_zmusic); mzp $F
+$play_music	(twon-c); $(make-zpdx $F);
+		&if ( &prchk 'mxdrv16y' ) { &if ( &match -i *.MDX    $F ) { mdxp $F; &break } }
+		&if ( &prchk 'mxdrv'    ) { &if ( &match -i *.MDX    $F ) { mdxp $F; &break } }
+		&if ( &prchk 'mxw'      ) { &if ( &match -i *.MDX    $F ) { mdxp $F; &break } }
+		&if ( &prchk 'madrv'    ) { &if ( &match -i *.MDR    $F ) { mazp $F; &break } }
+		&if ( &prchk 'mld'      ) { &if ( &match -i *.MDZ    $F ) { mmlp $F; &break } }
+		&if ( &prchk 'mcdrv'    ) { &if ( &match -i (MCDRVS) $F ) { mmcp $F; &break } }
+		&if ( &prchk 'mndrv'    ) { &if ( &match -i *.MND    $F ) { mnp  $F; &break } }
+		&if ( &prchk 'zmsc'     ) { &if ( &match -i *.ZMD    $F ) { mzp   $F; &break } }
+		&if ( &prchk 'zmusic'   ) { &if ( &match -i *.ZM[SD] $F ) { mzp   $F; &break } }
+		&if ( &match -i *.MDX $F ) { (set_mxdrv); mdxp $F; &break }
+		&if ( &match -i *.MDR $F ) { (set_madrv); mazp $F; &break }
+		&if ( &match -i *.MDZ $F ) { (set_mld);   mmlp $F; &break }
+		&if ( &match -i *.MND $F ) { (set_mndrv); mnp  $F; &break }
+		&if ( &match -i (MCDRVS) $F ) { (set_mcdrv); mmcp $F; &break }
+		(set_zmusic); mzp $F
 
-$set_mxdrv		&if ( ! &prchk 'mxdrv16y' ) { (release-music-driver); (PCM8-fnc); mxdrv16y -p350 }
-$set_madrv		&if ( ! &prchk 'madrv'  ) { (release-music-driver); (PCM8-fnc); madrv -m64 -p350 }
-$set_mld		&if ( ! &prchk 'mld'    ) { (release-music-driver); (PCM8-fnc); mld }
-$set_mcdrv		&if ( ! &prchk 'mcdrv'  ) { (release-music-driver); (PCM8-fnc); mcdrv -ii (MUS)sc55.pdx }
-$set_mndrv		&if ( ! &prchk 'mndrv'  ) { (release-music-driver); (MPCM);	mndrv }
-$set_zmusic		&if ( ! &prchk 'zmusic' ) { (release-music-driver); (PCM8-fnc); zmusic -t120 -p350 }
+$set_mxdrv	&if ( ! &prchk 'mxdrv16y' ) { (release-music-driver); (PCM8-fnc); mxdrv16y -p350 }
+$set_madrv	&if ( ! &prchk 'madrv'  ) { (release-music-driver); (PCM8-fnc); madrv -m64 -p350 }
+$set_mld	&if ( ! &prchk 'mld'    ) { (release-music-driver); (PCM8-fnc); mld }
+$set_mcdrv	&if ( ! &prchk 'mcdrv'  ) { (release-music-driver); (PCM8-fnc); mcdrv -ii c:/music/sc55.pdx }
+$set_mndrv	&if ( ! &prchk 'mndrv'  ) { (release-music-driver); (MPCM);	mndrv }
+$set_zmusic	&if ( ! &prchk 'zmusic' ) { (release-music-driver); (PCM8-fnc); zmusic -t120 -p350 }
 
-$release-mzlvl		&if ( &prchk 'mzlvl' ) {
-			  mzlvl -q -r;
-			  &if ( ! &prchk 'mzlvl' ) { (GM-enable) }
-			}
+$release-mzlvl	&if ( &prchk 'mzlvl' ) {
+		  mzlvl -q -r;
+		  &if ( ! &prchk 'mzlvl' ) { (GM-enable) }
+		}
 $release-music-driver	&stop-music; (release-mzlvl);
-			&foreach m_drive ( mmdsp mxdrv16y mxdrv mxw madrv mld mcdrv mndrv zmusic zmsc opmdrv3 ) {
-			  &if ( &prchk $m_drive ) { $m_drive -r }
-			} &unset m_drive
-$adpcm-p		\						    # (PCM8-fnc)
-			&if ( ! &prchk 'pcm8' ) { &if ( ! &prchk 'xapnel' ) { xapnel } }
-			apcmplay $F
+		&foreach m_drive ( mmdsp mxdrv16y mxdrv mxw madrv mld mcdrv mndrv zmusic zmsc opmdrv3 ) {
+		  &if ( &prchk $m_drive ) { $m_drive -r }
+		} &unset m_drive
+$adpcm-p	\	# (PCM8-fnc)
+		&if ( ! &prchk 'pcm8' ) { &if ( ! &prchk 'xapnel' ) { xapnel } }
+		apcmplay $F
 
-$make-zpdx		&if ( &pdx-filename $1 ) {
-			  &if ( ! -f $MINTTMP/$_ ) {
-			    &if ( &match -i "*.zmd *.zms *.mnd" $1 ) {
-			      &if    ( &exist -i $_ $_.zpd   ) { &uncompress -i $& }
-			      &elsif ( &exist -i *.bat	     ) { &uncompress -i $& *.pcm *.p16 *.cnf *.zpl *.x; COMMAND.X $& }
-			      &elsif ( &exist -i *.cnf *.zpl ) { &uncompress -i $& *.pcm *.p16; zpcnv $& }
-			    }
-			    &else {
-			      &if ( &exist -i $_ $_.pdx ) { &uncompress -i $& }
-			      &elsif ( &exist -i *.bat ) { &uncompress -i $& *.pcm *.p16 *.pdl *.spl *.x; COMMAND.X $& }
-			      &elsif ( &exist -i *.spl ) { &uncompress -i $& *.pcm *.p16; spdxm $& }
-			      &elsif ( &exist -i *.pdl ) { &uncompress -i $& *.pcm *.p16; tpdxm $& }
-			    }
-			  }
-			}
+$make-zpdx	&if ( &pdx-filename $1 ) {
+		  &if ( ! -f $MINTTMP/$_ ) {
+		    &if ( &match -i "*.zmd *.zms *.mnd" $1 ) {
+		      &if    ( &exist -i $_ $_.zpd   ) { &uncompress -i $& }
+		      &elsif ( &exist -i *.bat       ) { &uncompress -i $& *.pcm *.p16 *.cnf *.zpl *.x; COMMAND.X $& }
+		      &elsif ( &exist -i *.cnf *.zpl ) { &uncompress -i $& *.pcm *.p16; zpcnv $& }
+		    }
+		    &else {
+		      &if ( &exist -i $_ $_.pdx ) { &uncompress -i $& }
+		      &elsif ( &exist -i *.bat ) { &uncompress -i $& *.pcm *.p16 *.pdl *.spl *.x; COMMAND.X $& }
+		      &elsif ( &exist -i *.spl ) { &uncompress -i $& *.pcm *.p16; spdxm $& }
+		      &elsif ( &exist -i *.pdl ) { &uncompress -i $& *.pcm *.p16; tpdxm $& }
+		    }
+		  }
+		}
 
-$LZD-on			&setenv LZD_MODE 3
-$LZD-off		&unsetenv LZD_MODE
+$LZD-on		&setenv LZD_MODE 3
+$LZD-off	&unsetenv LZD_MODE
 
-$infoline-on		&if ( &prchk 'infoline' ) { infoline -nq on }
-$infoline-off		&if ( &prchk 'infoline' ) { infoline -nq off }
+$infoline-on	&if ( &prchk 'infoline' ) { infoline -nq on }
+$infoline-off	&if ( &prchk 'infoline' ) { infoline -nq off }
 
-$SYNC			&if ( &prchk 'fastio' ) { sync }
+$SYNC		&if ( &prchk 'fastio' ) { sync }
 
 
 	# mintarc
 
->LZHS_X	--------apiv-	lx -x2snfb. $MINTARC
->ZIPS_X	--------apiv-	zx -x2snb.  $MINTARC
->TARS_X	--------apiv-	tx -x2nb.   $MINTARC
->LZHS_D	--------ap-v-	lha d -axr2 $MINTARC
->ZIPS_D	--------ap-v-	zip -d $MINTARC
-#>TARS_D ------------	&nop
->LZHS_A	--------ap-v-	lha u -axr2 $MINTARC
->ZIPS_A	--------ap-v-	zip -ur $MINTARC
->TARS_A	--------ap-v-	&if ( -f $F ) { tar rvf $MINTARC }	# 既存テープ追加
-			&else	      { tar cvf $MINTARC }	# 新規テープ作成
-			&if ( &match $MINTTMP:u/mint[0-9][0-9][0-9][0-9].tar $F ) {
-			  &print -s500 -t">TARS_A Warning" \
-				"$F はテンポラリ書庫です." \
-				"        mintarc を終了すると自動的に" \
-				"        削除されるので注意して下さい."
-			}
-#>LZHS_Q ------------	&nop
-#>ZIPS_Q ------------	&nop
->TARS_Q	-------------	&if ( &match $MINTTMP:u/mint[0-9][0-9][0-9][0-9].tar $F ) {
+>LZHS_X	-apiv	lx -x2snfb. $MINTARC
+>ZIPS_X	-apiv	zx -x2snb.  $MINTARC
+>TARS_X	-apiv	tx -x2nb.   $MINTARC
+>LZHS_D	-apv	lha d -axr2 $MINTARC
+>ZIPS_D	-apv	zip -d $MINTARC
+#>TARS_D -	&nop
+>LZHS_A	-apv	lha u -axr2 $MINTARC
+>ZIPS_A	-apv	zip -ur $MINTARC
+>TARS_A	-apv	&if ( -f $F ) { tar rvf $MINTARC }	# 既存テープ追加
+		&else	      { tar cvf $MINTARC }	# 新規テープ作成
+		&if ( &match $MINTTMP:u/mint[0-9][0-9][0-9][0-9].tar $F ) {
+		  &print -s500 -t">TARS_A Warning" \
+			"$F はテンポラリ書庫です." \
+			"        mintarc を終了すると自動的に" \
+			"        削除されるので注意して下さい."
+		}
+#>LZHS_Q -	&nop
+#>ZIPS_Q -	&nop
+>TARS_Q	-	&if ( &match $MINTTMP:u/mint[0-9][0-9][0-9][0-9].tar $F ) {
 			  &rm $F
 			}
 
 	# function key
 
->FUNC01	--------ap---	&if ( $MPUTYPE == 6 ) {
-			  &if ( &ask-yn "    68060 モードです" " 実行して宜しいですか？" ) {
-			    vcache st; muterm; &set-opt +d; vcache 1
-			  } &end
-			}
-			&instruction-cache-off; &set-opt +d; muterm; &instruction-cache-on
-	-t----d-ap---	tmsio -b30 >(NUL); tmn; tmsio -r >(NUL)
-	--c----------	&nop
->FUNC02	-t-------pi--	conmod -qtp; (GM-m)
-	--------api--	conmod | (disp) -t'ConsoleMode'
-	---o1----pi--	conmod $<
-	--c----------	&nop
->FUNC03	--------ap---	sps    | (disp) -t'Process'
-	---o1---ap---	sps -v | (disp) -t'Process'
-	-t-----------	&if (1 == $mdxt) { &set mdxt 0; &echo 'mdxt off' } &else { &set mdxt 1; &echo 'mdxt on' }
-	--c----------	&nop
->FUNC04	--------ap---	sps -d  | (disp) -t'Device'
-	---o1---ap---	sps -dv | (disp) -t'Device'
-	-t-----------	&if (1 == $fumd) { &set fumd 0; &echo 'fumd off' } &else { &set fumd 1; &echo 'fumd on' }
-	--c----------	&nop
->FUNC05	--------api--	memfree
-	-t-----------	&if (1 == $esc!) { &set esc! 0; &echo 'ESC is not Meta-key.' } &else { &set esc! 1; &echo 'ESC is Meta-key.' }
-	--c----------	&nop
->FUNC06	--------api--	(GM-enable)
-	-t------api--	(GM-active)
-	---o1---api--	gm -pknv
-	--c----------	&nop
->FUNC07	--------api--	(GM-disable)
-	-t------api--	(GM-inactive)
-	---o1---api--	gm -r
-	--c----------	&nop
->FUNC08	--------api--	(GM-m)
-	-t------api--	(GM-c)
-	--c----------	&nop
->FUNC09	--------api--	twon -c
-	-t------ap---	fsize $M
-	--c----------	&nop
->FUNC10	--------api--	twon +c
-	-t------api--	(SYNC)
-	--c----------	&nop
+>FUNC01	-ap	&if ( $MPUTYPE == 6 ) {
+		  &if ( &ask-yn "    68060 モードです" " 実行して宜しいですか？" ) {
+		    vcache st; muterm; &set-opt +d; vcache 1
+		  } &end
+		}
+		&instruction-cache-off; &set-opt +d; muterm; &instruction-cache-on
+	-tdap	tmsio -b30 >(NUL); tmn; tmsio -r >(NUL)
+	-c	&nop
+>FUNC02	-tpi	conmod -qtp; (GM-m)
+	-api	conmod | (disp) -t'ConsoleMode'
+	-o1pi	conmod $<
+	-c	&nop
+>FUNC03	-ap	sps    | (disp) -t'Process'
+	-o1ap	sps -v | (disp) -t'Process'
+	-t	&if (1 == $mdxt) { &set mdxt 0; &echo 'mdxt off' }
+		&else { &set mdxt 1; &echo 'mdxt on' }
+	-c	&nop
+>FUNC04	-ap	sps -d  | (disp) -t'Device'
+	-o1ap	sps -dv | (disp) -t'Device'
+	-t	&if (1 == $fumd) { &set fumd 0; &echo 'fumd off' }
+		&else { &set fumd 1; &echo 'fumd on' }
+	-c	&nop
+>FUNC05	-api	memfree
+	-t	&if (1 == $esc!) { &set esc! 0; &echo 'ESC is not Meta-key.' }
+		&else { &set esc! 1; &echo 'ESC is Meta-key.' }
+	-c	&nop
+>FUNC06	-api	(GM-enable)
+	-tapi	(GM-active)
+	-o1api	gm -pknv
+	-c	&nop
+>FUNC07	-api	(GM-disable)
+	-tapi	(GM-inactive)
+	-o1api	gm -r
+	-c	&nop
+>FUNC08	-api	(GM-m)
+	-tapi	(GM-c)
+	-c	&nop
+>FUNC09	-api	twon -c
+	-tap	fsize $M
+	-c	&nop
+>FUNC10	-api	twon +c
+	-tapi	(SYNC)
+	-c	&nop
 
 	# special key
 
->KEYesc	-&1----------	&reload -d
-	-------------	&prefix -n 1
->KEYret	-!-----------	&ext-exec-or-chdir
-	-t----d-api--	(ed-file)
-	-t---md-api--	$EDITOR $M; (source)
-	--c---d-api--	&if ( -r $F ) { fes $P; (down) }
-	--c--md-api--	fes $M
-	---&1-d-aps--	fish
->KEY_ _	-------------	&mark
-	-t-----------	&mark-upper
-	--c----------	(set-mark)
-	---&1---api--	&data-title
-	---o1---api--	&data-title; (down)
-	---&2--------	&foreach ( ) { &if ( ! &mark ) { &break } }
->KEY_bs	-------------	&mark-reverse
-	-t-----------	&cd -; &if ( ! &equ $C ${C:d}: ) { (down3) }
->KEYtab	-------------	(opp)
-	-!-----------	&ext-help
-	-tc-----api--	&menu -t"060high"  0"0 0" \
-					   1"0 1" \
-					   2"1 0" \
-					   3"1 1";
-			&if    1 { 060high 0 }
-			&elsif 2 { 060high 01 }
-			&elsif 3 { 060high 10 }
-			&elsif 4 { 060high 1 }
-	--c-----api--	&menu -t"060cache" W"ライトスルー" \
-					   C"コピーバック" \
-					   S"ストアバッファ禁止" \
-					   N"ストアバッファ許可" \
-					   I"状態表示";
-			&if 5 { 060cache; &end }
-			&set _ $STATUS; &stop-condrv;
-			&if    ($_ == 1) { 060cache w }
-			&elsif ($_ == 2) { 060cache c }
-			&elsif ($_ == 3) { 060cache s }
-			&elsif ($_ == 4) { 060cache n }
-	--&1---------	&if    (8 == $edtab) { &unset edtab }
-			&elsif (4 == $edtab) { &set edtab 8 }
-			&elsif (2 == $edtab) { &set edtab 4 }
-			&else                { &set edtab 2 }
-			&if (1 == $?edtab) { &echo "ED-TAB $edtab" }
-			&else		   { &echo 'ED-TAB AUTO' }
-	---o1--------	&exchange-windows
->KEYhom	-------------	&cd ${C:d}:/
-	---o1--------	&cd (MINT)
->KEYdel	-------------	&if ( ! &equ ${MARC:e:l} tar ) { &delete }
-	-t-----------	&chdir-to-opposite-window
-	---o1--------	&set-opposite-window-to-current
-	---o2--------	&nop
->KEYrup	---o1--------	&cursor-to-bottom
-	-------------	&cursor-rollup
->KEYrdn	---o1--------	&cursor-to-home
-	-------------	&cursor-rolldown
-#	--c----------	&go-screen-saver
->KEYund	-------------	(chdir_to_parent)
-	-t-----------	&cd ${C:d}:/
-	---o1---ap---	&command-history
->KEY_lt	-------------	&cursor-left
-	---o1--------	&drive-decrement
-	---x3--------	&rotate-gvram-ccw
-	-t-----------	&nop
->KEY_rt	-------------	&cursor-right
-	---o1--------	&drive-increment
-	---x3--------	&rotate-gvram-cw
-	-t-----------	&nop
->KEY_up	-------------	(up)
-	---o1--------	&foreach ( 1..4 ) { (up) }
-	---x1--------	&16color-brightness-increment
-	---x2--------	&palet0-up
-	---x3--------	&turn-gvram-upside-down
-	-t-----------	&nop
-#	--c----------	&shrink-window
->KEY_dn	-------------	(down)
-	---o1--------	&foreach ( 1..4 ) { (down) }
-	---x1--------	&16color-brightness-decrement
-	---x2--------	&palet0-down
-	---x3--------	&turn-gvram-left-and-right
-	-t-----------	&nop
-#	--c----------	&grow-window
->KEYhel	-------------	&describe-key
-	-t-----------	&if ( &cd (M_MAN) ) { (down3) }
->KEYtou	-------------	&online-switch
->KEYkig	-------------	&describe-key
+>KEYesc	-&1	&reload -d
+	-	&prefix -n 1
+>KEYret	-!	&ext-exec-or-chdir
+	-tdapi	(ed-file)
+	-tmdapi	$EDITOR $M; (source)
+	-cdapi	&if ( -r $F ) { fes $P; (down) }
+	-cmdapi	fes $M
+	-&1daps	fish
+>KEY_ _	-	&mark
+	-t	&mark-upper
+	-c	(set-mark)
+	-&1api	&data-title
+	-o1api	&data-title; (down)
+	-&2	&foreach ( ) { &if ( ! &mark ) { &break } }
+>KEY_bs	-	&mark-reverse
+	-t	&cd -; &if ( ! &equ $C ${C:d}: ) { (down3) }
+>KEYtab	-	(opp)
+	-!	&ext-help
+	-tcapi	&menu -t"060high"  0"0 0" \
+				   1"0 1" \
+				   2"1 0" \
+				   3"1 1";
+		&if    1 { 060high 0 }
+		&elsif 2 { 060high 01 }
+		&elsif 3 { 060high 10 }
+		&elsif 4 { 060high 1 }
+	-capi	&menu -t"060cache" W"ライトスルー" \
+				   C"コピーバック" \
+				   S"ストアバッファ禁止" \
+				   N"ストアバッファ許可" \
+				   I"状態表示";
+		&if 5 { 060cache; &end }
+		&set _ $STATUS; &stop-condrv;
+		&if    ($_ == 1) { 060cache w }
+		&elsif ($_ == 2) { 060cache c }
+		&elsif ($_ == 3) { 060cache s }
+		&elsif ($_ == 4) { 060cache n }
+	-o1	&exchange-windows
+>KEYhom	-	&cd ${C:d}:/
+	-o1	&cd (MINT)
+>KEYdel	-	&if ( ! &equ ${MARC:e:l} tar ) { &delete }
+	-t	&chdir-to-opposite-window
+	-o1	&set-opposite-window-to-current
+	-o2	&nop
+>KEYrup	-o1	&cursor-to-bottom
+	-	&cursor-rollup
+>KEYrdn	-o1	&cursor-to-home
+	-	&cursor-rolldown
+>KEYund	-	(chdir_to_parent)
+	-t	&cd ${C:d}:/
+	-o1ap	&command-history
+>KEY_lt	-	&cursor-left
+	-o1	&drive-decrement
+	-x3	&rotate-gvram-ccw
+	-t	&nop
+>KEY_rt	-	&cursor-right
+	-o1	&drive-increment
+	-x3	&rotate-gvram-cw
+	-t	&nop
+>KEY_up	-	(up)
+	-o1	&foreach ( 1..4 ) { (up) }
+	-x1	&16color-brightness-increment
+	-x2	&palet0-up
+	-x3	&turn-gvram-upside-down
+	-t	&nop
+>KEY_dn	-	(down)
+	-o1	&foreach ( 1..4 ) { (down) }
+	-x1	&16color-brightness-decrement
+	-x2	&palet0-down
+	-x3	&turn-gvram-left-and-right
+	-t	&nop
+>KEYhel	-	&describe-key
+	-t	&if ( &cd (M_MAN) ) { (down3) }
+>KEYtou	-	&online-switch
+>KEYkig	-	&describe-key
 
 	# full key
 
->KEY_1_	---x5---api--	gmss -t10
-	-t-&2-d--psh-	$<
-	-t-&2md--psh-	$< $M
-	--------api--	&eject fd0			# &eject a:
->KEY_2_	---x5---api--	gmss -t20
-	--------api--	&eject fd1			# &eject b:
->KEY_3_	---x5---api--	gmss -t30
-	------d--p---	d:/dis/build/dis -m680x0$< $F $F:r.s
->KEY_4_	---x5---api--	gmss -t40
-	------d------	$<
-	-----md------	$< $M
-	-t----d--sh--	$<
-	-t---md--sh--	$< $M
->KEY_5_	---x5---api--	gmss -t50
-	------d------	$< $P
-	-t----d--sh--	$< $P
->KEY_6_	---x5---api--	gmss -t60
-	------d------	$< $B
-	-t----d--sh--	$< $B
->KEY_7_	---x5---api--	gmss -t70
-	--------ap---	vmap | (disp)
->KEY_8_	---x5---api--	gmss -t80
-	--------api--	(PCM8-fnc)
-	-t------api--	(PCMd-r)			# (PCM8-r)
-	--c-----api--	&if ( &prchk 'pcm8' ) { (PCM8-off) }
->KEY_9_	---x5---api--	gmss -t90
-	------d-ap---	&if ( &prchk '9scdrv' ) { 9scfmt } &else { (QSCDRV) }
-	-t------api--	&if ( &prchk '9scdrv' ) { 9scdrv -r }
-	--c-----api--	(QSCDRV)
->KEY_0_	---x5---api--	gmss -t100
-	--------apf--	&if ( &prchk 'infoline' ) { infoline -nq off; dedit; infoline -nq on }
-			&else { dedit }
->KEY_-_	---&2--------	&touch ./------------------.---
-	-t-----------	&touch ./------------------.060
-	-------------	&eject cd0
->KEY_^_	-------------	&cal -c winf (${winf}+1)>4?0:(${winf}+1); &stop-condrv; &echo '%winf' $winf
-	-t-----------	&clear-exec-screen
->KEY_\_	-------------	&if ( ! &is-mintarc ) { &cd ${C:d}:/ }
-			&else { &foreach ( ) { &if ( &is-mintarc ) { &cd .. } &else { &break } } }
->KEY_A_	-------------	&reverse-all-file-marks
-	-t-----------	&reverse-all-marks
-	--c----------	(opp)
-	---&1--------	&foreach ( dance wapi wink ) { &if &prchk $_ ) { $_ -r } }
-	---&2--------	&input -t" set variable "; &unless { &end } &elsif ( &equ $_ NUL ) { &end }
-			&eval &if ( '$?{'$_'}' == 0 ) {
-			  &input -t" set variable : $_" val
-			}
-			&else {
-			  &eval &input -t'" set variable : $_"' -s'"${'$_'}"' val
-			}
-			&if {
-			  &if ( ! &equ "$val" NUL ) { &set "$_" "$val" }
-			} &unset val
-	---x5--------	&change-drive a
->KEY_B_	-------------	&toggle-window-size
-	--c---d1api--	&if ( ! &equ ${MARC:e:l} tar ) { &mark -i *.BAK; &delete; shake }
-	-t------api--	&if ( &equ $C ${C:d}: ) { &print ' ルートからは再起動できません.' }
-			&elsif ( -B HUMAN.SYS ) { &save-path-history; (SYNC); reboot }
-			&else { &print ' HUMAN.SYS がありません.' }
-	---x5--------	&change-drive b
->KEY_C_	-------------	&copy
-	-t-----------	&copy-to-registered-path-menu 6
-	--c----------	&copy-to-history-menu
-	---x1-d-ap---	fcp $M $O/
-	---x3--------	&direct-copy
-	---&2-d-aps--	fish
-	--c&2--------	&quick-exit $C
-	---x5--------	&change-drive c
-#	--c&2-d1ap---	&if ( ! &is-mintarc ) { lzd -cn $M }
->KEY_D_	-------------	&change-drive
-	---o1---ap---	diff -Naur$< $F $O/$F
-	---o1m--ap---	diff -Naur$< $B
-	---x5--------	&change-drive d
-#	--c----------	&quick-exit $C
->KEY_E_	------d-api--	(ed-file)
-	-----md-api--	$EDITOR $B; (source)
-	-t----d-api--	&if ( &input -t"[Edit New File]" ) { &if ( ! &equ NUL $_ ) { $EDITOR $_ } }
-	---o1--------	&edit-env-variable
-	--c---d1api--	&if ( -r $F ) { fes $P }
-	--c--md-api--	fes $B
-	--co1-d-api--	&if ( &input -t"[Edit New File]" ) { &if ( ! &equ NUL $_ ) { fes -M $_ } }
-	--c&2---api--	$(maketmp env);
-			&foreach cmd ( setenv>> $EDITOR envf &rm ) { $cmd $_ }
-	---x5--------	&change-drive e
->KEY_F_	-------------	&i-search -e2
-	-t------api--	$EDITOR $MINTRC; (source)
-	--c-----api--	$EDITOR $MINTRC -v (M_MAN)mint.1; (source)
-	---&1----pi--	&file-compare
-	---&2----pi--	fcmp $B $<
-	---x3----psh-	findp $< \*.s
-	---x5--------	&change-drive f
->KEY_G_	-------------	&gvon
-	-t-----------	&gvram-off
-	---o1--------	&clear-gvram
-	--c&1--------	(goto-mark)
-	--c&2--------	&if ( &input -t" 行番号:" -w10 ) { &if ( ! &equ NUL $_ ) { &goto-cursor $_ } }
-	---x5--------	&change-drive g
->KEY_H_	-------------	&if ( &path-history-menu ) { &if ( &equ $F .. ) { (down) } }
-	-t-----------	&command-history-menu
-	--c-----apsh-	handle
-	---x1---ap---	dh | (disp)
-	---o1--------	&half
-	---x5--------	&change-drive h
->KEY_I_	--------ap---	aish -l $M
-	---x1-d1ap---	(ishこっち)
-	---x2-d2ap---	(ishあっち)
-	---x3--------	&toggle-drive-information
-	---x4--------	&information
-	---o1---ap---	make install
-	---x5--------	&change-drive i
->KEY_J_	-------------	&chdir-to-registered-path-menu 6
-	-t-----------	&mark *.i$<
-	-!c----------	&ext-exec-or-chdir;
-	---x5--------	&change-drive j
->KEY_K_	-------------	&md
-	--c----------	&set _ $mdmd; &set mdmd 0; &md; &set mdmd $_
-	-!---m-------	&if ( ! &equ ${MARC:e:l} tar ) { &delete }
-	---x5--------	&change-drive k
->KEY_L_	-------------	&if ( -r $F ) { (look) }
-	-t------apfs-	lhv
-	-t---m--apfs-	lhv $MARK_R
-	--c----------	&clear-and-redraw
-	--c&1--------	&reload
-	---x3-d1ap---	hlk $M
-	---x5--------	&change-drive l
->KEY_M_	-------------	&make-dir-and-move
-	-t-----------	&move-to-registered-path-menu 6
-	--c----------	&move-to-history-menu
-	---x3--------	&direct-move
-	---x1-d-ap---	mv -v $M $O/
-	---o1-d1ap---	make
-	---x5--------	&change-drive m
->KEY_N_	-------------	&sort -n
-	--c----------	(down)
-	---o1---ap---	make -n
-	---x5--------	&change-drive n
->KEY_O_	-------------	&if ( &equ $C $O ) { &i-search $OF }
-			&else { &chdir-to-opposite-window }
-	--c----------	&chdir-to-opposite-window; (chdir_to_parent)
-	-t-----------	&set-opposite-window-to-current
-	---x5--------	&change-drive o
->KEY_P_	------d--p---	zip -ry $O/$<.zip $M
-	--x1--d1-p---	gzip $P$<
-	--x1-md--p---	tar -b1 -cvzf $O/$<.tgz $M
-	--c----------	(up)
-	---o1--------	&max
-	---x4---ap---	(adpcm-p)
-	---x5--------	&change-drive p
->KEY_Q_	-------------	&quit -l2			# 終了パス選択
-	-t-----------	&if ( &iocs 0xf5,0x24,,,6 ) {
-			  &iocs 0xf5,0x2f,,3,6;		# トレイを閉める
-			  &iocs 0xf5,0x2c,,4,6 XXXX	# リクエストセンス
-			}
-			&elsif ( 0 == &eject -q cd0 ) {		# &eject q:
-			  &iocs 0xf5,0x2f,,2,6
-			}
-	-!-&1--------	&quick-exit $C
-	---x5--------	&change-drive q
->KEY_R_	-!-----------	&if ( &is-mintarc ) { &print ' MINTARC 内で名称変更はできません.' } &else { &rename-menu }
-	-t------api--	&madoka (MINT)reomenu.mis
-	--c----------	&i-search -e2 -r
-	---&1---api--	(release-music-driver); (PCMd-r)
-	---&2--------	&reload -d; &drive-check
-	---x5--------	&change-drive r
->KEY_S_	-------------	&sort
-	--c----------	&i-search -e2
-	-t------api--	&if ( ! &is-mintarc ) { shake -l  $C }
-	-tc-----api--	&if ( ! &is-mintarc ) { shake -lc $C }
-	---x5--------	&change-drive s
->KEY_T_	--------ap---	&touch $<
-	-t------ap---	&touch $<$M
-	--c----------	&setenv MINT_TMP $<		# 作業dir.設定
-	---o1-d1ap---	make -t
-	---&2---ap---	tree | (disp)
-	---x5--------	&change-drive t
->KEY_U_	------d1ap---	(opp); &foreach ( $OP ) { (mkdir); (arc_ext) } (down3)
-	-----m--ap---	(opp); &foreach ( $OPMARK_R ) { (mkdir); (arc_ext); &cd .. } &reload -1; (down)
-	-t------ap---	(opp); &foreach ( $OPMARK_R ) { (arc_ext) } &reload -1; (down)
-	---o1---ap---	&uncompress $MARK_R
-	---x5--------	&change-drive u
+>KEY_1_	-x5api	gmss -t10
+	-t&2dpsh	$<
+	-t&2mdpsh	$< $M
+	-api	&eject fd0	# &eject a:
+>KEY_2_	-x5api	gmss -t20
+	-api	&eject fd1	# &eject b:
+>KEY_3_	-x5api	gmss -t30
+	-dp	d:/dis/build/dis -m680x0$< $F $F:r.s
+>KEY_4_	-x5api	gmss -t40
+	-d	$<
+	-md	$< $M
+	-tdsh	$<
+	-tmdsh	$< $M
+>KEY_5_	-x5api	gmss -t50
+	-d	$< $P
+	-tdsh	$< $P
+>KEY_6_	-x5api	gmss -t60
+	-d	$< $B
+	-tdsh	$< $B
+>KEY_7_	-x5api	gmss -t70
+	-ap	vmap | (disp)
+>KEY_8_	-x5api	gmss -t80
+	-api	(PCM8-fnc)
+	-tapi	(PCMd-r)	# (PCM8-r)
+	-capi	&if ( &prchk 'pcm8' ) { (PCM8-off) }
+>KEY_9_	-x5api	gmss -t90
+	-dap	&if ( &prchk '9scdrv' ) { 9scfmt } &else { (QSCDRV) }
+	-tapi	&if ( &prchk '9scdrv' ) { 9scdrv -r }
+	-capi	(QSCDRV)
+>KEY_0_	-x5api	gmss -t100
+	-apf	&if ( &prchk 'infoline' ) { infoline -nq off; dedit; infoline -nq on }
+		&else { dedit }
+>KEY_-_	-&2	&touch ./------------------.---
+	-t	&touch ./------------------.060
+	-	&eject cd0
+>KEY_^_	-	&cal -c winf (${winf}+1)>4?0:(${winf}+1); &stop-condrv; &echo '%winf' $winf
+	-t	&clear-exec-screen
+>KEY_\_	-	&if ( ! &is-mintarc ) { &cd ${C:d}:/ }
+		&else { &foreach ( ) { &if ( &is-mintarc ) { &cd .. } &else { &break } } }
+>KEY_A_	-	&reverse-all-file-marks
+	-t	&reverse-all-marks
+	-c	(opp)
+	-&1	&foreach ( dance wapi wink ) { &if &prchk $_ ) { $_ -r } }
+	-&2	&input -t" set variable "; &unless { &end } &elsif ( &equ $_ NUL ) { &end }
+		&eval &if ( '$?{'$_'}' == 0 ) {  &input -t" set variable : $_" val }
+		&else { &eval &input -t'" set variable : $_"' -s'"${'$_'}"' val }
+		&if {
+		  &if ( ! &equ "$val" NUL ) { &set "$_" "$val" }
+		} &unset val
+	-x5	&change-drive a
+>KEY_B_	-	&toggle-window-size
+	-cd1api	&if ( ! &equ ${MARC:e:l} tar ) { &mark -i *.BAK; &delete; shake }
+	-tapi	&if ( &equ $C ${C:d}: ) { &print ' ルートからは再起動できません.' }
+		&elsif ( -B HUMAN.SYS ) { &save-path-history; (SYNC); reboot }
+		&else { &print ' HUMAN.SYS がありません.' }
+	-x5	&change-drive b
+>KEY_C_	-	&copy
+	-t	&copy-to-registered-path-menu 6
+	-c	&copy-to-history-menu
+	-x1dap	fcp $M $O/
+	-x3	&direct-copy
+	-&2daps	fish
+	-c&2	&quick-exit $C
+	-x5	&change-drive c
+>KEY_D_	-	&change-drive
+	-o1ap	diff -Naur$< $F $O/$F
+	-o1map	diff -Naur$< $B
+	-x5	&change-drive d
+>KEY_E_	-dapi	(ed-file)
+	-mdapi	$EDITOR $B; (source)
+	-tdapi	&if ( &input -t"[Edit New File]" ) { &if ( ! &equ NUL $_ ) { $EDITOR $_ } }
+	-o1	&edit-env-variable
+	-cd1api	&if ( -r $F ) { fes $P }
+	-cmdapi	fes $B
+	-co1dapi	&if ( &input -t"[Edit New File]" ) { &if ( ! &equ NUL $_ ) { fes -M $_ } }
+	-c&2api	$(maketmp env);
+		&foreach cmd ( setenv>> $EDITOR envf &rm ) { $cmd $_ }
+	-x5	&change-drive e
+>KEY_F_	-	&i-search -e2
+	-tapi	$EDITOR $MINTRC; (source)
+	-capi	$EDITOR $MINTRC -v (M_MAN)mint.1; (source)
+	-&1pi	&file-compare
+	-&2pi	fcmp $B $<
+	-x3psh	findp $< \*.s
+	-x5	&change-drive f
+>KEY_G_	-	&gvon
+	-t	&gvram-off
+	-o1	&clear-gvram
+	-c&1	(goto-mark)
+	-c&2	&if ( &input -t" 行番号:" -w10 ) { &if ( ! &equ NUL $_ ) { &goto-cursor $_ } }
+	-x5	&change-drive g
+>KEY_H_	-	&if ( &path-history-menu ) { &if ( &equ $F .. ) { (down) } }
+	-t	&command-history-menu
+	-capsh	handle
+	-x1ap	dh | (disp)
+	-o1	&half
+	-x5	&change-drive h
+>KEY_I_	-ap	aish -l $M
+	-x1d1ap	(ishこっち)
+	-x2d2ap	(ishあっち)
+	-x3	&toggle-drive-information
+	-x4	&information
+	-x5	&change-drive i
+>KEY_J_	-	&chdir-to-registered-path-menu 6
+	-t	&mark *.i$<
+	-!c	&ext-exec-or-chdir;
+	-x5	&change-drive j
+>KEY_K_	-	&md
+	-c	&set _ $mdmd; &set mdmd 0; &md; &set mdmd $_
+	-!m	&if ( ! &equ ${MARC:e:l} tar ) { &delete }
+	-x5	&change-drive k
+>KEY_L_	-	&if ( -r $F ) { (look) }
+	-tapfs	lhv
+	-tmapfs	lhv $MARK_R
+	-c	&clear-and-redraw
+	-c&1	&reload
+	-x3d1ap	hlk $M
+	-x5	&change-drive l
+>KEY_M_	-	&make-dir-and-move
+	-t	&move-to-registered-path-menu 6
+	-c	&move-to-history-menu
+	-x3	&direct-move
+	-x1dap	mv -v $M $O/
+	-o1d1ap	make
+	-x5	&change-drive m
+>KEY_N_	-	&sort -n
+	-c	(down)
+	-o1ap	make -n
+	-x5	&change-drive n
+>KEY_O_	-	&if ( &equ $C $O ) { &i-search $OF }
+		&else { &chdir-to-opposite-window }
+	-c	&chdir-to-opposite-window; (chdir_to_parent)
+	-t	&set-opposite-window-to-current
+	-x5	&change-drive o
+>KEY_P_	-dp	zip -ry $O/$<.zip $M
+	-x1d1p	gzip $P$<
+	-x1mdp	tar -b1 -cvzf $O/$<.tgz $M
+	-c	(up)
+	-o1	&max
+	-x4ap	(adpcm-p)
+	-x5	&change-drive p
+>KEY_Q_	-	&quit -l2	# 終了パス選択
+	-t	&if ( &iocs 0xf5,0x24,,,6 ) {
+		  &iocs 0xf5,0x2f,,3,6;		# トレイを閉める
+		  &iocs 0xf5,0x2c,,4,6 XXXX	# リクエストセンス
+		}
+		&elsif ( 0 == &eject -q cd0 ) {	# &eject q:
+		  &iocs 0xf5,0x2f,,2,6
+		}
+	-!&1	&quick-exit $C
+	-x5	&change-drive q
+>KEY_R_	-!	&if ( &is-mintarc ) { &print ' MINTARC 内で名称変更はできません.' } &else { &rename-menu }
+	-tapi	&madoka (MINT)reomenu.mis
+	-c	&i-search -e2 -r
+	-&1api	(release-music-driver); (PCMd-r)
+	-&2	&reload -d; &drive-check
+	-x5	&change-drive r
+>KEY_S_	-	&sort
+	-c	&i-search -e2
+	-tapi	&if ( ! &is-mintarc ) { shake -l  $C }
+	-tcapi	&if ( ! &is-mintarc ) { shake -lc $C }
+	-x5	&change-drive s
+>KEY_T_	-ap	&touch $<
+	-tap	&touch $<$M
+	-c	&setenv MINT_TMP $<	# 作業dir.設定
+	-o1d1ap	make -t
+	-&2ap	tree | (disp)
+	-x5	&change-drive t
+>KEY_U_	-d1ap	(opp); &foreach ( $OP ) { (mkdir); (arc_ext) } (down3)
+	-map	(opp); &foreach ( $OPMARK_R ) { (mkdir); (arc_ext); &cd .. } &reload -1; (down)
+	-tap	(opp); &foreach ( $OPMARK_R ) { (arc_ext) } &reload -1; (down)
+	-o1ap	&uncompress $MARK_R
+	-x5	&change-drive u
 $mkdir			&if ( ! -e $_:t:r ) { mkdir $_:t:r } &cd $_:t:r
 $arc_ext		&if ( -d $_ ) { &echo "$_ is a directory." }
 			&elsif ( &match -i "*.tar.gz *.tgz *.tar" ) { tx -x2w $_ }
@@ -749,370 +716,315 @@ $arc_ext		&if ( -d $_ ) { &echo "$_ is a directory." }
 			&elsif ( &match -i *.zip ) { zx -x2w $_ }
 			&elsif ( &match -i *.gz ) { tx -z2w $_ }
 			&else { xx $_ }
->KEY_V_	------d-api--	$EDITOR -v $B
-	--c----------	&cursor-rollup
-	---&1--------	&cursor-rolldown
-	-t-----------	&edit-volume-name
-	---o1-d1ap---	vdeed -ar0
-	---x5--------	&change-drive v
->KEY_W_	-------------	&file-compare -fexact
-	-t-----------	&file-compare
-	--c----------	&mask -i
-	---x5--------	&change-drive w
->KEY_X_	-------------	&exec-registered-command-menu 2
-	--c----------	&prefix -n 2
-	---&1--------	&$<
-	-t-&1-----sh-	&$<
-	---&1m-------	&foreach ( '$M' ) $<
-	-t-&1m----sh-	&foreach ( '$M' ) $<
-	--c&2--------	(exg-point-mark)
-	---x5--------	&change-drive x
->KEY_Y_	-------------	&echo "$M"
-	-t-----------	&foreach ( $M ) { &echo $_ }
-	--c----------	&foreach ( $M ) { &echo $C/$_ }
-	---x5--------	&change-drive y
->KEY_Z_	--------api--	(set_zmusic)
-	---&1---api--	(release-music-driver); (PCM8-fnc); zmusic -t100 -p512$<
-	---&2--------	&grow-window
-	--c&2--------	&shrink-window
-	---x5--------	&change-drive z
->KEY_@_	------d1api--	(twon-c); &stop-condrv; arranger -d1f	# -d1w
-	-t----d1api--	(twon-c); &stop-condrv; arranger -d1
-	--c-----api--	(twon-c); &madoka (MINT)arrmenu.mis
->KEY_[_	--------api--	mint_dfr
-	-t-----------	&cal cplp 1^$cplp; &set code $cplp; &clear-exec-screen
->KEY_;_	--------ap---	&foreach ( $MARK_R ) { xcont -l $_ }
-	-t-----------	&if ( ! &mion ) { &mioff }		# mion トグル
->KEY_:_	-------------	&palet0-set
-	-t-----------	&palet0-system
->KEY_]_	-------------	&get-music-status;
-			&if    1 { &print " 1 : 演奏終了" }
-			&elsif 2 { &print " 2 : 一時停止中" }
-			&elsif 3 { &print " 3 : 演奏中" }
-	--c----------	&get-color-mode;
-			&if    1 { &print " 1 : 16 色画面" }
-			&elsif 2 { &print " 2 : 256 色画面" }
-			&elsif 6 { &print " 6 : 64K 色画面" }
-			&else { &print " グラフィック画面 非表示" }
-	-t------ap---	gmss -s1
->KEY_,_	------d1ap---	make -C..; &unless { make }
-	--c-----api--	conmod -qgm0
-	-t-----------	&cursor-to-home
-	-t-&1--------	(set-mark); &cursor-to-home
->KEY_._	-------------	(chdir_to_parent)
-	--c-----api--	conmod -qtm1
-	-t-----------	&cursor-to-bottom
-	-t-&1--------	(set-mark); &cursor-to-bottom
->KEY_/_	-------------	&i-search
-	-t-----------	&input -t"print variable"; &unless { &end } &elsif ( &equ $_ NUL ) { &end }
-			&eval &if ( $?$_ == 0 ) {
-			  &print " 変数 $_ は未定義です."; &end
-			}
-			&eval &print '"'"$_ = $$_"'"'
-	-t-&2--------	&describe-key
->KEY___	-------------	&if ( ! &get-music-status ) { (music-error) }
-			&elsif 1 { &play-music }		# 音楽トグル
-			&elsif 2 { &cont-music }
-			&elsif 3 { &pause-music }		# &stop-music
-	-t-----------	&if ( ! &stop-music ) { (music-error) }
-	--c----------	&if ( ! &fade-music ) { (music-error) }
+>KEY_V_	-dapi	$EDITOR -v $B
+	-c	&cursor-rollup
+	-&1	&cursor-rolldown
+	-t	&edit-volume-name
+	-o1d1ap	vdeed -ar0
+	-x5	&change-drive v
+>KEY_W_	-	&file-compare -fexact
+	-t	&file-compare
+	-c	&mask -i
+	-x5	&change-drive w
+>KEY_X_	-	&exec-registered-command-menu 2
+	-c	&prefix -n 2
+	-&1	&$<
+	-t&1sh	&$<
+	-&1m	&foreach ( '$M' ) $<
+	-t&1msh	&foreach ( '$M' ) $<
+	-c&2	(exg-point-mark)
+	-x5	&change-drive x
+>KEY_Y_	-	&echo "$M"
+	-t	&foreach ( $M ) { &echo $_ }
+	-c	&foreach ( $M ) { &echo $C/$_ }
+	-x5	&change-drive y
+>KEY_Z_	-api	(set_zmusic)
+	-&1api	(release-music-driver); (PCM8-fnc); zmusic -t100 -p512$<
+	-&2	&grow-window
+	-c&2	&shrink-window
+	-x5	&change-drive z
+>KEY_@_	-d1api	(twon-c); &stop-condrv; arranger -d1f
+	-td1api	(twon-c); &stop-condrv; arranger -d1
+	-capi	(twon-c); &madoka (MINT)arrmenu.mis
+>KEY_[_	-api	mint_dfr
+	-t	&cal cplp 1^$cplp; &set code $cplp; &clear-exec-screen
+>KEY_;_	-ap	&foreach ( $MARK_R ) { xcont -l $_ }
+	-t	&if ( ! &mion ) { &mioff }	# mion トグル
+>KEY_:_	-	&palet0-set
+	-t	&palet0-system
+>KEY_]_	-	&get-music-status;
+		&if    1 { &print " 1 : 演奏終了" }
+		&elsif 2 { &print " 2 : 一時停止中" }
+		&elsif 3 { &print " 3 : 演奏中" }
+	-c	&get-color-mode;
+		&if    1 { &print " 1 : 16 色画面" }
+		&elsif 2 { &print " 2 : 256 色画面" }
+		&elsif 6 { &print " 6 : 64K 色画面" }
+		&else { &print " グラフィック画面 非表示" }
+	-tap	gmss -s1
+>KEY_,_	-d1ap	make -C..; &unless { make }
+	-capi	conmod -qgm0
+	-t	&cursor-to-home
+	-t&1	(set-mark); &cursor-to-home
+>KEY_._	-	(chdir_to_parent)
+	-capi	conmod -qtm1
+	-t	&cursor-to-bottom
+	-t&1	(set-mark); &cursor-to-bottom
+>KEY_/_	-	&i-search
+	-t	&input -t"print variable"; &unless { &end } &elsif ( &equ $_ NUL ) { &end }
+		&eval &if ( $?$_ == 0 ) { &print " 変数 $_ は未定義です."; &end }
+		&eval &print '"'"$_ = $$_"'"'
+	-t&2	&describe-key
+>KEY___	-	&if ( ! &get-music-status ) { (music-error) }
+		&elsif 1 { &play-music }	# 音楽トグル
+		&elsif 2 { &cont-music }
+		&elsif 3 { &pause-music }
+	-t	&if ( ! &stop-music ) { (music-error) }
+	-c	&if ( ! &fade-music ) { (music-error) }
 
-$music-error		&echo "音源ドライバは組み込まれていません."
+$music-error	&echo "音源ドライバは組み込まれていません."
 
 	# ten key
 
->KEY_te	-------------	&ext-exec-or-chdir
-	-t----d-api--	(ed-file)
-	-t---md-api--	$EDITOR $M; (source)
-	--c---d-api--	&if ( -r $F ) { fes $P }
-	--c--md-api--	fes $M
-	---&1-d-aps--	fish
->KEY_t0	-t-----------	&nop				# TV Ctrl
-	--------api--	&eject mo0
->KEY_t1	-t-----------	&nop
-	-------------	&change-drive a
->KEY_t2	-t-----------	&nop
-	-------------	&change-drive b
->KEY_t3	-t-----------	&nop
-	-------------	&change-drive c
->KEY_t4	-t-----------	&nop
-	-------------	&change-drive d
->KEY_t5	-t-----------	&nop
-	-------------	&change-drive e
->KEY_t6	-t-----------	&nop
-	-------------	&change-drive f
->KEY_t7	-t-----------	&nop
-	-------------	&change-drive g
->KEY_t8	-t-----------	&nop
-	-------------	&change-drive h
->KEY_t9	-t-----------	&nop
-	-------------	&change-drive i
->KEYclr	-t-----------	&nop
-	-------------	&mark-all-files
-	-----m-------	&clear-mark
-	---o1--------	&clear-exec-screen
->KEY_t/	-t-----------	&nop
-	-------------	&chdir-to-registered-path-menu 6
->KEY_t*	-t-----------	&nop
-	-------------	&exec-registered-command-menu 2
->KEY_t-	-t-----------	&nop
-	-------------	&cursor-right; &cd B:/; &cursor-left; &cd A:/
->KEY_t+	-t-----------	&nop
-	-------------	&toggle-screen-saver
->KEY_t=	-t-----------	&nop
-	--c----------	&toggle-power-window
->KEY_t,	-t-----------	&nop
-	---------api-	&eject fd0
->KEY_t.	-t-----------	&nop
-	---------api-	&eject fd1
+>KEY_te	-	&ext-exec-or-chdir
+	-tdapi	(ed-file)
+	-tmdapi	$EDITOR $M; (source)
+	-cdapi	&if ( -r $F ) { fes $P }
+	-cmdapi	fes $M
+	-&1daps	fish
+>KEY_t0	-t	&nop	# TV Ctrl
+	-api	&eject mo0
+>KEY_t1	-t	&nop
+	-	&change-drive a
+>KEY_t2	-t	&nop
+	-	&change-drive b
+>KEY_t3	-t	&nop
+	-	&change-drive c
+>KEY_t4	-t	&nop
+	-	&change-drive d
+>KEY_t5	-t	&nop
+	-	&change-drive e
+>KEY_t6	-t	&nop
+	-	&change-drive f
+>KEY_t7	-t	&nop
+	-	&change-drive g
+>KEY_t8	-t	&nop
+	-	&change-drive h
+>KEY_t9	-t	&nop
+	-	&change-drive i
+>KEYclr	-t	&nop
+	-	&mark-all-files
+	-m	&clear-mark
+	-o1	&clear-exec-screen
+>KEY_t/	-t	&nop
+	-	&chdir-to-registered-path-menu 6
+>KEY_t*	-t	&nop
+	-	&exec-registered-command-menu 2
+>KEY_t-	-t	&nop
+	-	&cursor-right; &cd B:/; &cursor-left; &cd A:/
+>KEY_t+	-t	&nop
+	-	&toggle-screen-saver
+>KEY_t=	-t	&nop
+	-c	&toggle-power-window
+>KEY_t,	-t	&nop
+	-api	&eject fd0
+>KEY_t.	-t	&nop
+	-api	&eject fd1
 
 	# system
 
-!CONFIG.SYS ---------	(look)
-!HISTORY.HIS ---api--	history2 -r+@ $P
-!KEY.HIS -------ap---	key
-!TITLE*.SYS ----api--	ttl -lc $P
+!CONFIG.SYS	-	(look)
+!HISTORY.HIS	-api	history2 -r+@ $P
+!KEY.HIS	-ap	key
+!TITLE*.SYS	-api	ttl -lc $P
 
-.ENV	-------------	(look)
-	---o1----ap--	envf $F
+.ENV	-	(look)
+	-o1ap	envf $F
 
-!.keywitch ----------	(look)
-	---x1----ap--	keywitch -y $F
-	---x2----ap--	keywitch -yr $F
-.KW	-------------	(look)
-	---x1----ap--	keywitch -y $F
-	---x2----ap--	keywitch -yr $F
+!.keywitch -	(look)
+	-x1ap	keywitch -y $F
+	-x2ap	keywitch -yr $F
+.KW	-	(look)
+	-x1ap	keywitch -y $F
+	-x2ap	keywitch -yr $F
 
 ^6	USKCG\x20\x20ver
-	--------api--	usk $F; &clear-and-redraw
+	-api	usk $F; &clear-and-redraw
 
 	# execution
 
-$CVINFO			cv -i $F | (disp) -t"X file Information"
-$SYMINFO		nm $F | sortf +1 | (disp) -t"Symbol Table"
-$SYMINFON		nm $F            | (disp) -t"Symbol Table"
+$CVINFO		cv -i $F | (disp) -t"X file Information"
+$SYMINFO	nm $F | sortf +1 | (disp) -t"Symbol Table"
+$SYMINFON	nm $F            | (disp) -t"Symbol Table"
 
-!HUMAN.SYS ----------	&print '  HUMAN.SYS です.'
-	---x4--d-p---	dis $F $<$F:r.s
-	---x5---ap---	(CVINFO)
+!HUMAN.SYS -	&print '  HUMAN.SYS です.'
+	-x4dp	dis $F $<$F:r.s
+	-x5ap	(CVINFO)
 
-#!PRNDRV?.SYS -!	&ext-help
-#	---o1---api--	adddrv $F #/M1
-#	---x1---api--	adddrv $F #/M0$<		# すべての文字がコード印字
-#	---x2---api--	adddrv $F #/M1$<		# 外字のみビットイメージ印字
-#	---x3---api--	adddrv $F #/M7$<		#     第２水準漢字・外字のみ
-#	---x4---api--	adddrv $F #/M15$<		# 第１・２水準漢字・外字のみ
-#	---x5---api--	adddrv $F #/M31$<		# すべての文字
+#^	HU\x00		#.sysがこっちに来ちゃうから不可
+.X	-tx4dps		scd $F $<
+	-x4dp		dis $F $<$F:r.s
+	-tx1d1ap	lzx -vS $M	#┌ 付加情報削除
+	-x1d1ap		lzx -vs $M	#│ 圧縮
+	-x2d1ap		lzx -vd $M	#└ 復元
+	-dp		$P $<
+	-mdp		$P $MARK_R $<
+	-x3ap		unbind -l $F	#┌ 一覧
+	-tx3d1p		unbind -x $F $<	#└ 抽出
+	-o1dpsh		$P $<
+	-o1mdpsh	$P $MARK_R $<
+	-x5ap		(CVINFO)	#┌ ヘッダ情報
+	-tx5ap		(SYMINFO)	#└ シンボル情報
 
-#^	HU\x00						#.sysがこっちに来ちゃうから不可
-.X	-t-x4-d--ps--	scd $F $<
-	---x4-d--p---	dis $F $<$F:r.s
-	-t-x1-d1ap---	lzx -vS $M		#┌ 付加情報削除
-	---x1-d1ap---	lzx -vs $M		#│ 圧縮
-	---x2-d1ap---	lzx -vd $M		#└ 復元
-	------d--p---	$P $<
-	-----md--p---	$P $MARK_R $<
-	---x3---ap---	unbind -l $F		#┌ 一覧
-	-t-x3-d1-p---	unbind -x $F $<		#└ 抽出
-	---o1-d--psh-	$P $<
-	---o1md--psh-	$P $MARK_R $<
-	--cx5-d1ap---	cv $F			#┌ Ｒ化
-	---x5---ap---	(CVINFO)		#│ ヘッダ情報
-	-t-x5---ap---	(SYMINFO)		#└ シンボル情報
+.R	-tx4dps		scd $F $<
+	-x4dp		dis $F $<$F:r.s
+	-x1d1ap		lzx -vs $M	#┌ 圧縮
+	-x2d1ap		lzx -vd $M	#└ 復元
+	-dp		$P $<
+	-mdp		$P $MARK_R $<
+	-o1dpsh		$P $<
+	-o1mdpsh	$P $MARK_R $<
 
-.R	-t-x4-d--ps--	scd $F $<
-	---x4-d--p---	dis $F $<$F:r.s
-	---x1-d1ap---	lzx -vs $M		#┌ 圧縮
-	---x2-d1ap---	lzx -vd $M		#└ 復元
-	------d--p---	$P $<
-	-----md--p---	$P $MARK_R $<
-	---o1-d--psh-	$P $<
-	---o1md--psh-	$P $MARK_R $<
+.SYS	-!		(look)
+	-x4dp		dis $F -d $<$F:r.s
+	-tx1d1ap	lzx -vS $M	#┌ 付加情報削除
+	-x1d1ap		lzx -vs $M	#│ 圧縮
+	-x2d1ap		lzx -vd $M	#└ 復元
+	-x5ap		(CVINFO)
 
-.SYS	-!-----------	(look)
-	---x4-d--p---	dis $F -d $<$F:r.s
-	-t-x1-d1ap---	lzx -vS $M		#┌ 付加情報削除
-	---x1-d1ap---	lzx -vs $M		#│ 圧縮
-	---x2-d1ap---	lzx -vd $M		#└ 復元
-	---o1----p---	adddrv $F $<		# 組み込み
-	---x5---ap---	(CVINFO)
+.BAS	-	(look)
+	-o1d1ap	bc $F
 
-.BAS	-------------	(look)
-	---o1-d1ap---	bc $F
-#	---x1---ap---	d:/develop/xb/xb $F
+.FNC	-	&print ' X-BASIC 用外部関数ファイルです.'
+	-x4dp	dis $F $<$F:r.s
+	-x5ap	(CVINFO)
 
-.FNC	-------------	&print ' X-BASIC 用外部関数ファイルです.'
-	---x4-d--p---	dis $F $<$F:r.s
-	---x5---ap---	(CVINFO)
-
-.BAT	-------------	(look)
-	---o1-d-ap---	COMMAND.X $F $<
-	-t-o1-d-apsh-	COMMAND.X $F $<
-
-.EXE .COM
-	------d1-psh-	mxdos $F $<
-	---o1u-------	&lzh-selector $P
-	---o2u-------	&zip-selector $P
-	-t-x1-d1ap---	(こっち);	(lzh_ext)
-	---x1-d1ap---	(こっちに掘る); (lzh_ext)
-	-t-x2-d1ap---	(あっち);	(lzh_ext)
-	---x2-d1ap---	(あっちに掘る); (lzh_ext)
-	---x5---ap---	lx -l $F | (disp)
-	-t-x5---ap---	zx -l $F | (disp)
-
-^	#!\x20fish
-	-------------	(look)
-	-!-o1-d-ap---	fish $F $<
+.BAT	-	(look)
+	-o1dap	COMMAND.X $F $<
+	-to1dapsh	COMMAND.X $F $<
 
 	# develop
 
-!ERROR.LST ---d1api--	$EDITOR $P
-	---o1-d1api--	&rm $F; shake $C
-!MARIKO.ERR --d1api--	$EDITOR -h4 $P
-	---o1-d1api--	&rm $F; shake $C
+!ERROR.LST -d1api	$EDITOR $P
+	-o1d1api	&rm $F; shake $C
+!MARIKO.ERR -d1api	$EDITOR -h4 $P
+	-o1d1api	&rm $F; shake $C
 
-.MAC .EQU -----------	(look)
-.S .HAS	-!---	&ext-help
-	---x1---ap---	(asm_);		     &reload	# .o
-	---x2---ap---	(asm_); hlk    $F:r; &reload	# .x
-	---o1---ap---	(asm_); hlk -r $F:r; &reload	# .r
-	---o2-d1ap---	gcc2 -c $F
-	-------------	(look)
+.MAC .EQU -	(look)
+.S .HAS	-!	&ext-help
+	-x1ap	(asm_);		     &reload	# .o
+	-x2ap	(asm_); hlk    $F:r; &reload	# .x
+	-o1ap	(asm_); hlk -r $F:r; &reload	# .r
+	-o2d1ap	gcc2 -c $F
+	-	(look)
 
-$asm_			has060 $P $< >! (err_file);
-			&if { &set-opt +d; $EDITOR $P -v (err_file); &end }
-			&else { &rm (err_file); shake }
-$err_file		$temp/error.lst
+$asm_		has060 $P $< >! (err_file);
+		&if { &set-opt +d; $EDITOR $P -v (err_file); &end }
+		&else { &rm (err_file); shake }
+$err_file	$temp/error.lst
 
-.c	---x2-d1-p---	gcc2 $F -o $F:r.x -O2$<		# .x
-	-t-x2-d1-p---	gcc2 $F -S -O2$<		# .s
-	---o1-d1-p---	gcc2 $F -c -O2$<		# .o
-	---x1-d1-p---	gcc $F -O$<
-	-t-x1-d1-p---	gcc $F -S -O$<
-	-------------	(look)
-.cpp .cxx .cc
-	---x2-d1-p---	gcc2 -xc++ $F -o $F:r.x -O2$<
-	-t-x2-d1-p---	gcc2 -xc++ $F -S -O2$<
-	-------------	(look)
-.y	---o1-d1-p---	bison $F$<
-	-------------	(look)
+.c	-x2d1p	gcc2 $F -o $F:r.x -O2$<		# .x
+	-tx2d1p	gcc2 $F -S -O2$<		# .s
+	-o1d1p	gcc2 $F -c -O2$<		# .o
+	-x1d1p	gcc $F -O$<
+	-tx1d1p	gcc $F -S -O$<
+	-	(look)
 ^	\xd0\x00
-.O	------d1-p---	hlk $M $<
-	---o1-d1-p---	hlk $M -r$<
-	---x3-d1-p---	 lk  $M $<
-	---x5---ap---	(SYMINFO)
+.O	-d1p	hlk $M $<
+	-o1d1p	hlk $M -r$<
+	-x3d1p	 lk  $M $<
+	-x5ap	(SYMINFO)
 ^	\x00\x68	#.L
-	---o1---ap---	lib -v -l $F | (disp)
-	---x5---ap---	(SYMINFON)
-	-!		&ext-help
-.A	---x1-d1ap---	       oar -x $P		# こっちに展開
-	---x2-d2ap---	(exg); oar -x $P		# あっちに展開
-	---o1-d1ap---	&if ( &ask-yn "ライブラリアン形式(.l)に変換しますか？" ) {
-			  lib -m32768 $F:r.l $F
-			}
-	-t-x5---ap---	oar -AL $F | (disp)
-	---x5---ap---	oar -lL $F | (disp)
-	-!		&ext-help
+	-o1ap	lib -v -l $F | (disp)
+	-x5ap	(SYMINFON)
+	-!	&ext-help
+.A	-x1d1ap	       oar -x $P	# こっちに展開
+	-x2d2ap	(exg); oar -x $P	# あっちに展開
+	-o1d1ap	&if ( &ask-yn "ライブラリアン形式(.l)に変換しますか？" ) {
+		  lib -m32768 $F:r.l $F
+		}
+	-tx5ap	oar -AL $F | (disp)
+	-x5ap	oar -lL $F | (disp)
+	-!	&ext-help
 
 # SHARP/Hudson Archiver(ACSII file mode)
 ^	\xd1\x01
-	---x1-d1ap---	har -ave $F			# 展開
-	---x5---ap---	har -avl $F | (disp)
+	-x1d1ap	har -ave $F	# 展開
+	-x5ap	har -avl $F | (disp)
 
 
 !"GNUmakefile Makefile*" \
-	-------------	(look)
-	---o1-d1ap---	make -f $F
+	-	(look)
+	-o1d1ap	make -f $F
 
-.mk	-------------	(look)
-	---o1-d1-----	make -f $F $<
+.mk	-	(look)
+	-o1d1	make -f $F $<
 
 	# text
 
-.NTF	-------------	(look)
-	---x1-d1ap---	ntf $F -o $F:r.doc$<
-	---x2-d1ap---	ntf $F -o $O/$F:r.doc$<
+.CNF	-	(look)
+	-x1d1ap	zpcnv $F
 
-!KISS.CNF -----------	(look)
-	---o1---ap-g0	(kiss_ext); kiss $F
-!MFGED.FNT ----------	(look)				# mfged font list file
+$ishこっち	       aish $M
+$ishあっち	(exg); aish $PMARK_R
 
-.CNF	-------------	(look)
-	---x1-d1ap---	zpcnv $F
-	---o1---ap-g0	(kiss_ext); kiss $F
-.KCF	--------ap-g0	(kiss_ext); &if ( &exist KISS.CNF ) { kiss } &else { kiss $F:r.CNF }
-
-$kiss_ext		(twon-c); &stop-condrv;
-			&if ( &is-mintarc ) {
-			  &if ( ! &is-mark ) { &uncompress *.cel *.cnf *.kcf }
-			}
-
-$ishこっち		       aish $M
-$ishあっち		(exg); aish $PMARK_R
-
-$CNLOG	"mksx* scot* ppbs* imla* wedd* neko* ftz_* yas_* snet* urra* one_*"
-
-.LOG	---o1--------	(look)
-	---x1-d1ap---	(ishこっち)
-	---x2-d2ap---	(ishあっち)
-	---x3-d2ap---	sortf -l4096 -p0x08 $F > $<$O/$F:r_.$F:e
-	---x5---ap---	aish -l $F
-	--------apf--	&if ( &match (CNLOG) $F ) { cn $M }
-			&elsif ( &match ten_* $F ) { ktn $M } &else { (look) }
+.LOG	-o1	(look)
+	-x1d1ap	(ishこっち)
+	-x2d2ap	(ishあっち)
+	-x5ap	aish -l $F
 
 #^	<html|<HTML
 .html .htm
-	-------------	(look)
-	---x1---api--	vwx -f $F
-	---x2---apig0	webxpression $F
-	---x3-d1ap---	(ack)
+	-		(look)
+	-x1api		vwx -f $F
+	-x2apig0	webxpression $F
+	-x3d1ap		(ack)
 
 #^	<<<\x20
 #.doc .hed .man .txt .ish .uu .uue \
->NO_DEF	-------------	(look)
-	---x1-d1ap---	(ishこっち)
-	---x2-d2ap---	(ishあっち)
-	---x3-d1ap---	(ack)
-	---x5---ap---	aish -l $F
+>NO_DEF	-	(look)
+	-x1d1ap	(ishこっち)
+	-x2d2ap	(ishあっち)
+	-x3d1ap	(ack)
+	-x5ap	aish -l $F
 
 	# font
 
 !"SUPERED.FNT MUTERM.FNT"
-	-------------	&print " $F:r 用フォントファイルです."
+	-	&print " $F:r 用フォントファイルです."
 
 .FON .FNT .F1[26] .F8[0K]
-	--------api--	hiocs $F >$temp/XCON; &clear-and-redraw
+	-api	hiocs $F >$temp/XCON; &clear-and-redraw
 
 	# archive
 
-$maketmp		&if ( ! &maketmp _ mint????.$1 ) {
-			  &print " &maketmp failed."; &end
-			}
+$maketmp	&if ( ! &maketmp _ mint????.$1 ) {
+		  &print " &maketmp failed."; &end
+		}
 
-$こっち			&set _ $P
-$こっちに掘る		&set _ $P; (mkdir)
-$あっち			&set _ $P; (opp)
-$あっちに掘る		&set _ $P; (opp); (mkdir)
+$こっち		&set _ $P
+$こっちに掘る	&set _ $P; (mkdir)
+$あっち		&set _ $P; (opp)
+$あっちに掘る	&set _ $P; (opp); (mkdir)
 
 #^	\x1f\x8b??????\x00?*.[Tt][Aa][Rr]
 #^	\x1f\x8b????????*.[Tt][Aa][Rr]
 !"*.TAR.GZ *.TGZ"
-	-t-x1-d1ap---	(こっち);	(tar_ext)
-	---x1-d1ap---	(こっちに掘る); (tar_ext)
-	-t-x2-d1ap---	(あっち);	(tar_ext)
-	---x2-d1ap---	(あっちに掘る); (tar_ext)
-	---x5---ap---	tx -v $F | (disp)
-	--------ap---	$(maketmp tar); tx -z2wc $F $_; &tar-selector $_
-$tar_ext		tx -w $_; (down)
+	-tx1d1ap	(こっち);	(tar_ext)
+	-x1d1ap		(こっちに掘る); (tar_ext)
+	-tx2d1ap	(あっち);	(tar_ext)
+	-x2d1ap		(あっちに掘る); (tar_ext)
+	-x5ap		tx -v $F | (disp)
+	-ap		$(maketmp tar); tx -z2wc $F $_; &tar-selector $_
+$tar_ext	tx -w $_; (down)
 !"*.TAR.Z *.TAZ"
-	-t-x1-d1ap---	(こっち);	(taz_ext)
-	---x1-d1ap---	(こっちに掘る); (taz_ext)
-	-t-x2-d1ap---	(あっち);	(taz_ext)
-	---x2-d1ap---	(あっちに掘る); (taz_ext)
-	---x5---ap---	tar tzvf $F | (disp)	# gzip -cd $F | tar tvf - | (disp)
-	--------ap---	$(maketmp tar); gzip -cd $F >> $_; &tar-selector $_
-#$taz_ext		gzip -cd $_ | tar xvf -; (down)
-$taz_ext		tar xzvf $_; (down)
+	-tx1d1ap	(こっち);	(taz_ext)
+	-x1d1ap		(こっちに掘る); (taz_ext)
+	-tx2d1ap	(あっち);	(taz_ext)
+	-x2d1ap		(あっちに掘る); (taz_ext)
+	-x5ap		tar tzvf $F | (disp)	# gzip -cd $F | tar tvf - | (disp)
+	-ap		$(maketmp tar); gzip -cd $F >> $_; &tar-selector $_
+$taz_ext	tar xzvf $_; (down)
 
 ^0x82	-lh[0-7d]-
 ^0x42	LHA\x27s\x20SFX
@@ -1120,431 +1032,424 @@ $taz_ext		tar xzvf $_; (down)
 ^6	SFX\x20of\x20LHa
 ^2	-lh[0-7d]-
 .LZH .LHA
-	-------------	&lzh-selector $P
-	-t-x1-d1ap---	(こっち);	(lzh_ext)
-	---x1-d1ap---	(こっちに掘る); (lzh_ext)
-	-t-x2-d1ap---	(あっち);	(lzh_ext)
-	---x2-d1ap---	(あっちに掘る); (lzh_ext)
-	---x5---ap---	lx -l $F | (disp)
-$lzh_ext		lx -w $_; (down)
+	-		&lzh-selector $P
+	-tx1d1ap	(こっち);	(lzh_ext)
+	-x1d1ap		(こっちに掘る); (lzh_ext)
+	-tx2d1ap	(あっち);	(lzh_ext)
+	-x2d1ap		(あっちに掘る); (lzh_ext)
+	-x5ap		lx -l $F | (disp)
+$lzh_ext	lx -w $_; (down)
 ^2	-lz?-
-.LZS	---o1u-------	&lzh-selector $P
-	-t-x1-d1ap---	(こっち);	(lzs_ext)
-	---x1-d1ap---	(こっちに掘る); (lzs_ext)
-	-t-x2-d1ap---	(あっち);	(lzs_ext)
-	---x2-d1ap---	(あっちに掘る); (lzs_ext)
-	---x5---ap---	lha l $F | (disp)
+.LZS	-o1u		&lzh-selector $P
+	-tx1d1ap	(こっち);	(lzs_ext)
+	-x1d1ap		(こっちに掘る); (lzs_ext)
+	-tx2d1ap	(あっち);	(lzs_ext)
+	-x2d1ap		(あっちに掘る); (lzs_ext)
+	-x5ap		lha l $F | (disp)
 	-!		&ext-help
-$lzs_ext		lha x -a $_; (down)
+$lzs_ext	lha x -a $_; (down)
 
 ^	PK\x03\x04
-.ZIP	-------------	&zip-selector $P
-	-t-x1-d1ap---	(こっち);	(zip_ext)
-	---x1-d1ap---	(こっちに掘る); (zip_ext)
-	-t-x2-d1ap---	(あっち);	(zip_ext)
-	---x2-d1ap---	(あっちに掘る); (zip_ext)
-	---o1-d2api--	unzip -qz $F | cat -C > $O/$<$F:r.hed
-	---x3-d1ap---	zip -z $F		# コメント書き込み
-	---x4---ap---	unzip -z $F	# コメント表示
-	-t-x5---ap---	unzip -Zv $F | (disp)
-	---x5---ap---	zx -l $F | (disp)
-$zip_ext		zx -w $_; (down)
+.ZIP	-		&zip-selector $P
+	-tx1d1ap	(こっち);	(zip_ext)
+	-x1d1ap		(こっちに掘る); (zip_ext)
+	-tx2d1ap	(あっち);	(zip_ext)
+	-x2d1ap		(あっちに掘る); (zip_ext)
+	-o1d2api	unzip -qz $F | cat -C > $O/$<$F:r.hed
+	-x3d1ap		zip -z $F		# コメント書き込み
+	-x4ap		unzip -z $F		# コメント表示
+	-tx5ap		unzip -Zv $F | (disp)
+	-x5ap		zx -l $F | (disp)
+$zip_ext	zx -w $_; (down)
 
 ^0x101	ustar\x20\x20
-.TAR	-------------	&tar-selector $P
-	-t-x1-d1ap---	(こっち);	(tar_ext)
-	---x1-d1ap---	(こっちに掘る); (tar_ext)
-	-t-x2-d1ap---	(あっち);	(tar_ext)
-	---x2-d1ap---	(あっちに掘る); (tar_ext)
-	---x5---ap---	tx -v $F | (disp)
+.TAR	-		&tar-selector $P
+	-tx1d1ap	(こっち);	(tar_ext)
+	-x1d1ap		(こっちに掘る); (tar_ext)
+	-tx2d1ap	(あっち);	(tar_ext)
+	-x2d1ap		(あっちに掘る); (tar_ext)
+	-x5ap		tx -v $F | (disp)
 
-#^	\x1f\x8b					# .tgzでハマるので使えない>_<
+#^	\x1f\x8b	# .tgzでハマるので使えない>_<
 .GZ .?GZ
-	---x1-d1ap---	tx -wz $F			# こっち
-	---x2-d2ap---	tx -wzb$O/ $F		# あっち
-	---x5---ap---	gzip -l $F | (disp)
-	--------ap---	tx -wz $F $MINTTMP/$F:r; &look-file -o$temp $MINTTMP/$F:r; &rm $MINTTMP/$F:r
-	---o1---ap---	tx -wz $F $MINTTMP/$F:r; &ext-exec $MINTTMP/$F:r; &rm $MINTTMP/$F:r
-.Z	---x1-d1ap---	gzip -cd $F > $P:r		# こっち
-	---x2-d2ap---	gzip -cd $F > $O/$F:r	# あっち
-	---x5---ap---	gzip -l $F | (disp)
-	--------ap---	gzip -cd $F > $MINTTMP/$F:r; &look-file -o$temp $MINTTMP/$F:r; &rm $MINTTMP/$F:r
+	-x1d1ap	tx -wz $F	# こっち
+	-x2d2ap	tx -wzb$O/ $F	# あっち
+	-x5ap	gzip -l $F | (disp)
+	-ap	tx -wz $F $MINTTMP/$F:r; &look-file -o$temp $MINTTMP/$F:r; &rm $MINTTMP/$F:r
+	-o1ap	tx -wz $F $MINTTMP/$F:r; &ext-exec $MINTTMP/$F:r; &rm $MINTTMP/$F:r
+.Z	-x1d1ap	gzip -cd $F > $P:r	# こっち
+	-x2d2ap	gzip -cd $F > $O/$F:r	# あっち
+	-x5ap	gzip -l $F | (disp)
+	-ap	gzip -cd $F > $MINTTMP/$F:r; &look-file -o$temp $MINTTMP/$F:r; &rm $MINTTMP/$F:r
 
-.ARJ	-t-x1-d1ap---	(こっち);	(arj_ext)
-	---x1-d1ap---	(こっちに掘る); (arj_ext)
-	-t-x2-d1ap---	(あっち);	(arj_ext)
-	---x2-d1ap---	(あっちに掘る); (arj_ext)
-	---x5---ap---	unarj l $F | (disp)
+.ARJ	-tx1d1ap	(こっち);	(arj_ext)
+	-x1d1ap		(こっちに掘る); (arj_ext)
+	-tx2d1ap	(あっち);	(arj_ext)
+	-x2d1ap		(あっちに掘る); (arj_ext)
+	-x5ap		unarj l $F | (disp)
 	-!		&ext-help
-$arj_ext		unarj x $_; (down)
+$arj_ext	unarj x $_; (down)
 
-^	\x1a\x08					# .arc
-^	ZOO\x20?.??\x20Archive.\x1a\x0			# .zoo
+^	\x1a\x08			# .arc
+^	ZOO\x20?.??\x20Archive.\x1a\x0	# .zoo
 .ZOO .AR[CK]
-	-t-x1-d1ap---	(こっち);	(xx_ext)
-	---x1-d1ap---	(こっちに掘る); (xx_ext)
-	-t-x2-d1ap---	(あっち);	(xx_ext)
-	---x2-d1ap---	(あっちに掘る); (xx_ext)
-	---x5---ap---	xx -l $F | (disp)
+	-tx1d1ap	(こっち);	(xx_ext)
+	-x1d1ap		(こっちに掘る); (xx_ext)
+	-tx2d1ap	(あっち);	(xx_ext)
+	-x2d1ap		(あっちに掘る); (xx_ext)
+	-x5ap		xx -l $F | (disp)
 	-!		&ext-help
-$xx_ext			xx $_; (down)
+$xx_ext		xx $_; (down)
 
 	# music
 
-!68SND.ZMS ----------	(look)
-	---o1---api--	(play_music)
-
-.OPM	-------------	(look)
-	---o1---api--	&if ( ! &prchk 'opmdrv3' ) {
-			  (release-music-driver); opmdrv3
-			} cp $F OPM
-.ZMS	--------api--	&if ( ! &prchk 'mcdrv' ) {
-			  &if ( ! &prchk 'zmsc' ) {
-			    &if ( ! &prchk 'zmusic' ) {
-			      &menu -t".ZMS 演奏ドライバ選択" Z"Z-MUSIC" M"MCDRV" L"&look-file"; &if 0 { &end }
-			      &elsif 2 { (set_mcdrv) } &elsif 3 { (look); &end }
-			} } }
-			&if ( &prchk 'mcdrv' ) { mmcp $F; &end }
-			&else { (play_music) }
-	---o1---api--	&if ( ! &prchk 'mcdrv' ) { (set_mcdrv) } mmcp $F
-	---x1-d1ap---	       zmusic -c $P
-	---x2-d2ap---	(exg); zmusic -c $P
+.OPM	-	(look)
+	-o1api	&if ( ! &prchk 'opmdrv3' ) {
+		  (release-music-driver); opmdrv3
+		} cp $F OPM
+.ZMS	-api	&if ( ! &prchk 'mcdrv' ) {
+		  &if ( ! &prchk 'zmsc' ) {
+		    &if ( ! &prchk 'zmusic' ) {
+		      &menu -t".ZMS 演奏ドライバ選択" Z"Z-MUSIC" M"MCDRV" L"&look-file"; &if 0 { &end }
+		      &elsif 2 { (set_mcdrv) } &elsif 3 { (look); &end }
+		} } }
+		&if ( &prchk 'mcdrv' ) { mmcp $F; &end }
+		&else { (play_music) }
+	-o1api	&if ( ! &prchk 'mcdrv' ) { (set_mcdrv) } mmcp $F
+	-x1d1ap	zmusic -c $P
+	-x2d2ap	(exg); zmusic -c $P
 ^	\x10ZmuSiC
-.ZMD	--------api--	(play_music)
-	---x1-d1ap---	dtos $F
-	---x2-d2ap---	dtos $F $O/$F:r.zms
+.ZMD	-api	(play_music)
+	-x1d1ap	dtos $F
+	-x2d2ap	dtos $F $O/$F:r.zms
 ^	\x10ZmAdpCm
-.ZPD	--------api--	&stop-condrv; (PCM8-on); pzpd $F
-	---x4-d1api--	tzpdex -x $F			# 抽出
-	---x5---ap---	tzpdex $F | (disp)			# 一覧
-	---x1---api--	(release-music-driver); (PCM8-fnc); zmusic -t100$< -b$F
-.ZPL	---o1-d1ap---	zpcnv $F
-	-------------	(look)
+.ZPD	-api	&stop-condrv; (PCM8-on); pzpd $F
+	-x4d1api	tzpdex -x $F	# 抽出
+	-x5ap	tzpdex $F | (disp)	# 一覧
+	-x1api	(release-music-driver); (PCM8-fnc); zmusic -t100$< -b$F
+.ZPL	-o1d1ap	zpcnv $F
+	-	(look)
 ^	MDC\x1a
 .mdc .rcp .r36 .mid .smf .mnd
-	--------api--	(play_music)
-.MD[XRZ] -------api--	(play_music)
-	---x1-d1ap---	       mzp -o $P
-	---x2-d2ap---	(exg); mzp -o $P
-.MML .MUS -----------	(look)
-	---x1-d1ap---	       note $P
-	---x2-d1ap---	(exg); note $P
-	---o1---ap---	note $F; $(make-zpdx $F:r.mdx);
-			&if ( &prchk 'mxdrv16y' ) { mdxp $F:r }
-			&elsif ( &prchk 'mxdrv' ) { mdxp $F:r }
-			&elsif ( &prchk 'mxw'   ) { mdxp $F:r }
-			&elsif ( &prchk 'mld'   ) { mmlp $F:r }
-			&else	     { (set_madrv); mazp $F:r } &reload
-.PDX	--------api--	$(maketmp zpd); &stop-condrv; (PCM8-on);
-			pdxtozpd -n $F $_ >(NUL); pzpd $_; &rm $_
-	---o1---ap---	(adpcm-p)
-.PDL	-------------	(look)
-	---o1-d1ap---	tpdxm $F
-.SPL	-------------	(look)
-	---o1-d1ap---	spdxm $F
+	-api	(play_music)
+.MD[XRZ] -api	(play_music)
+	-x1d1ap	       mzp -o $P
+	-x2d2ap	(exg); mzp -o $P
+.MML .MUS -	(look)
+	-x1d1ap	       note $P
+	-x2d1ap	(exg); note $P
+	-o1ap	note $F; $(make-zpdx $F:r.mdx);
+		&if ( &prchk 'mxdrv16y' ) { mdxp $F:r }
+		&elsif ( &prchk 'mxdrv' ) { mdxp $F:r }
+		&elsif ( &prchk 'mxw'   ) { mdxp $F:r }
+		&elsif ( &prchk 'mld'   ) { mmlp $F:r }
+		&else	     { (set_madrv); mazp $F:r } &reload
+.PDX	-api	$(maketmp zpd); &stop-condrv; (PCM8-on);
+		pdxtozpd -n $F $_ >(NUL); pzpd $_; &rm $_
+	-o1ap	(adpcm-p)
+.PDL	-	(look)
+	-o1d1ap	tpdxm $F
+.SPL	-	(look)
+	-o1d1ap	spdxm $F
 #.SCM \
 ^	SCM\x01
-	--------apig0	&uncompress -i *.scp *.scm;
-			(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm -d $F; (GM-enable)
+	-apig0	&uncompress -i *.scp *.scm;
+		(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm -d $F; (GM-enable)
 ^	SCM\x02
-	--------apig0	&uncompress -i *.scp *.scm;
-			(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm2 -d $F; (GM-enable)
+	-apig0	&uncompress -i *.scp *.scm;
+		(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm2 -d $F; (GM-enable)
 
-
-.KDD	---o1---ap---	kmdp -N $F
-	--------api--	(twon-c);
-			&foreach ( ) {
-			  kddchk $F;
-			  &if 1 { (set_mxdrv); &break }
-			  &if 5 { (set_zmusic); (release-mzlvl); &break }
-			  &print ' kddchk に失敗したか、ドライバが用意されていません.'; &unsetenv KDDNAME; &end
-			}
-			&uncompress -i $KDDNAME;
-			&if ( ! -f $KDDNAME ) { &print ' 演奏ファイルが見つかりません.'; &unsetenv KDDNAME; &end }
-			$(make-zpdx $KDDNAME);
-			&unsetenv KDDNAME; kmdp $F
+.KDD	-o1ap	kmdp -N $F
+	-api	(twon-c);
+		&foreach ( ) {
+		  kddchk $F;
+		  &if 1 { (set_mxdrv); &break }
+		  &if 5 { (set_zmusic); (release-mzlvl); &break }
+		  &print ' kddchk に失敗したか、ドライバが用意されていません.'; &unsetenv KDDNAME; &end
+		}
+		&uncompress -i $KDDNAME;
+		&if ( ! -f $KDDNAME ) { &print ' 演奏ファイルが見つかりません.'; &unsetenv KDDNAME; &end }
+		$(make-zpdx $KDDNAME);
+		&unsetenv KDDNAME; kmdp $F
 
 	# pcm
 
-!BEEP.SYS ------ap---	(adpcm-p)
-.PCM	--------ap---	pf $F
-	---o1---ap---	s44play -mono $F
-	---x1---ap---	(adpcm-p) -f0			# 3.9kHz
-	---x2---ap---	(adpcm-p) -f1			# 5.2kHz
-	---x3---ap---	(adpcm-p) -f2			# 7.8kHz
-	---x4---ap---	(adpcm-p) -f3			#10.4kHz
-	---x5---ap---	(adpcm-p) -f4			#15.6kHz
-.PC[0-4] -------ap---	(adpcm-p) $F:e:s/PC/-f
-.PC8	--------ap---	pf -fine -vo32 -ri28000 $F
-	---o1---ap---	(adpcm-p) -f6
-.P16	--------ap---	pf -fine $F
-	---x1-d1ap---	zvt -A $F $F:r.PCM
-	---x2-d2ap---	zvt -A $F $O/$F:r.PCM
-.p44	------d1ap---	pf -fine -i1 -ri44100 -fi44100 $F
+!BEEP.SYS -ap	(adpcm-p)
+.PCM	-ap	pf $F
+	-o1ap	s44play -mono $F
+	-x1ap	(adpcm-p) -f0	# 3.9kHz
+	-x2ap	(adpcm-p) -f1	# 5.2kHz
+	-x3ap	(adpcm-p) -f2	# 7.8kHz
+	-x4ap	(adpcm-p) -f3	#10.4kHz
+	-x5ap	(adpcm-p) -f4	#15.6kHz
+.PC[0-4] -ap	(adpcm-p) $F:e:s/PC/-f
+.PC8	-ap	pf -fine -vo32 -ri28000 $F
+	-o1ap	(adpcm-p) -f6
+.P16	-ap	pf -fine $F
+	-x1d1ap	zvt -A $F $F:r.PCM
+	-x2d2ap	zvt -A $F $O/$F:r.PCM
+.p44	-d1ap	pf -fine -i1 -ri44100 -fi44100 $F
 
 .[sman][1-4][2468]
-	--------ap---	&set _ 3;
-			&if ( &match -i s?? $F:e ) {
-			  &menu -t"$F:e 再生" S"S44PLAY STEREO" M"        MONO" P"PCM3PCM + PF";
-			  &set _ $STATUS;
-			}
-			&elsif ( &match -i m?? $F:e ) {
-			  &menu -t"$F:e 再生" M"S44PLAY MONO" P"PCM3PCM + PF";
-			  &cal _ "$STATUS | $STATUS >> 1";
-			}
-			&if    (1 == $_) { &set-opt +s; s44play $F }
-			&elsif (2 == $_) { &set-opt +s; s44play -mono $F }
-			&elsif (3 == $_) { $(maketmp pcm); pcm3pcm -f -verb -q $F $_; pf $_; &rm $_ }
-	---x1-d1ap---	pcm3pcm -f -verb $F $F:r.pcm$<
-	---x2-d2ap---	pcm3pcm -f -verb $F $O/$F:r.pcm$<
+	-ap	&set _ 3;
+		&if ( &match -i s?? $F:e ) {
+		  &menu -t"$F:e 再生" S"S44PLAY STEREO" M"        MONO" P"PCM3PCM + PF";
+		  &set _ $STATUS;
+		}
+		&elsif ( &match -i m?? $F:e ) {
+		  &menu -t"$F:e 再生" M"S44PLAY MONO" P"PCM3PCM + PF";
+		  &cal _ "$STATUS | $STATUS >> 1";
+		}
+		&if    (1 == $_) { &set-opt +s; s44play $F }
+		&elsif (2 == $_) { &set-opt +s; s44play -mono $F }
+		&elsif (3 == $_) { $(maketmp pcm); pcm3pcm -f -verb -q $F $_; pf $_; &rm $_ }
+	-x1d1ap	pcm3pcm -f -verb $F $F:r.pcm$<
+	-x2d2ap	pcm3pcm -f -verb $F $O/$F:r.pcm$<
 
 .[an][1-4][2468]
-	--------ap---	$(maketmp pcm); pcm3pcm -f -verb -q $F $_; pf $_; &rm $_
-	---x1-d1ap---	pcm3pcm -f -verb $F $F:r.pcm$<
-	---x2-d2ap---	pcm3pcm -f -verb $F $O/$F:r.pcm$<
+	-ap	$(maketmp pcm); pcm3pcm -f -verb -q $F $_; pf $_; &rm $_
+	-x1d1ap	pcm3pcm -f -verb $F $F:r.pcm$<
+	-x2d2ap	pcm3pcm -f -verb $F $O/$F:r.pcm$<
 
-.wav	--------ap---	&menu -t"$F:e 再生" S"S44PLAY STEREO" M"        MONO" P"PF -file";
-			&if    1 { &set-opt +s; s44play $F }
-			&elsif 2 { &set-opt +s; s44play -mono $F }
-			&elsif 3 { pf -fine $F }
-	---o1---ap---	(PCM8-fnc); wav_play $F
-	---x1-d1ap---	pcm3pcm -f $F $F:r.pcm
-	---x2-d2ap---	pcm3pcm -f $F $O/$F:r.pcm
+.wav	-ap	&menu -t"$F:e 再生" S"S44PLAY STEREO" M"        MONO" P"PF -file";
+		&if    1 { &set-opt +s; s44play $F }
+		&elsif 2 { &set-opt +s; s44play -mono $F }
+		&elsif 3 { pf -fine $F }
+	-o1ap	(PCM8-fnc); wav_play $F
+	-x1d1ap	pcm3pcm -f $F $F:r.pcm
+	-x2d2ap	pcm3pcm -f $F $O/$F:r.pcm
 
 	# cg
 
 ^	MAKI01
-.MKI	-------fsp-g5	(gclr); magh_ $F
-	---x1-d1ap---	mph $F
-	---x2-d2ap---	mph -b$O/ $F
-	---x4--fsp-g3	apicg -k $F
-	---x5---ap---	apicg -pp $F | (disp)
+.MKI	-fspg5	(gclr); magh_ $F
+	-x1d1ap	mph $F
+	-x2d2ap	mph -b$O/ $F
+	-x4fspg3	apicg -k $F
+	-x5ap	apicg -pp $F | (disp)
 ^	MAKI02
-.MAG	-------fsp-g5	(gclr); magh -r8s8 $F
-	---o2--fsp-g5	apicg -pile0 $F
-	---o1---ap-g3	magh -pcm1r0 $P
-	---x1-d1ap---	mph $F
-	---x2-d2ap---	mph -b$O/ $F
-	---x3--fsp-g3	magh -r8s8k $F
-	---x5---ap---	apicg -pp $F | (disp)
-	---x4--------	&title-load $F
-	--tx4--------	&title-load -b $F
+.MAG	-fspg5		(gclr); magh -r8s8 $F
+	-o2fspg5	apicg -pile0 $F
+	-o1apg3		magh -pcm1r0 $P
+	-x1d1ap		mph $F
+	-x2d2ap		mph -b$O/ $F
+	-x3fspg3	magh -r8s8k $F
+	-x5ap		apicg -pp $F | (disp)
+	-x4		&title-load $F
+	-tx4		&title-load -b $F
 ^	Pi\x1a
-.PI	-------fsp-g5	(gclr); pih -r8s8 $P
-	---o1---ap-g3	pih -pcm1r0 $P
-	---x1-d1ap---	mph .mag $F
-	---x2-d2ap---	mph -b$O/ .mag $F
-	---x3--fsp-g3	apicg -k $P
-	---x5---ap---	apicg -pp $P | (disp)
+.PI	-fspg5	(gclr); pih -r8s8 $P
+	-o1apg3	pih -pcm1r0 $P
+	-x1d1ap	mph .mag $F
+	-x2d2ap	mph -b$O/ .mag $F
+	-x3fspg3	apicg -k $P
+	-x5ap	apicg -pp $P | (disp)
 ^	HG\x0d\x0a\x1a
-.HG	-------fsp-g5	(gclr); hgh -r8s8 $P
-	---o1---ap-g3	hgh -pcm1r0 $P
+.HG	-fspg5	(gclr); hgh -r8s8 $P
+	-o1apg3	hgh -pcm1r0 $P
 
 ^	PIC/MM/XSS/:
 ^	PIC\x1a
-.PIC	-------fsp-g5	hapic $P
-	------mfsp-g3	&if    (4 == $MARK_COUNT) { &set mod f  }
+.PIC	-fspg5		hapic $P
+	-mfsp-g3	&if    (4 == $MARK_COUNT) { &set mod f  }
 			&elsif (8 == $MARK_COUNT) { &set mod f8 } &else { &set mod y }
 			(EPICL)$mod $MARK_R; (GROT); &unset mod
-	---x1-mfsp-g3	(EPICL) $MARK_R; (GROT)
-	---x1---api--	&madoka (MINT)autoepic.mis
-	---x2--fsp-g3	apicg -k $P
-	---x5---ap---	apicg -pp $P | (disp)
-.PIK	-------fsp-g5	apicg $P
-	---o1--fsp-g3	apicg -c -lc $P
-	---x5---ap---	apicg -pp $P | (disp)
+	-x1mfspg3	(EPICL) $MARK_R; (GROT)
+	-x1api		&madoka (MINT)autoepic.mis
+	-x2fspg3	apicg -k $P
+	-x5ap	apicg -pp $P | (disp)
+.PIK	-fspg5	apicg $P
+	-o1fspg3	apicg -c -lc $P
+	-x5ap	apicg -pp $P | (disp)
 ^	P2DT
-.P2	-------fsp-g3	pic2 -k $P
-	---x5---ap---	pic2 -t $P | (disp)
-#.JPG	-------fspig3	jpeged -k1 -wd:/ $P; &unless { &end }
+.P2	-fspg3	pic2 -k $P
+	-x5ap	pic2 -t $P | (disp)
+#.JPG	-fspig3	jpeged -k1 -wd:/ $P; &unless { &end }
 ^6	JFIF
 ^0x86	JFIF
-.JPG	-------f-pig3	jpeged -k1 -wd:/ $P; &unless { &end }
-			&set-opt -p; $(maketmp jpg); &stop-condrv;
-			&echo "jpegtran で変換して表示します..."; jpegtran -outfile $_ $F;
-			&set-opt +sig3; jpeged -k1 -wd:/ $_; &rm $_
-	-t-x1--fspig3	jpeged -k1 -wd:/ -f3 $P
-	-t-x2--fspig5	bjpeg $P
-	---x5---ap---	jpeged -h $P | (disp)
+.JPG	-fpig3	jpeged -k1 -wd:/ $P; &unless { &end }
+		&set-opt -p; $(maketmp jpg); &stop-condrv;
+		&echo "jpegtran で変換して表示します..."; jpegtran -outfile $_ $F;
+		&set-opt +sig3; jpeged -k1 -wd:/ $_; &rm $_
+	-tx1fspig3	jpeged -k1 -wd:/ -f3 $P
+	-tx2fspig5	bjpeg $P
+	-x5ap	jpeged -h $P | (disp)
 #^0xa	\x00MAJYO
-.Q4	-------fsp-g5	(gclr); hsx $P
-	---x1-d1ap---	mph -cq $F
-	---x2-d2ap---	mph -cq -b$O/ $F
-	---x5---ap---	&print ' .Q4 は 640x400 16色固定です.'
-.Q4D	-------------	(look)				# Q4 Document
-.TIF	-------fsp-g3	apicg -k $P
-	---o1--fsp-g3	apicg -c -lc $P
-	---x5---ap---	apicg -pp $P | (disp)
+.Q4	-fspg5	(gclr); hsx $P
+	-x1d1ap	mph -cq $F
+	-x2d2ap	mph -cq -b$O/ $F
+	-x5ap	&print ' .Q4 は 640x400 16色固定です.'
+.Q4D	-	(look)	# Q4 Document
+.TIF	-fspg3	apicg -k $P
+	-o1fspg3	apicg -c -lc $P
+	-x5ap	apicg -pp $P | (disp)
 ^	GIF8[79]a
-.GIF	-------fsp-g3	gifh  -kc1r8s8 $P
-	---o1---ap-g3	gifh -6p0cm1r0 $P
-	---x3--fsp-g3	gifh -6kc1r8s8 $P
-	---x1-d1ap---	mph $F
-	---x2-d2ap---	mph -b$O/ $F
+.GIF	-fspg3	gifh  -kc1r8s8 $P
+	-o1apg3	gifh -6p0cm1r0 $P
+	-x3fspg3	gifh -6kc1r8s8 $P
+	-x1d1ap	mph $F
+	-x2d2ap	mph -b$O/ $F
 ^	BM6[^8]
-.BMP .RLE -----f-pig3	bmph -k $P
-	---x1--f-p---	copix -k -q2 $P
-	---x2--fsp---	(GM-disable); apicg -c -aj -k -sq $P; (GM-enable)
-	---x3--fsp-g3	(GM-disable); apicg -c -lc $P; (GM-enable)
-	---x4--fsp-g5	(GM-disable); apicg $P;	    (GM-enable)
-	---x5---ap---	apicg -pp $P | (disp)
-.RGB .Q0 ------fsp-g5	rgbh -k2 $P
-	---x3--fsp-g3	rgbh -ks4a8 $P
+.BMP .RLE -fpig3	bmph -k $P
+	-x1fp		copix -k -q2 $P
+	-x2fsp		(GM-disable); apicg -c -aj -k -sq $P; (GM-enable)
+	-x3fspg3	(GM-disable); apicg -c -lc $P; (GM-enable)
+	-x4fspg5	(GM-disable); apicg $P;	    (GM-enable)
+	-x5ap		apicg -pp $P | (disp)
+.RGB .Q0 -fspg5	rgbh -k2 $P
+	-x3fspg3	rgbh -ks4a8 $P
 ^	ICE\x1a\x01
-.ICE	-------fsp-g5	ice $P
-.GL3	-------fsp-g5	hapic $P
-.CUT	--------api--	cut_xikye -lc $F >(NUL)
-.TTL	--------api--	ttl -lc $F >(NUL)
-.SC[78]	-----q-fsp-g8	&if ( 6 != &get-color-mode ) { conmod -q5 >(NUL) } loadm $P
+.ICE	-fspg5	ice $P
+.GL3	-fspg5	hapic $P
+.CUT	-api	cut_xikye -lc $F >(NUL)
+.TTL	-api	ttl -lc $F >(NUL)
+.SC[78]	-qfspg8	&if ( 6 != &get-color-mode ) { conmod -q5 >(NUL) } loadm $P
 ^	XGE.TIT
-	--------ap---	&if ( 1 != &get-color-mode ) { conmod -q1 >(NUL) }
-			xge/xgetit -l $P; &16color-palet-set; &gvon
+	-ap	&if ( 1 != &get-color-mode ) { conmod -q1 >(NUL) }
+		xge/xgetit -l $P; &16color-palet-set; &gvon
 ^	QPC\x20Graphic\x20Data\x20Headder\x20Block\x1a
-.QPC	-------fspi--	&gvram-off; qpc -k $P
-	---o1--fspig3	(gclr); qpc -t $P
-	---x1-d1ap-g3	mph $F
-	---x2-d2ap-g3	mph -b$O/ $F
+.QPC	-fspi	&gvram-off; qpc -k $P
+	-o1fspig3	(gclr); qpc -t $P
+	-x1d1apg3	mph $F
+	-x2d2apg3	mph -b$O/ $F
 
 
-.PCT	-------fsp-g3	pictl -K -F -M -S -E $P
+.PCT	-fspg3	pictl -K -F -M -S -E $P
 
-$gclr			&iocs 14,0,0xffff;
-			&if    1 { (g_used) }
-			&elsif 2 { (g_used) }
-			&elsif ( 1 != &get-color-mode ) { &clear-gvram }
-$g_used			&echo "Ｇ－ＶＲＡＭは使用中です"; &end
-$EPICL			epicl -b512
+$gclr		&iocs 14,0,0xffff;
+		&if    1 { (g_used) }
+		&elsif 2 { (g_used) }
+		&elsif ( 1 != &get-color-mode ) { &clear-gvram }
+$g_used		&echo "Ｇ－ＶＲＡＭは使用中です"; &end
+$EPICL		epicl -b512
 
 	# anime/video
 
 !na_*.pan
-	--------ap---	&stop-music; panic -q -m $F
-	---o1---ap---	&stop-music; panic -q -m -d$< $F
-	---o2---ap---	&stop-music; panic -q -m -d55,56$< $F
-	---x4-d1ap---	dispan $F
+	-ap	&stop-music; panic -q -m $F
+	-o1ap	&stop-music; panic -q -m -d$< $F
+	-o2ap	&stop-music; panic -q -m -d55,56$< $F
+	-x4d1ap	dispan $F
 
-.PAN	--------ap---	&stop-music; panic $F
-	---o1---ap---	&stop-music; panic -d$< $F
-	---o2---ap---	&stop-music; panic -d55,56$< $F
-	---x4-d1ap---	dispan $F
+.PAN	-ap	&stop-music; panic $F
+	-o1ap	&stop-music; panic -d$< $F
+	-o2ap	&stop-music; panic -d55,56$< $F
+	-x4d1ap	dispan $F
 
-.MCS	--------api--	&if ( &prchk 'macsdrv' ) { cp $F @MACS }
-			&else { macsdrv -@ >(NUL); cp $F @MACS; macsdrv -r >(NUL) }
-.MSL	--------ap---	masl $F
-	---o1---ap---	masl -LS3$< $F
-#.TSL	--------ap-s-	tasl -g $F
-.AVI	--------apfs-	avi_play $F
-	---x5---ap---	avi_play -q $F | (disp)
+.MCS	-api	&if ( &prchk 'macsdrv' ) { cp $F @MACS }
+		&else { macsdrv -@ >(NUL); cp $F @MACS; macsdrv -r >(NUL) }
+.MSL	-ap	masl $F
+	-o1ap	masl -LS3$< $F
+#.TSL	-aps	tasl -g $F
+.AVI	-apfs	avi_play $F
+	-x5ap	avi_play -q $F | (disp)
 
-.VTR	--------ap-g3	mmvp -r $F
-.VDT	--------ap-g3	mmvp -r $F
-	---x1---ap-g3	sivp $F
-.svx	--------ap-g3	sjvp -l $F
-	---x1-d1api--	svdpcm $F
+.VTR	-apg3	mmvp -r $F
+.VDT	-apg3	mmvp -r $F
+	-x1apg3	sivp $F
+.svx	-apg3	sjvp -l $F
+	-x1d1api	svdpcm $F
 
 ^	BRC\x00
 ^	ISPR-V
-	--------ap---	isprplay -p2 $M
-	---x1---ap---	isprplay -u -w -p2$< $M
-	---x2---ap---	isdrush -s $M
-	---x5---ap---	isdinfo $M | (disp) -t"ISD Information"
+	-ap	isprplay -p2 $M
+	-x1ap	isprplay -u -w -p2$< $M
+	-x2ap	isdrush -s $M
+	-x5ap	isdinfo $M | (disp) -t"ISD Information"
 
 ^65	MooVTVOD\x01
-.mov .qt -------api--	qt_play -l -nw -t -w -c100 $F; &gvram-off
-	---x1---api--	qt_play -l -nw -t -w -c100 -ns -f $F; &gvram-off
-	---x2---api--	qt_play -l -nw -t -w -c100 -na $F
-	---x5---api--	qt_play -q $F | (disp)
-.CPK	--------apfs-	cpkplay -m $F
-	---o1---apfs-	cpkplay -h $F
-.tch .dha -------pf--	hanim $< $F		# DoGA CGA
-.MSA	--------ap-g3	xmisa $F
-.DAN	--------ap---	$(ANM_LOAD dance)
-.WAP	--------ap---	$(ANM_LOAD wapi)
-$ANM_LOAD		&foreach ( dance wapi ) { &if ( &prchk $_ ) { $_ -r } }
-			&stop-music; (PCM8-fnc); $1 $F
-.WCF .WGA .WGM -ap---	&if ( ! &exist -i "*.WCF *.INI" ) { &print ' WINK用設定ファイルがありません.'; &end }
+.mov .qt -api	qt_play -l -nw -t -w -c100 $F; &gvram-off
+	-x1api	qt_play -l -nw -t -w -c100 -ns -f $F; &gvram-off
+	-x2api	qt_play -l -nw -t -w -c100 -na $F
+	-x5api	qt_play -q $F | (disp)
+.CPK	-apfs	cpkplay -m $F
+	-o1apfs	cpkplay -h $F
+.tch .dha -pf	hanim $< $F		# DoGA CGA
+.MSA	-apg3	xmisa $F
+.DAN	-ap	$(ANM_LOAD dance)
+.WAP	-ap	$(ANM_LOAD wapi)
+$ANM_LOAD	&foreach ( dance wapi ) { &if ( &prchk $_ ) { $_ -r } }
+		&stop-music; (PCM8-fnc); $1 $F
+.WCF .WGA .WGM -ap	&if ( ! &exist -i "*.WCF *.INI" ) { &print ' WINK用設定ファイルがありません.'; &end }
 			&uncompress -i *.wcf *.ini *.wga *.wgm *.mag;
 			&if ( &prchk 'wink' ) { wink -r >(NUL) } wink $&
 
 	# mint special
 
 ^	#!madoka
-.MIS	-------------	(look)
-	---o1---api--	&madoka $F
+.MIS	-	(look)
+	-o1api	&madoka $F
 ^	HK03
-.MIT .TFT -----------	&title-load $F
+.MIT .TFT -	&title-load $F
 
 	# others
 
 ^	BD\x01
-.BFD	---x5---ap---	bup -l $F | (disp)		# List
-	---x1-d1-p---	bup $< $F			# Update
-	---o1---ap---	bup $< $F; &if ( -d orig ) { &rm $F orig; shake; &reload }
+.BFD	-x5ap	bup -l $F | (disp)	# List
+	-x1d1p	bup $< $F		# Update
+	-o1ap	bup $< $F; &if ( -d orig ) { &rm $F orig; shake; &reload }
 
-.dif .diff ----------	(look)
-	---o1-d1ap---	patch -T -i $F -p1$<
-	---x2-d1ap---	patch -T -i $F -b -Y orig/ -p1$<
-	---x3-d1ap---	patch -T -i $F -b -B orig/ -p1$<
+.dif .diff -	(look)
+	-o1d1ap	patch -T -i $F -p1$<
+	-x2d1ap	patch -T -i $F -b -Y orig/ -p1$<
+	-x3d1ap	patch -T -i $F -b -B orig/ -p1$<
 
-.SED	-------------	(look)
-	---o1-d--p---	sed -f $F < $< >		# Stream Editor
+.SED	-	(look)
+	-o1dp	sed -f $F < $< >
 
-.DIC	-------------	(look)
-	---o1---ap---	dicm $F			# ASK2 メンテ
-	---x1-d-ap---	rjjdmp $F $<$O/$F:r.txt	# RJJ テキスト化
-	---x5---ap---	rjjdmp -i $F | (disp)
-.DES	------d1ap---	des -d -k $< $F
+.DIC	-	(look)
+	-o1ap	dicm $F			# ASK2 メンテ
+	-x1dap	rjjdmp $F $<$O/$F:r.txt	# RJJ テキスト化
+	-x5ap	rjjdmp -i $F | (disp)
 
-.BAK	-------------	(look)
-	---o1-d1-----	&rm $F
+.BAK	-	(look)
+	-o1d1	&rm $F
 
 	# disk image
 
 .2h[dsq] .dup .hdm .img .xdf
-	-		&ext-help			# Disk Image(Beta)
-	---x1-d1ap---	dx -x$< $F			# こっち
-	---x2-d2ap---	dx -x$< -d$O/ $F		# あっち
-	---o1-d2ap---	(QSCDRV); difc -j -p $F $<${O:d}:
-	---x3-d2ap---	fdsuit -r$F $<${O:d}:
-	--tx5---ap---	difc -l $F | (disp)
-	-!-x5---ap---	dx $F | (disp)
-.DIM	-		&ext-help			# Disk Image(DIFC)
-	---x1-d1ap---	dx -x$< $F			# こっち
-	---x2-d2ap---	dx -x$< -d$O/ $F		# あっち
-	---o1-d2ap---	(QSCDRV); difc -j $F $<${O:d}:
-	--tx5---ap---	difc -l $F | (disp)
-	-!-x5---ap---	dx $F | (disp)
-.DCU	-		&ext-help			# Disk Image(DCU)
-	---x1-d1ap---	dx -x$< $F			# こっち
-	---x2-d2ap---	dx -x$< -d$O/ $F		# あっち
-	-!------ap---	dx $F | (disp)
+	-	&ext-help		# Disk Image (Beta)
+	-x1d1ap	dx -x$< $F		# こっち
+	-x2d2ap	dx -x$< -d$O/ $F	# あっち
+	-o1d2ap	(QSCDRV); difc -j -p $F $<${O:d}:
+	-x3d2ap	fdsuit -r$F $<${O:d}:
+	-tx5ap	difc -l $F | (disp)
+	-!x5ap	dx $F | (disp)
+.DIM	-	&ext-help		# Disk Image (DIFC)
+	-x1d1ap	dx -x$< $F		# こっち
+	-x2d2ap	dx -x$< -d$O/ $F	# あっち
+	-o1d2ap	(QSCDRV); difc -j $F $<${O:d}:
+	-tx5ap	difc -l $F | (disp)
+	-!x5ap	dx $F | (disp)
+.DCU	-	&ext-help		# Disk Image (DCU)
+	-x1d1ap	dx -x$< $F		# こっち
+	-x2d2ap	dx -x$< -d$O/ $F	# あっち
+	-!ap	dx $F | (disp)
 
 	# special
 
->A_EXEC	-------------	&if ( $?EDITOR == 0 ) {		# 起動時
-			  &foreach ( em supered edr ed ) {
-			    &if ( &which -n -c $_ ) { &set EDITOR $&; &break }
-			} }
-			(init);
-			# &if (1 == $?MINTRC3) { &set MINTRC $MINTRC3 }
-			# &elsif (0 == $?MINTRC) { &set MINTRC $HOME:h/.mint }
->EXIT_Q	--------api--	(release-music-driver); (PCMd-r)	# 終了時
->EXIT_2	-------------	&nop					#   〃  ２
+>A_EXEC	-	&if ( $?EDITOR == 0 ) {		# 起動時
+		  &foreach ( em supered edr ed ) {
+		    &if ( &which -n -c $_ ) { &set EDITOR $&; &break }
+		} }
+		(init);
+>EXIT_Q	-api	(release-music-driver); (PCMd-r)	# 終了時
+>EXIT_2	-	&nop					# 終了時2
 
-#>GVON_X ------------	&nop				# &gvon 中にマウスクリック
->GVON_X	-------------	&clear-and-redraw; &get-color-mode; &echo "color mode = $STATUS"
+#>GVON_X -	&nop	# &gvon 中にマウスクリック
+>GVON_X	-	&clear-and-redraw; &get-color-mode; &echo "color mode = $STATUS"
 
->V_EXEC	------d-api--	&if ($LOOK == 0) { $EDITOR -g$MINTVLINE $LOOK_FILE_NAME }
-			&else { fes $LOOK_FILE_NAME }
->HELP_E	--------api--	$EDITOR -g$MINTHLINE $MINTRC; &unset MINTHLINE; (source)
+>V_EXEC	-dapi	&if ($LOOK == 0) { $EDITOR -g$MINTVLINE $LOOK_FILE_NAME }
+		&else { fes $LOOK_FILE_NAME }
+>HELP_E	-api	$EDITOR -g$MINTHLINE $MINTRC; &unset MINTHLINE; (source)
 
-#>NO_MAP ------------	&nop	# 誤ったキー操作の時の処理
+#>NO_MAP -	&nop	# 誤ったキー操作の時の処理
 
 # ver3.00 で変更
-#>T_DOWN ------------	&nop				# スクリーンセーバ
+#>T_DOWN -	&nop	# スクリーンセーバ
 
 # ver3.00 で追加
-#>EXEATR ------------	&nop	# 拡張子なし実行属性ありファイル
+#>EXEATR -	&nop	# 拡張子なし実行属性ありファイル
 
 	# mask menu
 
@@ -1563,113 +1468,113 @@ Z	" 書庫"			"*.lz[hs] *.zip *.ta[rz] *.t[bg]z *.[bg]z *.z *.ar[ck] *.zoo"
 	# それぞれが &exec-registered-command-menu 1～16 に対応
 
 @exe2	#012345678901234567890123456
-E	" LZX 圧縮(Encode)"		--------ap---	(exe2sub1) { &if ( &equ -i r $_:e ) { &set ext x } &elsif ( &equ -i $_:r $_ ) { &set ext x } &else { &set ext $_:e:al } lzx -vo$_:r:al.$ext $opath/$_ } (exe2sub2) ext
-					-t----d1ap---	lzx -v $M
-D	"     展開(Decode)"		--------ap---	(exe2sub1) { &if ( &equ -i r $_:e ) { &set fname $_:r:al.x } &else { &set fname $_:al } lzx -dvo$fname $opath/$_; &if ( ! &file-match HU $fname ) { &ren $fname $_:r.r } } (exe2sub2)
-					-t----d1ap---	lzx -vd $M
-1	"     一覧(List)"		--------ap---	lzx -l *.[xrXR] | (disp)
-					-----m--ap---	lzx -l $M | (disp)
-C	" LZD 圧縮(Compress)"		------d2ap---	(exg); lzd -cn $PMARK_R
-					-t----d1ap---	lzd -cn $M
-X	"     展開(Extract)"		------d2ap---	(exg); lzd -en $PMARK_R
-					-t----d1ap---	lzd -en $M
-2	"     一覧(List)"		--------ap---	lzd | (disp)
-					-----m--ap---	lzd $M | (disp)
-	"           (Shift:同じ側へ)"	-------------	&nop
-3	" LZD 起動(-3 files ON)"	------d-ap---	lzdsys -3
-0	"     起動(-0 files OFF)"	------d-ap---	lzdsys -0
-F	"     停止(-f)"			------d-ap---	lzdsys -f
-U	" &unsetenv LZD_MODE"		------d------	(LZD-off)
+E	" LZX 圧縮(Encode)"		-ap	(exe2sub1) { &if ( &equ -i r $_:e ) { &set ext x } &elsif ( &equ -i $_:r $_ ) { &set ext x } &else { &set ext $_:e:al } lzx -vo$_:r:al.$ext $opath/$_ } (exe2sub2) ext
+					-td1ap	lzx -v $M
+D	"     展開(Decode)"		-ap	(exe2sub1) { &if ( &equ -i r $_:e ) { &set fname $_:r:al.x } &else { &set fname $_:al } lzx -dvo$fname $opath/$_; &if ( ! &file-match HU $fname ) { &ren $fname $_:r.r } } (exe2sub2)
+					-td1ap	lzx -vd $M
+1	"     一覧(List)"		-ap	lzx -l *.[xrXR] | (disp)
+					-map	lzx -l $M | (disp)
+C	" LZD 圧縮(Compress)"		-d2ap	(exg); lzd -cn $PMARK_R
+					-td1ap	lzd -cn $M
+X	"     展開(Extract)"		-d2ap	(exg); lzd -en $PMARK_R
+					-td1ap	lzd -en $M
+2	"     一覧(List)"		-ap	lzd | (disp)
+					-map	lzd $M | (disp)
+	"           (Shift:同じ側へ)"	-	&nop
+3	" LZD 起動(-3 files ON)"	-dap	lzdsys -3
+0	"     起動(-0 files OFF)"	-dap	lzdsys -0
+F	"     停止(-f)"			-dap	lzdsys -f
+U	" &unsetenv LZD_MODE"		-d	(LZD-off)
 
 $exe2sub1	&set opath $C; &set files "$MARK_R"; (opp); &foreach ( $files )
 $exe2sub2	&reload; &i-search $files; &unset opath files
 
 @exe3	#012345678901234567890123456
-M	" mmdsp v29r31p1 (Ctrl:常駐)"	--------api--	(twon-c);
-							&if ( &is-mintarc ) { &if ( &is-mark ) { &uncompress $MARK_R } } (release-mzlvl);
-							&if ( 6 == &get-color-mode ) { mmdsp -g1; &half } &else { mmdsp }
-					--c-----api--	&if ( ! &prchk 'mmdsp' ) { mmdsp -k }
-					-t------api--	&if (   &prchk 'mmdsp' ) { mmdsp -r }
-S	" SCM(Scc Control Module)"	--------apig0	(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm -d nul; (GM-enable)
-					-t------apig0	(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm2 -d nul; (GM-enable)
-Z	" MzLevel"			--------api--	(set_zmusic); (GM-disable); mzlvl -q -l; &if ( ! &prchk 'mzlvl' ) { (GM-enable) }
-					-t------api--	(release-mzlvl)
-A	" zam"				--------api--	zam
-X	" xapnel"			--------api--	&if ( ! &prchk 'xapnel' ) { xapnel }
-					-t------api--	&if   ( &prchk 'xapnel' ) { xapnel -r }
-C	" ZMS > ZMD Compile  (-t:$O)"	--------ap---	       &foreach ( $M ) { zmusic -c    $_ } &reload -1
-					-t------ap---	(exg); &foreach ( $M ) { zmusic -c $C/$_ } &reload -2
-V	" zvt"				--------api--	zvt
-P	" pcm8 ON  [合成]"		--------api--	(PCM8-on)
-O	"      OFF [単音]"		--------api--	(PCM8-off)
-F	"      FNC [Trap#2 限定]"	--------api--	(PCM8-fnc)
-R	"      -R  [解除]"		--------api--	(PCM8-r)
-	" "				-------------	&nop
-0	" opmdrv3"			--------api--	&if ( ! &prchk 'opmdrv3' ) { opmdrv3 }
-					-t------api--	&if   ( &prchk 'opmdrv3' ) { opmdrv3 -r }
-1	" mxdrv16y"			--------api--	(set_mxdrv)
-					-t------api--	&if ( &prchk 'mxdrv16y' ) { mxdrv16y -r }
-2	" madrv"			--------api--	(set_madrv)
-					-t------api--	&if ( &prchk 'madrv' ) { madrv -r }
-3	" mld"				--------api--	(set_mld)
-					-t------api--	&if ( &prchk 'mld' ) { mld -r }
-4	" mcdrv"			--------api--	(set_mcdrv)
-					-t------api--	&if ( &prchk 'mcdrv' ) { mcdrv -r }
-	"           (Shift:常駐解除)"	-------------	&nop
+M	" mmdsp v29r31p1 (Ctrl:常駐)"	-api	(twon-c);
+						&if ( &is-mintarc ) { &if ( &is-mark ) { &uncompress $MARK_R } } (release-mzlvl);
+						&if ( 6 == &get-color-mode ) { mmdsp -g1; &half } &else { mmdsp }
+					-capi	&if ( ! &prchk 'mmdsp' ) { mmdsp -k }
+					-tapi	&if (   &prchk 'mmdsp' ) { mmdsp -r }
+S	" SCM(Scc Control Module)"	-apig0	(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm -d nul; (GM-enable)
+					-tapig0	(GM-disable); (release-music-driver); (PCMd-r); (twon-c); scm2 -d nul; (GM-enable)
+Z	" MzLevel"			-api	(set_zmusic); (GM-disable); mzlvl -q -l; &if ( ! &prchk 'mzlvl' ) { (GM-enable) }
+					-tapi	(release-mzlvl)
+A	" zam"				-api	zam
+X	" xapnel"			-api	&if ( ! &prchk 'xapnel' ) { xapnel }
+					-tapi	&if   ( &prchk 'xapnel' ) { xapnel -r }
+C	" ZMS > ZMD Compile  (-t:$O)"	-ap	       &foreach ( $M ) { zmusic -c    $_ } &reload -1
+					-tap	(exg); &foreach ( $M ) { zmusic -c $C/$_ } &reload -2
+V	" zvt"				-api	zvt
+P	" pcm8 ON  [合成]"		-api	(PCM8-on)
+O	"      OFF [単音]"		-api	(PCM8-off)
+F	"      FNC [Trap#2 限定]"	-api	(PCM8-fnc)
+R	"      -R  [解除]"		-api	(PCM8-r)
+	" "				-	&nop
+0	" opmdrv3"			-api	&if ( ! &prchk 'opmdrv3' ) { opmdrv3 }
+					-tapi	&if   ( &prchk 'opmdrv3' ) { opmdrv3 -r }
+1	" mxdrv16y"			-api	(set_mxdrv)
+					-tapi	&if ( &prchk 'mxdrv16y' ) { mxdrv16y -r }
+2	" madrv"			-api	(set_madrv)
+					-tapi	&if ( &prchk 'madrv' ) { madrv -r }
+3	" mld"				-api	(set_mld)
+					-tapi	&if ( &prchk 'mld' ) { mld -r }
+4	" mcdrv"			-api	(set_mcdrv)
+					-tapi	&if ( &prchk 'mcdrv' ) { mcdrv -r }
+	"           (Shift:常駐解除)"	-	&nop
 
 @exe4	#012345678901234567890123456
-2	" ２画面 PIC"			------fs-pig3	(EPICL)s3 $F; (GROT)
-					-----mfs-pig3	(EPICL) $MARK_R; (GROT)
-4	" ４〃   PIC"			------fs-pig3	(EPICL)f4s3 $F; (GROT)
-					-----mfs-pig3	(EPICL)f4 $MARK_R; (GROT)
-8	" ８〃   PIC"			------fs-pig3	(EPICL)f8 $MARK_R; (GROT)
-A	" CG (.*) 鑑賞"			------fsapig3	apicg    "*.*"
-					-t----fsapig3	apicg -k "*.*"
-R	" CG (.*) 〃          (再帰)"	------fsapig3	apicg -d "*.*"
-					-t----fsapig3	apicg -d -k "*.*"
-Y	" CG (.pi) 〃"			------fsapig3	(twon-c); pih  -ne0r8    \*.pi
-					-t----fsapig3	(twon-c); pih  -ne0r8s8k \*.pi
-H	" CG (.hg) 〃"			------fsapig3	(twon-c); hgh  -ne0r8    \*.hg
-					-t----fsapig3	(twon-c); hgh  -ne0r8s8k \*.hg
-M	" CG (.mag) 〃"			------fsapig3	(twon-c); magh -ne0r8    \*.mag
-					-t----fsapig3	(twon-c); magh -ne0r8s8k \*.mag
-P	" CG (.pic) 〃  (Shift:Wait)"	------fsapig3	(twon-c); hapic    \*.pic
-					-t----fsapig3	(twon-c); hapic -k \*.pic
-	" "				-------------	&nop
-V	" 壁紙表示(ランダム)"		--------apig3	&if (1 == $ENTRIES) { &end }
-							&foreach ( ) {
-							  &rnd $ENTRIES; &goto-cursor $STATUS;
-							  &if (1 == $CURSOR) { &continue }
-							  &if ( -d $F ) { &cd $F; &continue }
-							  &elsif ( &match -i *.PIC $F ) { hapic -p-m-c0 $F }
-							  &elsif ( &match -i *.MAG $F ) { magh -pcm1r0 $F }
-							  &elsif ( &match -i *.PI  $F ) { pih  -pcm1r0 $F }
-							  &elsif ( &match -i *.HG  $F ) { hgh  -pcm1r0 $F } &end
-							}
-C	" (0,512)から表示して比較"	------fs-pig3	apicg -l0,512 $F
-F	" GROT 256->64K 色数変換"	--------apig3	&max; (GROT) -f
-	" "				-------------	&nop
-X	" MPH       (Shift:反対パス)"	------d1ap---	mph $M
-					-t----d2ap---	mph -b$O/ $M
-G	" お絵描きソフト"		------d-ap---	&if ( ! &menu -t"お絵描きソフト" X"XGE" M"MFGED" Z"ZED"") { &end }
-							&elsif 1 { &max; xge }
-							&elsif 2 { mfged; (GM-m) }
-							&elsif 3 { zed } &half
+2	" ２画面 PIC"			-fspig3		(EPICL)s3 $F; (GROT)
+					-mfspig3	(EPICL) $MARK_R; (GROT)
+4	" ４〃   PIC"			-fspig3		(EPICL)f4s3 $F; (GROT)
+					-mfspig3	(EPICL)f4 $MARK_R; (GROT)
+8	" ８〃   PIC"			-fspig3		(EPICL)f8 $MARK_R; (GROT)
+A	" CG (.*) 鑑賞"			-fsapig3	apicg    "*.*"
+					-tfsapig3	apicg -k "*.*"
+R	" CG (.*) 〃          (再帰)"	-fsapig3	apicg -d "*.*"
+					-tfsapig3	apicg -d -k "*.*"
+Y	" CG (.pi) 〃"			-fsapig3	(twon-c); pih  -ne0r8    \*.pi
+					-tfsapig3	(twon-c); pih  -ne0r8s8k \*.pi
+H	" CG (.hg) 〃"			-fsapig3	(twon-c); hgh  -ne0r8    \*.hg
+					-tfsapig3	(twon-c); hgh  -ne0r8s8k \*.hg
+M	" CG (.mag) 〃"			-fsapig3	(twon-c); magh -ne0r8    \*.mag
+					-tfsapig3	(twon-c); magh -ne0r8s8k \*.mag
+P	" CG (.pic) 〃  (Shift:Wait)"	-fsapig3	(twon-c); hapic    \*.pic
+					-tfsapig3	(twon-c); hapic -k \*.pic
+	" "				-	&nop
+V	" 壁紙表示(ランダム)"		-apig3	&if (1 == $ENTRIES) { &end }
+						&foreach ( ) {
+						  &rnd $ENTRIES; &goto-cursor $STATUS;
+						  &if (1 == $CURSOR) { &continue }
+						  &if ( -d $F ) { &cd $F; &continue }
+						  &elsif ( &match -i *.PIC $F ) { hapic -p-m-c0 $F }
+						  &elsif ( &match -i *.MAG $F ) { magh -pcm1r0 $F }
+						  &elsif ( &match -i *.PI  $F ) { pih  -pcm1r0 $F }
+						  &elsif ( &match -i *.HG  $F ) { hgh  -pcm1r0 $F } &end
+						}
+C	" (0,512)から表示して比較"	-fspig3	apicg -l0,512 $F
+F	" GROT 256->64K 色数変換"	-apig3	&max; (GROT) -f
+	" "				-	&nop
+X	" MPH       (Shift:反対パス)"	-d1ap	mph $M
+					-td2ap	mph -b$O/ $M
+G	" お絵描きソフト"		-dap	&if ( ! &menu -t"お絵描きソフト" X"XGE" M"MFGED" Z"ZED"") { &end }
+						&elsif 1 { &max; xge }
+						&elsif 2 { mfged; (GM-m) }
+						&elsif 3 { zed } &half
 
 @exe5	#012345678901234567890123456
-I	" ISH テキスト変換    (aish)"	------d1ap---	&foreach ( $M ) { aish -ais$< $_ }
-A	" 漢字コード変換       (ack)"	------d1ap---	(ack)
-T	" TAB 4 -> 8 変換   (expand)"	------d1ap---	&foreach ( $M ) { expand -4 $_ | unexpand -a -8 > $_$< }
-F	" 同一ファイル検索    (fdck)"	--------ap---	fdck $PWD
-					-----m--ap---	fdck $MARK_R
-U	" ファイル名大文字化  (xren)"	------d1ap---	xren -u "*.*"
-					-----md1ap---	xren -u $M
-H	" Human.Sys 転送     (cp -h)"	------d1ap---	cp -h C:/HUMAN.SYS .
-	" "				-------------	&nop
-M	" Make Menu"			--------api--	&madoka (MINT)makemenu.mis
-B	" X-BASIC"			--------ap---	c:/develop/basic/basic
-D	" DB"				-----s--ap---	scd -t
-S	" SCD"				-----s--ap---	scd
+I	" ISH テキスト変換    (aish)"	-d1ap	&foreach ( $M ) { aish -ais$< $_ }
+A	" 漢字コード変換       (ack)"	-d1ap	(ack)
+T	" TAB 4 -> 8 変換   (expand)"	-d1ap	&foreach ( $M ) { expand -4 $_ | unexpand -a -8 > $_$< }
+F	" 同一ファイル検索    (fdck)"	-ap	fdck $PWD
+					-map	fdck $MARK_R
+U	" ファイル名大文字化  (xren)"	-d1ap	xren -u "*.*"
+					-md1ap	xren -u $M
+H	" HUMAN.SYS 転送     (cp -h)"	-d1ap	cp -h C:/HUMAN.SYS .
+	" "				-	&nop
+M	" Make Menu"			-api	&madoka (MINT)makemenu.mis
+B	" X-BASIC"			-ap	c:/develop/basic/basic
+D	" DB"				-sap	scd -t
+S	" SCD"				-sap	scd
 
 $ack		&menu -t"漢字コード変換" S"→ SJIS" E"→ EUC-JPN" J"→ JIS" C"→ Check Only";
 		&if    1 { &set opt s; &set ext sj  }
@@ -1681,156 +1586,119 @@ $ack		&menu -t"漢字コード変換" S"→ SJIS" E"→ EUC-JPN" J"→ JIS" C"�
 		$cmd; &unset opt ext cmd
 
 @exe6	#012345678901234567890123456
-W	" Switch"			--------api--	&stop-condrv; switch
-N	" HIOCS フォント初期化"		--------api--	hiocs -f >$temp/XCON; &clear-and-redraw
-M	"       MoonCrystal.fon"	--------api--	hiocs -f $HOME/mooncrystal.fon >$temp/XCON; &clear-and-redraw
-C	" TwentyOne -c/+c"		--------api--	twon -c
-					-t------api--	twon +c
-L	" lndrv     (Shift:常駐解除)"	--------api--	lndrv
-					-t------api--	lndrv -r
-E	" execd                 (〃)"	--------api--	execd
-					-t------api--	execd -r
-K	" chkexec               (〃)"	--------api--	chkexec
-					-t------api--	chkexec -r
-	" "				-------------	&nop
-S	" Si(System Information)"	------h-apfs-	si
-I	"   (Interrupts)"		------h-apfs-	si -I
-D	"   (SCSI check)"		------h-apfs-	si -S
-B	" Boot Menu"			------h-apfs-	boot
-R	"         --restore-palette"	--------api--	&if ( 1 == &get-color-mode ) { boot --restore-palette; &16color-palet-set }
-	" "				-------------	&nop
-?	" GV-RAM 使用状態設定"		--------api--	conmod | (disp) -t'ConsoleMode'
-0	"                    未使用"	-------------	&iocs 14,0,0
-1	"                  システム"	-------------	&iocs 14,0,1
-2	"          アプリケーション"	-------------	&iocs 14,0,2
-3	"                      破壊"	-------------	&iocs 14,0,3
+W	" Switch"			-api	&stop-condrv; switch
+N	" HIOCS フォント初期化"		-api	hiocs -f >$temp/XCON; &clear-and-redraw
+M	"       MoonCrystal.fon"	-api	hiocs -f $HOME/mooncrystal.fon >$temp/XCON; &clear-and-redraw
+C	" TwentyOne -c/+c"		-api	twon -c
+					-tapi	twon +c
+L	" lndrv     (Shift:常駐解除)"	-api	lndrv
+					-tapi	lndrv -r
+E	" execd                 (〃)"	-api	execd
+					-tapi	execd -r
+	" "				-	&nop
+S	" Si(System Information)"	-hapfs	si
+I	"   (Interrupts)"		-hapfs	si -I
+D	"   (SCSI check)"		-hapfs	si -S
+B	" Boot Menu"			-hapfs	boot
+R	"         --restore-palette"	-api	&if ( 1 == &get-color-mode ) { boot --restore-palette; &16color-palet-set }
+	" "				-	&nop
+?	" GV-RAM 使用状態設定"		-api	conmod | (disp) -t'ConsoleMode'
+0	"                    未使用"	-	&iocs 14,0,0
+1	"                  システム"	-	&iocs 14,0,1
+2	"          アプリケーション"	-	&iocs 14,0,2
+3	"                      破壊"	-	&iocs 14,0,3
 
 @exe7	#012345678901234567890123456
-A	" Ａutoexec.bat"		------d-api--	$EDITOR c:/AUTOEXEC.BAT
-C	" Ｃonfig.sys"			------d-api--	$EDITOR c:/CONFIG.SYS
-E	" Ｅnvf         (Shift:設定)"	------d-api--	$EDITOR $HOME/user.env
-					-t------ap---	envf $HOME/user.env
+A	" AUTOEXEC.BAT"			-dapi	$EDITOR c:/AUTOEXEC.BAT
+C	" CONFIG.SYS"			-dapi	$EDITOR c:/CONFIG.SYS
+E	" envf         (Shift:設定)"	-dapi	$EDITOR $HOME/user.env
+					-tap	envf $HOME/user.env
 
 @exe8	#012345678901234567890123456
-M	" SUSIE -id2 m:         (MO)"	--------api--	susie -id2 m: -h1 -v2 -c2
-					-t------api--	$(susie_check M);
-							&eject m:; susie -id2 -r
-Q	" SUSIE -id6 q:     (CD-ROM)"	--------api--	susie -id6 q: -h1 -c32
-					-t------api--	$(susie_check Q);
-							&eject q:; susie -id6 -r
-N	" NFS y:           (Windows)"	--------ap---	nfs -Dtnl -H192.168.0.68 192.168.0.$<:/
-					-t------ap---	&foreach ( 1 2 ) { &if ( &equ $C:d Y ) { &cd d: } (opp); }
-							nfs -Dtnl -H192.168.0.68 -R
-	"           (Shift:常駐解除)"	-------------	&nop
-W	" GRAD G: 書き込み禁止/許可"	--------api--	grad g: -w
-					-t------api--	grad g: -w0
-	" "				-------------	&nop
-C	" File System Checker"		--------apsh-	fsck ${C:d}: -verbose
-					-t----d1apsh-	fsck ${C:d}: -verbose -writing
-	"           (Shift:-writing)"	------d1apsh-	fsck ${C:d}: -verbose -writing
-F	" MO フォーマッタマーク表示"	--------api--	moformat -d 2
-	" "				-------------	&nop
-V	" DCACHE2 状態表示"		--------api--	dcache2 -v | (disp) -t'DCACHE2'
-C	"         消去"			------d-api--	dcache2 -c
-S	"         停止"			------d-api--	dcache2 -s
-G	"         再開"			------d-api--	dcache2 -g
-	" "				-------------	&nop
-D	" DPB 表示      (Shift:全部)"	--------api--	getdpb    | (disp)
-					-t------api--	getdpb -a | (disp)
-P	" SUSIE     (Shift:詳細表示)"	--------api--	susie  -p | (disp)
-					-t------api--	susie  -i | (disp)
-9	" 9SCDRV (information)"		--------api--	9scdrv -i | (disp)
-A	" ドライブ割り当て状況"		--------api--	subst  -l | (disp)
+M	" SUSIE -id2 m:         (MO)"	-api	susie -id2 m: -h1 -v2 -c2
+					-tapi	$(susie_check M);
+						&eject m:; susie -id2 -r
+Q	" SUSIE -id6 q:     (CD-ROM)"	-api	susie -id6 q: -h1 -c32
+					-tapi	$(susie_check Q);
+						&eject q:; susie -id6 -r
+N	" NFS y:           (Windows)"	-ap	nfs -Dtnl -H192.168.0.68 192.168.0.$<:/
+					-tap	&foreach ( 1 2 ) { &if ( &equ $C:d Y ) { &cd d: } (opp); }
+						nfs -Dtnl -H192.168.0.68 -R
+	"           (Shift:常駐解除)"	-	&nop
+W	" GRAD G: 書き込み禁止/許可"	-api	grad g: -w
+					-tapi	grad g: -w0
+	" "				-	&nop
+C	" File System Checker"		-apsh	fsck ${C:d}: -verbose
+					-td1apsh	fsck ${C:d}: -verbose -writing
+	"           (Shift:-writing)"	-d1apsh		fsck ${C:d}: -verbose -writing
+F	" MO フォーマッタマーク表示"	-api	moformat -d 2
+	" "				-	&nop
+V	" DCACHE2 状態表示"		-api	dcache2 -v | (disp) -t'DCACHE2'
+C	"         消去"			-dapi	dcache2 -c
+S	"         停止"			-dapi	dcache2 -s
+G	"         再開"			-dapi	dcache2 -g
+	" "				-	&nop
+D	" DPB 表示      (Shift:全部)"	-api	getdpb    | (disp)
+					-tapi	getdpb -a | (disp)
+P	" SUSIE     (Shift:詳細表示)"	-api	susie  -p | (disp)
+					-tapi	susie  -i | (disp)
+9	" 9SCDRV (information)"		-api	9scdrv -i | (disp)
+A	" ドライブ割り当て状況"		-api	subst  -l | (disp)
 
-$susie_check		&if ( ! &prchk 'susie' ) { &echo 'SUSIE は常駐していません.'; &end }
-			&if ( &equ $C:d $1 ) { &cd d: } (opp);
-			&if ( &equ $C:d $1 ) { &cd d: } (opp)
+$susie_check	&if ( ! &prchk 'susie' ) { &echo 'SUSIE は常駐していません.'; &end }
+		&if ( &equ $C:d $1 ) { &cd d: } (opp);
+		&if ( &equ $C:d $1 ) { &cd d: } (opp)
 
 @exe9	#012345678901234567890123456
-Z	" &zip-selector (Shift:新規)"	-------------	&if ( -r $F ) { &if ( &zip-selector $P ) { (down3) } }
-					-t------a----	&zip-selector $C/$<.zip
-O	" ZIP : 書庫の時刻を最新に"	--------ap---	&foreach ( $MARK_R ) { zip $_ } &reload
-4	"       add zipfile comment"	------d1ap---	zip -z $F
-5	"   display archive comment"	--------ap---	unzip -z $F
-	" "				-------------	&nop
-L	" &lzh-selector (Shift:新規)"	-------------	&if ( -r $F ) { &if ( &lzh-selector $P ) { (down3) } }
-					-t------a----	&lzh-selector $C/$<.lzh
-S	" LHtouch -Svp -f"		------d1ap---	lhtouch -Svpf $M
-A	"         -Svp  (全ファイル)"	------d1ap---	lhtouch -Svp "*.*"
-	" "				-------------	&nop
-	" Test Archive"			-------------	xx -t $F | (disp)
-1	"      .lzh (lx)    (-t:lha)"	--------ap---	&foreach ( $MARK_R ) { lx -t $_ | (disp) }
-					--t-----ap---	&foreach ( $MARK_R ) { lha t $_ }
-2	"      .zip (zx)  (-t:unzip)"	--------ap---	&foreach ( $MARK_R ) { zx -t $_ | (disp) }
-					--t-----ap---	&foreach ( $MARK_R ) { unzip -tv $_ | (disp) }
-3	"      .gz  (gzip)"		--------apsh-	gzip -t $MARK_R
+Z	" &zip-selector (Shift:新規)"	-	&if ( -r $F ) { &if ( &zip-selector $P ) { (down3) } }
+					-ta	&zip-selector $C/$<.zip
+O	" ZIP : 書庫の時刻を最新に"	-ap	&foreach ( $MARK_R ) { zip $_ } &reload
+4	"       add zipfile comment"	-d1ap	zip -z $F
+5	"   display archive comment"	-ap	unzip -z $F
+	" "				-	&nop
+L	" &lzh-selector (Shift:新規)"	-	&if ( -r $F ) { &if ( &lzh-selector $P ) { (down3) } }
+					-ta	&lzh-selector $C/$<.lzh
+S	" LHtouch -Svp -f"		-d1ap	lhtouch -Svpf $M
+A	"         -Svp  (全ファイル)"	-d1ap	lhtouch -Svp "*.*"
+	" "				-	&nop
+	" Test Archive"			-	xx -t $F | (disp)
+1	"      .lzh (lx)    (-t:lha)"	-ap	&foreach ( $MARK_R ) { lx -t $_ | (disp) }
+					-tap	&foreach ( $MARK_R ) { lha t $_ }
+2	"      .zip (zx)  (-t:unzip)"	-ap	&foreach ( $MARK_R ) { zx -t $_ | (disp) }
+					-tap	&foreach ( $MARK_R ) { unzip -tv $_ | (disp) }
+3	"      .gz  (gzip)"		-apsh	gzip -t $MARK_R
 
 	# registered path
 
 	# @jump から @jm16 まで 16 枚の定義が可能
 	# それぞれが &move/&copy/&chdir-to-registered-path-menu 1～16 に対応
 
-@jmp4	#012345678901234567890123456
-C	" /cg/"				e:/cg/
-M	" .../mag"			e:/cg/mag/
-P	" .../pic"			e:/cg/pic/
-G	" .../game (ゲーム吸い出し)"	e:/cg/game/
-J	" .../jpeg"			e:/cg/jpeg/
-	" "				!
-X	" /music/mdx"			e:/music/mdx/
-Z	" ....../zmd"			e:/music/zmd/
-S	" ....../sega"			e:/music/sega/
-N	" ....../namco"			e:/music/namco/
-T	" ....../taito"			e:/music/taito/
-K	" ....../konami"		e:/music/konami/
-
 @jmp6	#012345678901234567890123456
-X	" /develop/"			d:/develop/
-M	" ......../mint"		d:/develop/mint/
-P	" ......../puni"		d:/develop/puni/
-C	" ......../libc"		d:/develop/libc/
-A	" ......../archive"		d:/develop/archive/
-Z	" ......../zmusic"		d:/develop/zmusic/
-S	" ......../si"			d:/develop/si/
-L	" /term/log"			d:/term/log/
-U	" ...../up"			d:/term/up/
-D	" ...../down"			d:/term/down/
-O	" ...../送信済み"		d:/term/送信済み/
-G	" /cg"				d:/cg/
-F	" /fsw"				d:/fsw/
-W	" /temp"			d:/temp/
-T	" /text"			d:/text/
-
-@jmp8	#012345678901234567890123456
-B	" /bin/"			(BIN)
+B	" /bin/"			c:/bin/
 T	" ..../ita     (ITA TOOLBOX)"	c:/bin/ita/
 E	" ..../editor"			c:/bin/editor/
 [	" ..../mint/"			(MINT)
 ]	" ........./man"		(M_MAN)
 	" "				!
 D	" /develop/"			c:/develop/
-A	" ......../asm/"		(ASM)
+A	" ......../asm/"		c:/develop/asm/
 I	" ............/include"		c:/develop/asm/include/
-1	" ......../gcc"			(GCC)
-2	" ......../gcc2"		(GCC2)
-X	" ......../xc21nk/"		(XC)
+1	" ......../gcc"			c:/develop/gcc/
+2	" ......../gcc2"		c:/develop/gcc2/
+X	" ......../xc21nk/"		c:/develop/xc21nk/
 	" "				!
-O	" /music/"			(MUS)
-Z	" ....../zmsc"			(ZM)
-G	" /graphic"			(GRA)
-S	" /sys"				(SYS)
-M	" /man"				(MAN)
+O	" /music/"			c:/music/
+Z	" ....../zmsc"			c:/music/zmsc/
+G	" /graphic"			c:/graphic/
+S	" /sys"				c:/sys/
 
 @jm10	#012345678901234567890123456
 T	" テンポラリ (RAMDISK G:/)"	$temp
-V	"     〃     (大容量  T:/)"	t:/
 	" "				!
 A	" Ａドライブ (FD      0  )"	a:/
 B	" Ｂ   〃    (FD      1  )"	b:/
 C	" Ｃ   〃    (SCSI HD 1-0)"	c:/
 D	" Ｄ   〃    (SCSI HD 1-1)"	d:/
-E	" Ｅ   〃    (SCSI HD 1-2)"	e:/
-F	" Ｆ   〃    (SCSI HD 1-3)"	f:/
 G	" Ｇ   〃    (RAMDISK 0  )"	g:/
 M	" Ｍ   〃    (SCSI MO 2  )"	m:/
 -	" test "
@@ -1846,20 +1714,10 @@ I	" ........../include/"		/usr/local/include/
 
 	# message
 
-#&vform		"─ ver.$V ($C,$S,$^,$R) $43[    $P    ]"
-&vform		"─[  $F  ]─($C,$S,$^,$R)"
-
-
-#&func0	" MUTERM  CONMOD  PROCESS DEVICE  MEMFREE GM ON   GM OFF  GM MASK TWON -C TWON +C"
-#&func1	"   TMN  Tpal設定  MDXT    FUMD    ESC!   GM -a1  GM -a0  GM CLR  M-SIZE   SYNC  "
+&vform	"─[  $F  ]─($C,$S,$^,$R)"
 
 #%cals 0 専用(1だと3文字分しか表示できないので欠ける)
 #&y_eng	"日曜月曜火曜水曜木曜金曜土曜"
-
-#&novol	"名前ないです！ハイ☆"
-
-#&infom	"     Ｆile      Ｋuse       Ｋ(  %)Ｆree[    ]"
-#&minfo	"     Ｆile      Ｋarc       Ｋ(  %)Ｒate[    ]"
 
 &exec2	"           < LZX/LZD 圧縮展開 > "
 &exec3	"                       < 音楽 > "
@@ -1880,18 +1738,6 @@ I	" ........../include/"		/usr/local/include/
 &cpm10	"               [Ｄrive Ｓelect] "
 &jum12	"                [/Ｕsr/Ｌocal/] "
 &cpm12	"                [/Ｕsr/Ｌocal/] "
-
-
-#&fcmp1	" こっちのが新しい～～"
-#&fcmp0	" こっちのが古い～～～"
-#&fcmp3	" あたしのがおっき～  "
-#&fcmp2	" 相手のがおっき～    "
-#&fcmp4	" おないどし          "
-#&fcmp5	" さいずいっしょ      "
-#&fcmp6	" 自分自身です～～～～"
-#&fcmp7	" 全部おなじみたい・・"
-#&fcmp8	" 同じ内容です～      "
-#&fcmp9	" 違う内容ですの      "
 
 
 	# &gvon keybind
