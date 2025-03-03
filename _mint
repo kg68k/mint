@@ -477,25 +477,6 @@ $SYNC		&if ( &prchk 'fastio' ) { sync }
 	-t	&cd -; &if ( ! &equ $C ${C:d}: ) { (down3) }
 >KEYtab	-	(opp)
 	-!	&ext-help
-	-tcapi	&menu -t"060high"  0"0 0" \
-				   1"0 1" \
-				   2"1 0" \
-				   3"1 1";
-		&if    1 { 060high 0 }
-		&elsif 2 { 060high 01 }
-		&elsif 3 { 060high 10 }
-		&elsif 4 { 060high 1 }
-	-capi	&menu -t"060cache" W"ライトスルー" \
-				   C"コピーバック" \
-				   S"ストアバッファ禁止" \
-				   N"ストアバッファ許可" \
-				   I"状態表示";
-		&if 5 { 060cache; &end }
-		&set _ $STATUS; &stop-condrv;
-		&if    ($_ == 1) { 060cache w }
-		&elsif ($_ == 2) { 060cache c }
-		&elsif ($_ == 3) { 060cache s }
-		&elsif ($_ == 4) { 060cache n }
 	-o1	&exchange-windows
 >KEYhom	-	&cd ${C:d}:/
 	-o1	&cd (MINT)
@@ -570,7 +551,6 @@ $SYNC		&if ( &prchk 'fastio' ) { sync }
 	-apf	&if ( &prchk 'infoline' ) { infoline -nq off; dedit; infoline -nq on }
 		&else { dedit }
 >KEY_-_	-&2	&touch ./------------------.---
-	-t	&touch ./------------------.060
 	-	&eject cd0
 >KEY_^_	-	&cal -c winf (${winf}+1)>4?0:(${winf}+1); &stop-condrv; &echo '%winf' $winf
 	-t	&clear-exec-screen
@@ -1599,6 +1579,7 @@ L	" lndrv     (Shift:常駐解除)"	-api	lndrv
 					-tapi	lndrv -r
 E	" execd                 (〃)"	-api	execd
 					-tapi	execd -r
+6	" 060turbo 設定"		-api	&madoka (MINT)060config.mis
 	" "				-	&nop
 S	" Si(System Information)"	-hapfs	si
 I	"   (Interrupts)"		-hapfs	si -I

@@ -1,0 +1,26 @@
+#!madoka
+#	060config - 060turbo 設定メニュー
+#		Copyright (C)2025 TcbnErik
+  -ap ¥
+	&menu -l0 -t"060turbo 設定" ¥
+	0"060high 0 0" ¥
+	1"        0 1" ¥
+	2"        1 0" ¥
+	3"        1 1" ¥
+	" " ¥
+	W"ライトスルー" ¥
+	C"コピーバック" ¥
+	S"ストアバッファ禁止" ¥
+	N"ストアバッファ許可" ¥
+	I"状態表示";
+	&if    1 { 060high 0 }
+	&elsif 2 { 060high 01 }
+	&elsif 3 { 060high 10 }
+	&elsif 4 { 060high 1 }
+	&elsif 5 { &nop }
+	&elsif 6 { 060cache w }
+	&elsif 7 { 060cache c }
+	&elsif 8 { 060cache s }
+	&elsif 9 { 060cache n }
+	&elsif 10 { 060cache }
+# EOF

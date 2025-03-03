@@ -33,7 +33,8 @@ DOCS = $(addprefix docs/,$(DOCS_))
 EMACS_ = comp_etc.zip mint_micro_emacs
 EMACS = $(addprefix emacs/,$(EMACS_))
 
-MADOKA_ = arrmenu.mis \
+MADOKA_ = 060config.mis \
+          arrmenu.mis \
           atr_mark.mis \
           autoepic.mis \
           break.mis \
