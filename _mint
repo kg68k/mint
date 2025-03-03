@@ -299,7 +299,9 @@ $exg-point-mark	&if ( $?MARKFILE == 1) {
 
 $source		&if ( &source ) { (init) }
 $init		&cal scrl $dirh/2;
-		&if ( &equ $USER TcbnErik ) { &set cals 2 }
+		&unset DevMode;
+		&if ( &equ $USER TcbnErik ) { &set DevMode 1 }
+		&if ( $?DevMode == 1 ) { &set cals 2 }
 
 $ed-file	&if ( -r $F ) { $EDITOR $P; (source) }
 $chdir_to_parent	&cd ..
@@ -1408,20 +1410,20 @@ $ANM_LOAD	&foreach ( dance wapi ) { &if ( &prchk $_ ) { $_ -r } }
 	# disk image
 
 .2h[dsq] .dup .hdm .img .xdf
-	-	&ext-help		# Disk Image (Beta)
+	-	&ext-help		# Raw disk image
 	-x1d1ap	dx -x$< $F		# こっち
 	-x2d2ap	dx -x$< -d$O/ $F	# あっち
 	-o1d2ap	(QSCDRV); difc -j -p $F $<${O:d}:
 	-x3d2ap	fdsuit -r$F $<${O:d}:
 	-tx5ap	difc -l $F | (disp)
 	-!x5ap	dx $F | (disp)
-.DIM	-	&ext-help		# Disk Image (DIFC)
+.DIM	-	&ext-help		# DIFC disk image
 	-x1d1ap	dx -x$< $F		# こっち
 	-x2d2ap	dx -x$< -d$O/ $F	# あっち
 	-o1d2ap	(QSCDRV); difc -j $F $<${O:d}:
 	-tx5ap	difc -l $F | (disp)
 	-!x5ap	dx $F | (disp)
-.DCU	-	&ext-help		# Disk Image (DCU)
+.DCU	-	&ext-help		# DCU disk image
 	-x1d1ap	dx -x$< $F		# こっち
 	-x2d2ap	dx -x$< -d$O/ $F	# あっち
 	-!ap	dx $F | (disp)
@@ -1433,7 +1435,9 @@ $ANM_LOAD	&foreach ( dance wapi ) { &if ( &prchk $_ ) { $_ -r } }
 		    &if ( &which -n -c $_ ) { &set EDITOR $&; &break }
 		} }
 		(init);
->EXIT_Q	-api	(release-music-driver); (PCMd-r)	# 終了時
+>EXIT_Q	-api	&if ( $?DevMode == 1 ) {
+		  (release-music-driver); (PCMd-r)	# 終了時
+		}
 >EXIT_2	-	&nop					# 終了時2
 
 #>GVON_X -	&nop	# &gvon 中にマウスクリック
