@@ -155,6 +155,7 @@
 .globl ＆palet0_set
 .globl ＆palet0_system
 .globl ＆palet0_up
+.globl ＆palet_set
 .globl ＆path_history_menu
 .globl ＆pause_music
 .globl ＆pdx_filename

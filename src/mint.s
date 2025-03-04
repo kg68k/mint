@@ -1,5 +1,5 @@
 # mint.s - Madoka INTerpreter  main source
-# Copyright (C) 2024 TcbnErik
+# Copyright (C) 2025 TcbnErik
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -2365,35 +2365,32 @@ exec_screen_win:
 		.ds	1			;下部コンソールのウィンドウ番号
 
 
-* テキストパレット変更 ------------------------ *
+*************************************************
+*		&palet-set			*
+*************************************************
+* break d0
 
-* break	d0/d1/d2
-
-set_text_palette:
-		moveq	#-2,d2
-		tst	(mion_flag)
-		beq	@f
-		moveq	#0,d2
-		move	(＄col0),d2		;&mion 時は %col0 を設定する
-@@:		moveq	#0,d1
-		IOCS	_TPALET
-
-		move	(＄col1),d2
-		beq	@f
-		moveq	#1,d1
-		IOCS	_TPALET
-@@:
-		move	(＄col2),d2
-		beq	@f
-		moveq	#2,d1
-		IOCS	_TPALET
-@@:
-		move	(＄col3),d2
-		beq	@f
-		moveq	#3,d1
-		IOCS	_TPALET
-@@:
-		rts
+＆palet_set::
+  PUSH d1-d2/a0
+  lea (＄col3+2),a0
+  moveq #3,d1
+  1:
+    moveq #0,d2
+    tst d1
+    bne 2f
+      move -(a0),d2  ;＄col0
+      tst (mion_flag)  ;&mionなら%col0の値を使う。
+      bra 3f           ;&mioffならシステム設定値。
+    2:
+      move -(a0),d2  ;＄col3, ＄col2, ＄col1
+    3:
+    bne @f          ;%col1～%col3が0以外ならその値を使う。
+      moveq #-2,d2  ;0ならシステム設定値。
+    @@:
+    IOCS _TPALET
+  dbra d1,1b
+  POP d1-d2/a0
+  rts
 
 
 * 画面最上段のタイトル行描画 ------------------ *
@@ -2441,7 +2438,7 @@ print_titlebar_ttlmpu:
 		move.b	(write_disable_flag,opc),d0
 		bne	print_titlebar_ttlmpu_end
 
-		bsr	set_text_palette
+		bsr	＆palet_set
 
 		moveq	#TTLBAR_TITLE_X,d2
 		moveq	#TTLBAR_Y,d3
@@ -13496,10 +13493,10 @@ sys_val_table::
 ＄cbcl::	.dc	YELLOW
 ＄cclr::	.dc	0
 ＄code::	.dc	1
-＄col0::	.dc	0	;%00000_00000_00000_0
-＄col1::	.dc	$d6b4	;%11010_11010_11010_0
-＄col2::	.dc	$bcfe	;%10111_10011_11111_0
-＄col3::	.dc	$ffff	;%11111_11111_11111_1
+＄col0::	.dc	%00000_00000_00000_0  ;┐連番に並んでいるのを利用して
+＄col1::	.dc	%11010_11010_11010_0  ;│＆palet_set で連続アクセスしている。
+＄col2::	.dc	%10111_10011_11111_0  ;│
+＄col3::	.dc	%11111_11111_11111_1  ;┘
 ＄cont::	.dc	6
 ＄cpcl::	.dc	BLUE
 ＄cplp::	.dc	0
