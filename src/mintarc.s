@@ -1051,8 +1051,8 @@ quit_mintarc_1st:
 		addq.b	#%0000_0100,d0		;カーソル側再表示
 		jsr	(print_screen)
 quit_mintarc_err2:
-		tst	(＄fumd)
-		beq	rewrite_skip
+		cmpi	#1,(＄fumd)
+		bne	rewrite_skip
 		jsr	(＆cursor_down)
 rewrite_skip:
 		bra	set_status_0

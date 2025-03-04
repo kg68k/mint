@@ -432,8 +432,7 @@ $SYNC		&if ( &prchk 'fastio' ) { sync }
 	-c	&nop
 >FUNC04	-ap	sps -d  | (disp) -t'Device'
 	-o1ap	sps -dv | (disp) -t'Device'
-	-t	&if (1 == $fumd) { &set fumd 0; &echo 'fumd off' }
-		&else { &set fumd 1; &echo 'fumd on' }
+	-t	&cal fumd ($fumd < 2) ? ($fumd + 1) : 0; &echo '%fumd' $fumd
 	-c	&nop
 >FUNC05	-api	memfree
 	-t	&if (1 == $esc!) { &set esc! 0; &echo 'ESC is not Meta-key.' }
