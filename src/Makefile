@@ -6,9 +6,7 @@ ASFLAGS	= -w2 -i./include
 #	  -sNO_KG_CDROM		# 計測技研の CD-ROM ドライバに対応しない(定義不要)
 #	  -sNO_LNDRV_BUG	# 不具合のある lndrv に対応しない(定義不要)
 
-ifndef LD
-LD	= hlk
-endif
+LD	?= hlk
 LDFLAGS	=
 #	  -po/mint.map
 #	  -x
