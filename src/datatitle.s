@@ -733,14 +733,16 @@ skip_ext_check:
 		bsr	data_title_seek_file_top
 		bmi	data_title_error_close
 
+		lea	(~pdxname_buf,sp),a1
+
 ;ヘッダで判別できないデータファイルは拡張子で振り分ける.
 		tst.l	d1
 		beq	data_title_unknown_ext
 
-		lea	(ext_table,pc),a1
+		lea	(ext_table,pc),a3
 		lea	(ext_job_table-2,pc),a2
 @@:
-		move.l	(a1)+,d0
+		move.l	(a3)+,d0
 		bmi	data_title_unknown_ext
 		addq.l	#2,a2
 		cmp.l	d0,d1
@@ -915,27 +917,24 @@ data_title_end:
 
 
 * 音楽データ種類別処理 ------------------------ *
+* in a1.l  (~pdxname_buf,sp)のアドレス
 
 data_title_mdx:
-		lea	(~pdxname_buf,sp),a1
 		bsr	pdx_filename_mdxz_sub
 		moveq	#MES_D_MDX,d0
 		bra	data_title_set_header
 
 data_title_mdz:
-		lea	(~pdxname_buf,sp),a1
 		bsr	pdx_filename_mdxz_sub
 		moveq	#MES_D_MDZ,d0
 		bra	data_title_set_header
 
 data_title_mdr:
-		lea	(~pdxname_buf,sp),a1
 		bsr	pdx_filename_mdr_sub
 		moveq	#MES_D_MDR,d0
 		bra	data_title_set_header
 
 data_title_mdc:
-		lea	(~pdxname_buf,sp),a1
 		move.l	(MDC_ADPCM,a0),(MDC_ADPCM,a1)
 
 		move.l	(MDC_TITLE,a0),d0
@@ -951,7 +950,6 @@ data_title_mdc:
 		bra	data_title_set_header
 
 data_title_mnd:
-		lea	(~pdxname_buf,sp),a1
 		move	(MND_HEAD_SIZE,a0),(MND_HEAD_SIZE,a1)
 		move.l	(MND_PCMFILE,a0),(MND_PCMFILE,a1)
 
@@ -1243,7 +1241,6 @@ data_title_rcp:
 		bra	data_title_set_header
 
 data_title_scm:
-		lea	(~pdxname_buf,sp),a1
 		move	(SCM_SCP0,a0),(SCM_SCP0,a1)
 
 		moveq	#0,d0
@@ -1260,7 +1257,6 @@ data_title_scm:
 		bra	data_title_set_header
 
 data_title_po:
-		lea	(~pdxname_buf,sp),a1
 		move.l	(PO_PCM_FILE_A,a0),(PO_PCM_FILE_A,a1)
 		move.l	(PO_PCM_FILE_B,a0),(PO_PCM_FILE_B,a1)
 
@@ -1277,7 +1273,6 @@ data_title_po:
 		bra	data_title_set_header
 
 data_title_kdd:
-		lea	(~pdxname_buf,sp),a1
 		bsr	pdx_filename_kdd_sub
 
 		moveq	#MES_D_KDD,d0
