@@ -229,10 +229,13 @@ pdx_filename_kdd:
 		bsr	pdx_filename_kdd_sub
 		bra	@f
 
-pdx_filename_mdx:
 pdx_filename_mdr:
+		bsr	pdx_filename_mdr_sub
+		bra	1f
+pdx_filename_mdx:
 pdx_filename_mdz:
-		bsr	pdx_filename_mdxrz_sub
+		bsr	pdx_filename_mdxz_sub
+1:
 		move.l	#'.pdx',d1
 pdx_filename_add_ext:
 		lea	(sp),a1
@@ -267,17 +270,33 @@ pdx_filename_error:
 * out	d0.w	エラーコード(0:error 1～:ok)
 * a0/a1を破壊しない事！
 
+pdx_filename_mdr_sub:
 pdx_filename_kdd_sub:
-pdx_filename_mdxrz_sub:
-		move.l	a1,-(sp)
-@@:
-		bsr	data_title_fgetc	;タイトルを飛ばす
-		bmi	pdx_filename_mdxrz_error
-		cmpi.b	#EOF,d0
-		bne	@b
-pdx_filename_mdc_getstr:
-pdx_filename_mnd_getstr:
-pdx_filename_zmd3_getstr:
+  move.l a1,-(sp)
+  ;$1aでタイトル終了
+  @@:
+    bsr data_title_fgetc
+    bmi pdx_filename_mdxrz_error
+  cmpi.b #EOF,d0
+  bne @b
+  bra pdx_filename_getstr
+
+pdx_filename_mdxz_sub:
+  move.l a1,-(sp)
+
+  ;$0d $0a $1aでタイトル終了
+  ;ただし$1aの直前が$0d $0aでない場合は終端ではない
+  ;実際に ... $0a $1a ... $0d $0a $1a となっているMDXファイルが存在する
+  moveq #0,d1
+  @@:
+    bsr data_title_fgetc
+    bmi pdx_filename_mdxrz_error
+    move d0,d1
+    ror.l #8,d1
+  cmpi.l #EOF<<24+LF<<16+CR<<8,d1
+  bne @b
+
+pdx_filename_getstr:
 		move	#READ_BUF_SIZE-1,d1
 @@:
 		bsr	data_title_fgetc
@@ -311,7 +330,7 @@ pdx_filename_mnd_sub:
 		move.l	d0,-(sp)
 		bsr	data_title_fgetc
 		or.l	(sp)+,d0
-		bgt	pdx_filename_mnd_getstr
+		bgt	pdx_filename_getstr
 		bra	pdx_filename_mnd_error
 
 pdx_filename_mdc_sub:
@@ -333,7 +352,7 @@ pdx_filename_po_sub:
 @@:
 		beq	pdx_filename_mdc_error
 		bsr	data_title_seek_file
-		bpl	pdx_filename_mdc_getstr
+		bpl	pdx_filename_getstr
 		bra	pdx_filename_mdc_error
 
 pdx_filename_zms_sub:
@@ -565,7 +584,7 @@ pdx_filename_zmd3_28zpd:
 		addq.l	#8,sp
 		tst.l	d0
 		bmi	pdx_filename_zmd3_error
-		bra	pdx_filename_zmd3_getstr
+		bra	pdx_filename_getstr
 
 
 * 拡張子補完 ---------------------------------- *
@@ -898,19 +917,21 @@ data_title_end:
 * 音楽データ種類別処理 ------------------------ *
 
 data_title_mdx:
-		moveq	#MES_D_MDX,d0
-		bra	@f
-data_title_mdr:
-		moveq	#MES_D_MDR,d0
-		bra	@f
-data_title_mdz:
-		moveq	#MES_D_MDZ,d0
-		bra	@f
-@@:
 		lea	(~pdxname_buf,sp),a1
-		move.l	d0,-(sp)
-		bsr	pdx_filename_mdxrz_sub
-		move.l	(sp)+,d0
+		bsr	pdx_filename_mdxz_sub
+		moveq	#MES_D_MDX,d0
+		bra	data_title_set_header
+
+data_title_mdz:
+		lea	(~pdxname_buf,sp),a1
+		bsr	pdx_filename_mdxz_sub
+		moveq	#MES_D_MDZ,d0
+		bra	data_title_set_header
+
+data_title_mdr:
+		lea	(~pdxname_buf,sp),a1
+		bsr	pdx_filename_mdr_sub
+		moveq	#MES_D_MDR,d0
 		bra	data_title_set_header
 
 data_title_mdc:
