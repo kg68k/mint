@@ -227,7 +227,7 @@
 %mdxc	1	演奏中音楽タイトル表示色		0～15		[13]
 
 # ver3.00 で変更
-%mdxt	1	各種音源ドライバタイトル表示		 0 :表示しない	 1 :表示する
+%mdxt	1	各種音源ドライバタイトル表示		 0 :表示しない	[1]:表示する
 # ver3.00 で追加
 %rcdk	1	RCD/lndrv を無視する	[0]:しない	+1 :RCD を無視	+2 :lndrv を無視
 %mbox	1	演奏中音楽タイトル枠表示色		[0]:枠なし	1～3
@@ -892,11 +892,10 @@ $SYMINFON	nm $F            | (disp) -t"Symbol Table"
 	-o1d1api	&rm $F; shake $C
 
 .MAC .EQU -	(look)
-.S .HAS	-!	&ext-help
-	-x1ap	(asm_);		     &reload	# .o
-	-x2ap	(asm_); hlk    $F:r; &reload	# .x
+.S .HAS  -!	&ext-help -l5
+	-x1ap	(asm_); &reload			# .o
+	-x2ap	(asm_); hlk $F:r; &reload	# .x
 	-o1ap	(asm_); hlk -r $F:r; &reload	# .r
-	-o2d1ap	gcc2 -c $F
 	-	(look)
 
 $asm_		has060 $P $< >! (err_file);
@@ -904,11 +903,11 @@ $asm_		has060 $P $< >! (err_file);
 		&else { &rm (err_file); shake }
 $err_file	$temp/error.lst
 
-.c	-x2d1p	gcc2 $F -o $F:r.x -O2$<		# .x
-	-tx2d1p	gcc2 $F -S -O2$<		# .s
-	-o1d1p	gcc2 $F -c -O2$<		# .o
-	-x1d1p	gcc $F -O$<
-	-tx1d1p	gcc $F -S -O$<
+.c	-x2d1p	gcc2 -Wall $F -o $F:r.x -O2$<	# .x
+	-tx2d1p	gcc2 -Wall $F -S -O2$<		# .s
+	-o1d1p	gcc2 -Wall $F -c -O2$<		# .o
+	-x1d1p	gcc -Wall $F -O2$<
+	-tx1d1p	gcc -Wall $F -S -O2$<
 	-	(look)
 ^	\xd0\x00
 .O	-d1p	hlk $M $<
